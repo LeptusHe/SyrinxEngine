@@ -1,0 +1,47 @@
+# Syrinx Renderer
+ThirdParty/glew/*
+
+# imgui config file
+*.ini
+
+#Clion files
+.idea/*
+cmake-*
+
+# Visual Studio files
+.vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
