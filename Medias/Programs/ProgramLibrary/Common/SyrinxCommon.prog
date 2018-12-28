@@ -1,0 +1,5 @@
+#ifndef SYRINX_COMMON_SYRINXCOMMON_H
+#define SYRINX_COMMON_SYRINXCOMMON_H
+#include <SamplingCommon.prog>
+
+#endif // SYRINX_COMMON_SYRINXCOMMON_H

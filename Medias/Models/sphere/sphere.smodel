@@ -1,0 +1,3 @@
+<model>
+    <mesh-material-pair mesh-file="sphere001.smesh" material-file="wire_027177027.smat" />
+</model>

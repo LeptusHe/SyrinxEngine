@@ -1,0 +1,4 @@
+<material name="wire_027177027">
+    <input-parameter-set />
+    <shader-file>physical-based-rendering.shader</shader-file>
+</material>

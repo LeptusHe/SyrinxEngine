@@ -1,0 +1,39 @@
+#ifndef SYRINX_LIGHTING_PHONGLIGHTING_H
+#define SYRINX_LIGHTING_PHONGLIGHTING_H
+
+vec3 CalculateAmbient(vec3 ka, vec3 ambientColor)
+{
+    return ka * ambient;
+}
+
+
+vec3 CalculateDiffuse(vec3 kd, vec3 diffuseColor, vec3 lightDir, vec3 normal)
+{
+    lightDir = normalize(lightDir);
+    normal = normalize(normal);
+    return kd * vec3(dot(lightDir, normal)) * diffuseColor;
+}
+
+
+vec3 CalculateSpecular(vec3 ks, vec3 specularColor, vec3 viewDir, vec3 lightDir, vec3 normal, float shininess)
+{
+    viewDir = normalize(viewDir);
+    lightDir = normalize(lightDir);
+    normal = normalize(normal);
+    vec3 reflectDir = -reflect(viewDir, normal);
+    return ks * pow(dot(viewDir, reflectDir), vec3(shininess)) * specularColor;
+}
+
+
+vec3 PhongLighting(vec3 ka, vec3 ambientColor,
+                   vec3 kd, vec3 diffuseColor,
+                   vec3 ks, vec3 specularColor,
+                   vec3 viewDir, vec3 lightDir, vec3 normal, float shininess)
+{
+    vec3 ambient = CalculateAmbient(ka, ambientColor);
+    vec3 diffuse = CalculateDiffuse(kd, diffuseColor, lightDir, normal);
+    vec3 specular = CalculateSpecular(ks, specularColor, viewDir, lightDir, normal, shinness);
+    return ambient + diffuse + specular;
+}
+
+#endif // SYRINX_LIGHTING_PHONGLIGHTING_H

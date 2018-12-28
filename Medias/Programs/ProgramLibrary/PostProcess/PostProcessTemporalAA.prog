@@ -1,0 +1,297 @@
+#ifndef SYRINX_POSTPROCESS_TEMPORALAA_H
+#define SYRINX_POSTPROCESS_TEMPORALAA_H
+#include <MathCommon.prog>
+#include <SamplingCommon.prog>
+#include <PostProcessCommon.prog>
+
+
+#ifndef MOTION_DILATE_WIDTH
+    #define MOTION_DILATE_WIDTH 2
+#endif
+
+#if MOTION_DILATE_WIDTH < 1
+#error "motion dilate width < 1"
+#endif
+
+#ifdef TEMPORALAA_TONE_MAP
+    #error "can not get exposure value"
+#endif
+
+
+vec3 RGBToYCoCg(vec3 RGB)
+{
+    float Y = dot(RGB, vec3(1.0, 2.0, 1.0));
+    float Co = dot(RGB, vec3(2.0, 0.0, -2.0));
+    float Cg = dot(RGB, vec3(-1.0, 2.0, -1.0));
+    return vec3(Y, Co, Cg);
+}
+
+
+vec3 YCoCgToRGB(vec3 YCoCg)
+{
+    float Y = YCoCg.x * 0.25;
+    float Co =  YCoCg.y * 0.25;
+    float Cg = YCoCg.z * 0.25;
+
+    float R = Y + Co - Cg;
+    float G = Y + Cg;
+    float B = Y - Co - Cg;
+    return vec3(R, G, B);
+}
+
+
+vec3 Tonemap(vec3 rgb)
+{
+	float luma = 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+	return rgb / (1.0 + luma);
+}
+
+
+vec3 InvertTonemap(vec3 rgb)
+{
+	float luma = 0.2126 * rgb.r + 0.7152 * rgb.g + 0.0722 * rgb.b;
+	return rgb / (1 - luma);
+}
+
+
+vec4 TransformSceneColor(vec4 rawLinearSceneColor)
+{
+    #ifdef TEMPORALAA_USE_YCOCG
+        return vec4(RGBToYCoCg(rawLinearSceneColor.rgb), rawLinearSceneColor.a);
+    #endif
+    return rawLinearSceneColor;
+}
+
+
+vec3 TransformBackToRawLinearSceneColor(vec3 color)
+{
+#ifdef TEMPORALAA_USE_YCOCG
+    color.rgb = YCoCgToRGB(color.rgb);
+#endif
+    return color;
+}
+
+
+vec4 SampleSceneColor(sampler2D tex, vec2 texCoord)
+{
+    vec4 color = SampleTexture(tex, texCoord);
+    return TransformSceneColor(color);
+}
+
+
+vec3 FindClosestFragment(sampler2D depthTex, vec2 texCoord, out ivec2 outTexelOffset)
+{
+    const vec2 texelSize = vec2(1.0f) / textureSize(depthTex, 0);
+    float depth = SampleTexture(depthTex, texCoord).x;
+    vec3 depthMin = vec3(0.0f, 0.0f, depth);
+    for (int i = 0; i < 5; ++i) {
+        const vec2 texelOffset = vec2(MOTION_DILATE_WIDTH) * vec2(Cross3x3[i]);
+        depth = SampleTexture(depthTex, texCoord + texelOffset * texelSize).x;
+        if (depthMin.z > depth) {
+            depthMin = vec3(texelOffset, depth);
+        }
+    }
+    outTexelOffset = ivec2(depthMin.xy);
+    return vec3(texCoord + depthMin.xy * texelSize, depthMin.z);
+}
+
+
+vec3 FindClosestFragment(sampler2D depthTex, vec2 texCoord)
+{
+    ivec2 texelOffset = ivec2(0);
+    return FindClosestFragment(depthTex, texCoord, texelOffset);
+}
+
+
+void CalculateMinAndMaxNeighborhoodColor(sampler2D sceneTex, vec2 texCoord, out vec3 outNeighborhoodColorMin, out vec3 outNeighborhoodColorMax)
+{
+    const vec2 texSize = vec2(1.0f) / vec2(textureSize(sceneTex, 0));
+    vec3 currentColor = SampleSceneColor(sceneTex, texCoord).rgb;
+    vec3 kernel3x3ColorMin = currentColor;
+    vec3 kernrl3x3ColorMax = currentColor;
+    for (int i = 0; i < 9; ++ i) {
+        vec2 neighborhoodTexCoord = texCoord + vec2(Kernel3x3[i]) * texSize;
+        vec3 neighborhoodColor = SampleSceneColor(sceneTex, neighborhoodTexCoord).rgb;
+        kernel3x3ColorMin = min(kernel3x3ColorMin, neighborhoodColor);
+        kernrl3x3ColorMax = max(kernrl3x3ColorMax, neighborhoodColor);
+    }
+
+    vec3 tap3x3ColorMin = currentColor;
+    vec3 tap3x3ColorMax = currentColor;
+    for (int i = 0; i < 5; i++) {
+        vec2 neighborhoodTexCoord = texCoord + vec2(Tap3x3[i]) * texSize;
+    	vec3 neighborhoodColor = SampleSceneColor(sceneTex, neighborhoodTexCoord).rgb;
+   		tap3x3ColorMin = min(tap3x3ColorMin, neighborhoodColor);
+   		tap3x3ColorMax = max(tap3x3ColorMax, neighborhoodColor);
+    }
+    outNeighborhoodColorMin = 0.5f * (kernel3x3ColorMin + tap3x3ColorMin);
+    outNeighborhoodColorMax = 0.5f * (kernrl3x3ColorMax + tap3x3ColorMax);
+}
+
+
+vec3 ClampHistoryColor(vec3 historyColor, vec3 currentColor, sampler2D currentSceneTex, vec2 texCoord)
+{
+#ifdef TEMPORALAA_USE_YCOCG
+    historyColor = RGBToYCoCg(historyColor);
+    currentColor = RGBToYCoCg(currentColor);
+#endif
+
+    vec3 neighborhoodColorMin = currentColor;
+    vec3 neighborhoodColorMax = currentColor;
+    CalculateMinAndMaxNeighborhoodColor(currentSceneTex, texCoord, neighborhoodColorMin, neighborhoodColorMax);
+    vec3 result = clamp(historyColor, neighborhoodColorMin, neighborhoodColorMax);
+
+#ifdef TEMPORALAA_USE_YCOCG
+    result = YCoCgToRGB(result);
+#endif
+    return result;
+}
+
+
+float min3(float x, float y, float z)
+{
+	return min(x, min(y, z));
+}
+
+
+vec3 ClipToAABB(vec3 historyColor, vec3 minimum, vec3 maximum)
+{
+    vec3 center = vec3(0.5f) * (maximum + minimum);
+    vec3 extents = vec3(0.5f) * (maximum - minimum);
+
+    vec3 offset = historyColor - center;
+    vec3 ts = abs(extents / (offset + vec3(0.0001f)));
+    float t = clamp(min3(ts.x, ts.y, ts.z), 0.0f, 1.0f);
+    vec3 color = center + offset * vec3(t);
+    return color;
+}
+
+
+vec3 ClipHistoryColor(vec3 historyColor, vec3 currentColor, sampler2D currentSceneTex, vec2 texCoord)
+{
+#ifdef TEMPORALAA_USE_YCOCG
+    historyColor = RGBToYCoCg(historyColor);
+    currentColor = RGBToYCoCg(currentColor);
+#endif
+
+    vec3 neighborhoodColorMin = currentColor;
+    vec3 neighborhoodColorMax = currentColor;
+    CalculateMinAndMaxNeighborhoodColor(currentSceneTex, texCoord, neighborhoodColorMin, neighborhoodColorMax);
+    vec3 result = ClipToAABB(historyColor, neighborhoodColorMin, neighborhoodColorMax);
+
+#ifdef TEMPORALAA_USE_YCOCG
+    result = YCoCgToRGB(result);
+#endif
+    return result;
+}
+
+
+float HdrWeightY(float color, float exposure)
+{
+    return rcp(color * exposure + 4.0);
+}
+
+
+float Luma4(vec3 color)
+{
+    return color.r + (2.0 * color.g) + color.b;
+}
+
+
+float HdrWeightLuma4(vec3 color, float exposure)
+{
+    return rcp(Luma4(color) * exposure + 4.0);
+}
+
+
+float GetSceneColorLuma4(vec4 color)
+{
+#ifdef TEMPORALAA_USE_YCOCG
+    return color.x;
+#endif
+    return Luma4(color.rgb);
+}
+
+
+float GetSceneColorHdrWeight(vec4 color, float exposure)
+{
+#ifdef TEMPORALAA_USE_YCOCG
+    return HdrWeightY(color.x, exposure);
+#endif
+    return HdrWeightLuma4(color.rgb, exposure);
+}
+
+
+vec4 SharpenColor(sampler2D sceneSampler, vec2 texCoord)
+{
+    const float weights[5] = float[5](-1.0, -1.0, 5.0, -1.0, -1.0);
+    const uvec2 texSize = textureSize(sceneSampler, 0);
+    const vec2 texelSize = vec2(1.0) / vec2(texSize);
+
+    vec4 filteredResult = vec4(0.0);
+    vec4 totalWeight = vec4(0.0);
+    for (int i = 0; i < 5; ++ i) {
+        vec2 sampleTexCoord = texCoord + vec2(Tap3x3[i]) * texelSize;
+        vec4 sampleColor = SampleSceneColor(sceneSampler, sampleTexCoord);
+        vec4 sampleWeight = vec4(weights[i]);
+#ifdef TEMPORALAA_TONE_MAP
+        sampleWeight *= GetSceneColorHdrWeight(sampleColor, 1.0);
+        totalWeight += sampleWeight;
+#endif
+        filteredResult += sampleWeight * sampleColor;
+    }
+
+#ifdef TEMPORALAA_TONE_MAP
+    filteredResult *= vec4(1.0) / totalWeight;
+#endif
+
+    filteredResult.rgb = TransformBackToRawLinearSceneColor(filteredResult.rgb);
+    return filteredResult;
+}
+
+
+float CalculateBlendFactor(vec4 filteredSceneColor, vec4 historySceneColor, float velocity)
+{
+    float lumaFiltered = GetSceneColorLuma4(filteredSceneColor);
+    float lumaHistory = GetSceneColorLuma4(historySceneColor);
+    float blendFactor = 0.05;
+    blendFactor = Lerp(blendFactor, 0.2, Saturate(velocity / 40.0));
+    blendFactor = max(blendFactor, Saturate(0.01 * lumaHistory / abs(lumaFiltered - lumaHistory)));
+    return blendFactor;
+}
+
+
+vec3 BicubicSampleCatmullRom(sampler2D tex, vec2 samplePos, vec2 texDim)
+{
+    vec2 invTextureSize = vec2(1.0) / texDim;
+    vec2 tc = floor(samplePos - vec2(0.5)) + vec2(0.5);
+    vec2 f = samplePos - tc;
+    vec2 f2 = f * f;
+    vec2 f3 = f2 * f;
+
+    vec2 w0 = f2 - 0.5 * (f3 + f);
+    vec2 w1 = 1.5 * f3 - 2.5 * f2 + 1;
+    vec2 w3 = 0.5 * (f3 - f2);
+    vec2 w2 = 1 - w0 - w1 - w3;
+
+    vec2 w12 = w1 + w2;
+
+    vec2 tc0 = (tc - 1) * invTextureSize;
+    vec2 tc12 = (tc + w2 / w12) * invTextureSize;
+    vec2 tc3 = (tc + 2) * invTextureSize;
+
+    vec3 result =
+        texture(tex, vec2(tc0.x,  tc0.y), 0).rgb  * (w0.x  * w0.y) +
+        texture(tex, vec2(tc0.x,  tc12.y), 0).rgb * (w0.x  * w12.y) +
+        texture(tex, vec2(tc0.x,  tc3.y), 0).rgb  * (w0.x  * w3.y) +
+        texture(tex, vec2(tc12.x, tc0.y), 0).rgb  * (w12.x * w0.y) +
+        texture(tex, vec2(tc12.x, tc12.y), 0).rgb * (w12.x * w12.y) +
+        texture(tex, vec2(tc12.x, tc3.y), 0).rgb  * (w12.x * w3.y) +
+        texture(tex, vec2(tc3.x,  tc0.y), 0).rgb  * (w3.x  * w0.y) +
+        texture(tex, vec2(tc3.x,  tc12.y), 0).rgb * (w3.x  * w12.y) +
+        texture(tex, vec2(tc3.x,  tc3.y), 0).rgb  * (w3.x  * w3.y);
+
+    return result;
+}
+
+#endif // SYRINX_POSTPROCESS_TEMPORALAA_H

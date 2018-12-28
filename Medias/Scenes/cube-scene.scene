@@ -1,0 +1,7 @@
+<scene>
+    <node name="cube-entity">
+        <position x="0.0" y="10.0" z="0.0"/>
+        <scale x="10" y="10" z="10"/>
+        <entity name="cube" model-file="cube.smodel"/>
+    </node>
+</scene>

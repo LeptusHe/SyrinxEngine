@@ -1,0 +1,17 @@
+<material name="Glass">
+    <input-parameter-set>
+        <parameter name="ambientTex" type="texture-2d">
+            <image-file>glass_refl.png</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+        <parameter name="diffuseTex" type="texture-2d">
+            <image-file>glass_dif.png</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+        <parameter name="normalTex" type="texture-2d">
+            <image-file>glass_ddn.png</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+    </input-parameter-set>
+    <shader-file>default-shader-file.shader</shader-file>
+</material>

@@ -1,0 +1,10 @@
+<material name="nanosuit-mat">
+    <input-parameter-set>
+        <parameter name="diffuseTex" type="texture-2d">
+            <image-file>default.png</image-file>
+            <image-format>rgba8</image-format>
+        </parameter>
+        <parameter name="skyColor" type="color" value="0.5 0.0 0.5 1.0"/>
+    </input-parameter-set>
+    <shader-file>HemisphereLighting.shader</shader-file>
+</material>

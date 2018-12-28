@@ -1,0 +1,12 @@
+<material name="material-name">
+    <input-parameter-set>
+        <parameter name="intParameter" type="int" value="1.0 0.0 0.0 1.0"/>
+        <parameter name="floatParameter" type="float" value="1.0 0.0 0.0"/>
+        <parameter name="colorParameter" type="color" value="1.0 0.0 0.0 1.0"/>
+        <parameter name="texture2DParameter" type="texture-2d">
+            <image-file>image-file-name</image-file>
+            <image-format>rgb8</image-format>
+        </parameter>
+    </input-parameter-set>
+    <shader-file>shader-file.shader</shader-file>
+</material>

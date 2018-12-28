@@ -1,0 +1,27 @@
+#ifndef SYRINX_COMMON_MATHCOMMON_H
+#define SYRINX_COMMON_MATHCOMMON_H
+
+#define Lerp mix
+#define Saturate(x) clamp(x, 0.0, 1.0)
+
+
+float rcp(float x)
+{
+    float result = 1.0 / x;
+    if (isnan(result)) {
+        return 0.0;
+    }
+    return result;
+}
+
+
+vec3 rcp(vec3 value)
+{
+    vec3 result = vec3(1.0) / value;
+    if (any(isnan(result))) {
+        return vec3(0.0);
+    }
+    return result;
+}
+
+#endif // SYRINX_COMMON_MATHCOMMON_H

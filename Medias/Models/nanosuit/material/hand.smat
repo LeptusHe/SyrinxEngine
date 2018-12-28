@@ -1,0 +1,21 @@
+<material name="Hand">
+    <input-parameter-set>
+        <parameter name="ambientTex" type="texture-2d">
+            <image-file>hand_showroom_refl.png</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+        <parameter name="diffuseTex" type="texture-2d">
+            <image-file>hand_dif.png</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+        <parameter name="specularTex" type="texture-2d">
+            <image-file>hand_showroom_spec.png</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+        <parameter name="normalTex" type="texture-2d">
+            <image-file>hand_showroom_ddn.png</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+    </input-parameter-set>
+    <shader-file>default-shader-file.shader</shader-file>
+</material>

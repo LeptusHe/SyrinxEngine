@@ -1,0 +1,6 @@
+<material name="display-red-color">
+    <input-parameter-set>
+        <parameter name="displayColor" type="Color" value="1.0 0.0 0.0 1.0"/>
+    </input-parameter-set>
+    <shader-file>constant-color.shader</shader-file>
+</material>
