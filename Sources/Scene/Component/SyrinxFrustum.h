@@ -34,8 +34,8 @@ public:
 
 private:
     float mFieldOfView;
-    float mNearPlane;
-    float mFarPlane;
+    float mNearClipDistance;
+    float mFarClipDistance;
     ViewportRect mViewportRect;
     RenderTarget *mRenderTarget;
 };

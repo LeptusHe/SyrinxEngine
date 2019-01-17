@@ -15,8 +15,8 @@ ViewportRect::ViewportRect(size_t x, size_t y, size_t width, size_t height)
 
 Frustum::Frustum()
     : mFieldOfView(90.0f)
-    , mNearPlane(0.1f)
-    , mFarPlane(100.0f)
+    , mNearClipDistance(0.1f)
+    , mFarClipDistance(100.0f)
     , mViewportRect(0, 0, 800, 800)
     , mRenderTarget(nullptr)
 {
@@ -33,17 +33,17 @@ void Frustum::setFieldOfView(float fieldOfView)
 
 void Frustum::setNearPlane(float nearPlane)
 {
-    mNearPlane = nearPlane;
-    SYRINX_ENSURE(mNearPlane > 0.0f);
-    SYRINX_ENSURE(mNearPlane < mFarPlane);
+    mNearClipDistance = nearPlane;
+    SYRINX_ENSURE(mNearClipDistance > 0.0f);
+    SYRINX_ENSURE(mNearClipDistance < mFarClipDistance);
 }
 
 
 void Frustum::setFarPlane(float farPlane)
 {
-    mFarPlane = farPlane;
-    SYRINX_ENSURE(mFarPlane > 0.0f);
-    SYRINX_ENSURE(mNearPlane < mFarPlane);
+    mFarClipDistance = farPlane;
+    SYRINX_ENSURE(mFarClipDistance > 0.0f);
+    SYRINX_ENSURE(mNearClipDistance < mFarClipDistance);
 }
 
 
@@ -69,13 +69,13 @@ float Frustum::getFieldOfView() const
 
 float Frustum::getNearPlane() const
 {
-    return mNearPlane;
+    return mNearClipDistance;
 }
 
 
 float Frustum::getFarPlane() const
 {
-    return mFarPlane;
+    return mFarClipDistance;
 }
 
 
@@ -95,7 +95,7 @@ Matrix4x4 Frustum::getPerspectiveMatrix() const
 {
     auto fovy = static_cast<float>(glm::radians(mFieldOfView / 2.0));
     auto aspect = static_cast<float>(mViewportRect.width) / static_cast<float>(mViewportRect.height);
-    return glm::perspective(fovy, aspect, mNearPlane, mFarPlane);
+    return glm::perspective(fovy, aspect, mNearClipDistance, mFarClipDistance);
 }
 
 } // namespace Syrinx
