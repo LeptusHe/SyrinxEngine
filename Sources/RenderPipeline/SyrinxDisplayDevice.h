@@ -7,7 +7,7 @@ namespace Syrinx {
 class DisplayDevice {
 public:
     DisplayDevice();
-    ~DisplayDevice() = default;
+    ~DisplayDevice();
     DisplayDevice(const DisplayDevice&) = delete;
     DisplayDevice& operator=(const DisplayDevice&) = delete;
 

@@ -27,6 +27,12 @@ DisplayDevice::DisplayDevice()
 }
 
 
+DisplayDevice::~DisplayDevice()
+{
+    glfwTerminate();
+}
+
+
 RenderWindow* DisplayDevice::createWindow(const std::string& title, unsigned width, unsigned height)
 {
     SYRINX_EXPECT(!title.empty() && width > 0 && height > 0);
