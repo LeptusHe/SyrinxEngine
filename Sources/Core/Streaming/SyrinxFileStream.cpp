@@ -12,7 +12,7 @@ FileStream::FileStream(const std::string& fileName, FileAccessMode accessMode)
     , mFileStream(nullptr)
     , mAccessMode(accessMode)
 {
-    auto openMode = std::ios::binary;
+    std::ios::openmode openMode = std::ios::binary;
     switch (accessMode) {
         case FileAccessMode::READ: openMode |= std::ios::in; break;
         case FileAccessMode::WRITE: openMode |= std::ios::out; break;
