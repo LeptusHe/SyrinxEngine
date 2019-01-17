@@ -29,4 +29,40 @@ inline Vector3f Normalize(const Vector3f& vector)
     return glm::normalize(vector);
 }
 
+
+inline Vector3f Cross(const Vector3f& lhs, const Vector3f& rhs)
+{
+    return glm::cross(lhs, rhs);
+}
+
+
+inline float Dot(const Vector3f& lhs, const Vector3f& rhs)
+{
+    return glm::dot(lhs, rhs);
+}
+
+
+inline Matrix4x4 CalculateViewMatrix(const Point3f& eyePosition, const Point3f& lookAt, const Vector3f& upVector)
+{
+    return glm::lookAt(eyePosition, lookAt, upVector);
+}
+
+
+inline Matrix4x4 CalculateProjectionMatrix(float FOVy, float aspect, float nearClipDistance, float farClipDistance)
+{
+    return glm::perspective(FOVy, aspect, nearClipDistance, farClipDistance);
+}
+
+
+inline float ConvertDegreeToRadians(float angle)
+{
+    return glm::radians(angle);
+}
+
+
+inline float Length(const Normal3f& normal)
+{
+    return glm::length(normal);
+}
+
 } // namespace Syrinx
