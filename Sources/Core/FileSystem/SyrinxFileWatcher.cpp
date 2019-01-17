@@ -1,4 +1,5 @@
 #include "FileSystem/SyrinxFileWatcher.h"
+#include "Common/SyrinxPlatform.h"
 #include "Common/SyrinxAssert.h"
 #include "Exception/SyrinxException.h"
 #include "Logging/SyrinxLogManager.h"
@@ -79,8 +80,12 @@ bool FileWatcher::isModified()
     bool isModified = lastWriteTime.time_since_epoch().count() > mLastWriteTime.time_since_epoch().count();
     if (isModified) {
         mLastWriteTime = lastWriteTime;
+#ifdef SYRINX_OS_WINDOWS
+        SYRINX_INFO_FMT("file [{}] is modified", getFilePath());
+#else
         std::time_t time = std::chrono::system_clock::to_time_t(mLastWriteTime);
         SYRINX_INFO_FMT("file [{}] is modified in time [{}]", getFilePath(), std::ctime(&time));
+#endif
     }
     return isModified;
 }
