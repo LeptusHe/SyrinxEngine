@@ -1,5 +1,6 @@
 # Syrinx Renderer
 ThirdParty/glew/*
+Build/*
 
 # imgui config file
 *.ini
