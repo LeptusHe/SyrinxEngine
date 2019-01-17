@@ -79,7 +79,7 @@ bool ProgramStage::create()
     glLinkProgram(programStageHandle);
 
     //GLuint programStageHandle = glCreateShaderProgramv(ConstantTranslator::getProgramStageType(getType()), 1, &source);
-    int maxInfoLogSize = 512;
+    constexpr int maxInfoLogSize = 512;
     char infoLog[maxInfoLogSize];
     GLint succeedToLink = false;
     glGetProgramiv(programStageHandle, GL_LINK_STATUS, &succeedToLink);
