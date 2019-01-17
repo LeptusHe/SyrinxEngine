@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iterator>
 #include "Common/SyrinxAssert.h"
+#include "Common/SyrinxMemory.h"
 #include "Logging/SyrinxLogManager.h"
 
 namespace Syrinx {
@@ -17,7 +18,7 @@ FileStream::FileStream(const std::string& fileName, FileAccessMode accessMode)
         case FileAccessMode::READ: openMode |= std::ios::in; break;
         case FileAccessMode::WRITE: openMode |= std::ios::out; break;
     }
-    mFileStream = new std::fstream(fileName, openMode);
+    mFileStream = SYRINX_NEW std::fstream(fileName, openMode);
 
     if (accessMode == FileAccessMode::READ) {
         mFileStream->seekg(0, std::ios_base::end);
@@ -154,7 +155,7 @@ void FileStream::close()
     if (mFileStream) {
         mFileStream->flush();
         mFileStream->close();
-        delete mFileStream;
+        SYRINX_DELETE mFileStream;
         mFileStream = nullptr;
     }
     SYRINX_ENSURE(!mFileStream);

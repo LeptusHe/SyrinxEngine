@@ -1,5 +1,6 @@
 #include "Image/SyrinxImage.h"
 #include "Common/SyrinxAssert.h"
+#include "Common/SyrinxMemory.h"
 
 namespace Syrinx {
 
@@ -42,7 +43,7 @@ Image::Image(const std::string& name, ImageFormat format, int width, int height,
 
     SYRINX_EXPECT(!mData);
     auto byteSize = getSizeOfImageFormat(mFormat) * mWidth * mHeight;
-    mData = new uint8_t[byteSize];
+    mData = SYRINX_NEW uint8_t[byteSize];
     std::memcpy(mData, data, byteSize);
     SYRINX_ENSURE(mData);
 }
@@ -76,7 +77,7 @@ Image::Image(Image&& image) noexcept
 
 Image::~Image()
 {
-    delete[] mData;
+    SYRINX_DELETE mData;
 };
 
 

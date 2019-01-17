@@ -2,6 +2,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #include "Common/SyrinxAssert.h"
+#include "Common/SyrinxMemory.h"
 #include "Exception/SyrinxException.h"
 
 namespace Syrinx {
@@ -86,7 +87,7 @@ void ImageReader::checkImageState(const std::string& name, ImageFormat format, u
     }
 
     if (actualChannels != requiredChannels) {
-        delete[] data;
+        SYRINX_DELETE_ARRAY(data);
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
                                    "fail to load image [path={}, format={}] because image channels is invalid [actual-channels={}, required-channels={}]",
                                    name,

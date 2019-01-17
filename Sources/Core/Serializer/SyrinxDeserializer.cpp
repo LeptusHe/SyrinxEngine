@@ -1,5 +1,6 @@
 #include "Serializer/SyrinxDeserializer.h"
 #include "Common/SyrinxAssert.h"
+#include "Common/SyrinxMemory.h"
 #include "Exception/SyrinxException.h"
 #include "Logging/SyrinxLogManager.h"
 
@@ -137,11 +138,11 @@ uint64_t Deserializer::readUInt64()
 std::string Deserializer::readString()
 {
     uint32_t length = readUInt32();
-    int8_t *data = new int8_t[length + 1];
+    auto *data = SYRINX_NEW_ARRAY(int8_t, length + 1);
     readData(data, length);
     data[length] = '\0';
     std::string ret(reinterpret_cast<char*>(data));
-    delete[] data;
+    SYRINX_DELETE_ARRAY(data);
     return ret;
 }
 
