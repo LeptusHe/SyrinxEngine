@@ -32,6 +32,7 @@ add_subdirectory(RenderPipeline)
 add_subdirectory(TextureMipMap)
 add_subdirectory(ToneMapping)
 add_subdirectory(BindlessTexture)
+add_subdirectory(NormalMap)
 
 
 add_custom_target(AllSamples)
