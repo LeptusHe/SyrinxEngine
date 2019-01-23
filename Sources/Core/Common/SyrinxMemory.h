@@ -29,4 +29,11 @@ inline void installMemoryLeakDetector()
     #define SYRINX_DELETE_ARRAY(ptr)  delete[] ptr;
 #endif
 
+#else
+
+#define SYRINX_NEW new
+#define SYRINX_DELETE delete
+#define SYRINX_NEW_ARRAY(T, size) new T[size]
+#define SYRINX_DELETE_ARRAY(ptr)  delete[] ptr;
+
 #endif

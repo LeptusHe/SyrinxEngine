@@ -18,7 +18,10 @@ DateTime DateTime::now()
     #define LOCALTIME(time, tm) localtime_s((&tm), (&time))
 #elif defined(SYRINX_OS_LINUX)
     #define LOCALTIME(time, tm) localtime_r((&time), (&tm))
+#else
+    #define LOCALTIME(time, tm) localtime_r((&time), (&tm))
 #endif
+
     struct tm time = {};
     LOCALTIME(timeSinceEpoch, time);
 
