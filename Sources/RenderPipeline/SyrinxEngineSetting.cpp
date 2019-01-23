@@ -15,6 +15,9 @@ void DefaultDebugHandler(GLenum source,
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
         return;
 
+    if (severity == GL_DEBUG_SEVERITY_LOW)
+        return;
+
     //TODO: format debug meesage
     std::cout << "---------------" << std::endl;
     std::cout << "Debug message (" << id << "): " << message << std::endl;
