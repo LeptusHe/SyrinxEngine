@@ -55,8 +55,9 @@ Material* MaterialParser::parseMaterial(const std::string& fileName)
         Shader *shader = parseShader(getText(shaderFileNode));
         material->setShader(shader);
 
-        parseMaterialParameterSet(getChild(materialNode, "input-parameter-set"));
-
+        if (auto materialParameterSetNode = materialNode.child("input-parameter-set"); !materialParameterSetNode.empty()) {
+            parseMaterialParameterSet(materialParameterSetNode);
+        }
     } catch (std::exception& e) {
         delete material;
         clear();
@@ -91,8 +92,9 @@ Shader* MaterialParser::parseShader(const std::string& fileName)
     std::string shaderName = getAttribute(shaderNode, "name").as_string();
     mShader = mMaterialManager->createShader(fileName);
 
-    auto shaderParameterSetNode = getChild(shaderNode, "input-parameter-set");
-    mShader->addShaderParameterSet(parseShaderParameterSet(shaderParameterSetNode));
+    if (auto shaderParameterSetNode = shaderNode.child("input-parameter-set"); !shaderParameterSetNode.empty()) {
+        mShader->addShaderParameterSet(parseShaderParameterSet(shaderParameterSetNode));
+    }
     mShader->addShaderPassSet(parseShaderPassSet(shaderNode));
     return mShader;
 }
