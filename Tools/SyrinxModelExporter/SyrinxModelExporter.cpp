@@ -35,11 +35,13 @@ void ModelExporter::exportModel(const std::string& modelFile, const std::string&
     mModelFile = ToLower(modelFile);
     mModelOutputDirectory = outputDirectory;
     mOptions = options;
-    mMeshOutputDirectory = FileSystem::combine(outputDirectory, "./mesh");
-    mMaterialOutputDirectory = FileSystem::combine(outputDirectory, "./material");
-    FileSystem::createDirectory(mModelOutputDirectory);
-    FileSystem::createDirectory(mMeshOutputDirectory);
-    FileSystem::createDirectory(mMaterialOutputDirectory);
+    auto fileSystem = mFileManager->getFileSystem();
+    SYRINX_ASSERT(fileSystem);
+    mMeshOutputDirectory = fileSystem->combine(outputDirectory, "./mesh");
+    mMaterialOutputDirectory = fileSystem->combine(outputDirectory, "./material");
+    fileSystem->createDirectory(mModelOutputDirectory);
+    fileSystem->createDirectory(mMeshOutputDirectory);
+    fileSystem->createDirectory(mMaterialOutputDirectory);
 
     SYRINX_EXPECT(!mModelFile.empty());
     SYRINX_EXPECT(!mModelOutputDirectory.empty());
@@ -65,9 +67,11 @@ void ModelExporter::processScene(const aiScene& scene)
     SYRINX_EXPECT(mModelElement);
 	processNode(*scene.mRootNode, scene);
 
-    const std::string modelFileName = FileSystem::getFileName(mModelFile);
+	auto fileSystem = mFileManager->getFileSystem();
+	SYRINX_ASSERT(fileSystem);
+    const std::string modelFileName = fileSystem->getFileName(mModelFile);
     const std::string exportedModelFileName = modelFileName.substr(0, modelFileName.find_last_of('.')) + ".smodel";
-    const std::string modelFilePath = FileSystem::combine(mModelOutputDirectory, exportedModelFileName);
+    const std::string modelFilePath = fileSystem->combine(mModelOutputDirectory, exportedModelFileName);
     document.save_file(modelFilePath.c_str(), "    ", pugi::format_indent | pugi::format_no_declaration);
     SYRINX_INFO_FMT("succeed to export model file [{}]", modelFilePath);
 }
@@ -91,7 +95,9 @@ void ModelExporter::processMeshAndMaterial(aiMesh& mesh, const aiScene& scene)
     MeshExporter meshExporter(mFileManager);
     const std::string meshName = ToLower(mesh.mName.C_Str());
 
-    const std::string meshFilePath = FileSystem::combine(mMeshOutputDirectory, meshName + ".smesh");
+    auto fileSystem = mFileManager->getFileSystem();
+    SYRINX_ASSERT(fileSystem);
+    const std::string meshFilePath = fileSystem->combine(mMeshOutputDirectory, meshName + ".smesh");
     meshExporter.exportMesh(mesh, meshFilePath);
     SYRINX_INFO_FMT("succeed to export mesh file [{}]", meshFilePath);
 
@@ -104,7 +110,7 @@ void ModelExporter::processMeshAndMaterial(aiMesh& mesh, const aiScene& scene)
         materialName = tmpMaterialName.C_Str();
     }
     materialName = ToLower(materialName);
-    const std::string materialFilePath = FileSystem::combine(mMaterialOutputDirectory, materialName + ".smat");
+    const std::string materialFilePath = fileSystem->combine(mMaterialOutputDirectory, materialName + ".smat");
     materialExporter.exportMaterial(*meshMaterial, materialFilePath, mOptions);
     SYRINX_INFO_FMT("succeed to export material file [{}]", materialFilePath);
 

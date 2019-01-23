@@ -36,10 +36,11 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-        modelFilePath = Syrinx::FileSystem::weaklyCanonical(result["f"].as<std::string>());
-        std::string outputDirectory = Syrinx::FileSystem::getParentPath(modelFilePath);
+        Syrinx::FileSystem fileSystem;
+        modelFilePath = fileSystem.weaklyCanonical(result["f"].as<std::string>());
+        std::string outputDirectory = fileSystem.getParentPath(modelFilePath);
         if (result.count("o") != 0) {
-            outputDirectory = Syrinx::FileSystem::weaklyCanonical(result["o"].as<std::string>());
+            outputDirectory = fileSystem.weaklyCanonical(result["o"].as<std::string>());
         }
 
         Syrinx::Tool::ExporterOptions exporterOptions;
