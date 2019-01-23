@@ -70,11 +70,12 @@ void MeshGeometryDeserializer::deserializeData()
         uint32_t numVertex = readUInt32();
         Point3f *positionSet = readPositionSet(numVertex);
         Normal3f *normalSet = readNormalSet(numVertex);
+        auto [tangentSet, bitangentSet] = readTangentSetAndBitangentSet(numVertex);
         std::vector<UVChannel*> uvChannelSet;
         readUVChannelSet(numVertex, &uvChannelSet);
         uint32_t numTriangle;
         uint32_t *indexSet = readIndexSet(&numTriangle);
-        MeshGeometry meshGeometry(meshName, numVertex, positionSet, normalSet, uvChannelSet, numTriangle, indexSet);
+        MeshGeometry meshGeometry(meshName, numVertex, positionSet, normalSet, tangentSet, bitangentSet, uvChannelSet, numTriangle, indexSet);
         *mMeshGeometry = std::move(meshGeometry);
     } catch (std::exception& e) {
 		SYRINX_ERROR_FMT("fail to deserialize mesh file [{}] because of [{}]", mDataStream->getName(), e.what());
@@ -113,13 +114,31 @@ Point3f* MeshGeometryDeserializer::readPositionSet(uint32_t numVertex)
 
 Normal3f* MeshGeometryDeserializer::readNormalSet(uint32_t numVertex)
 {
+    SYRINX_EXPECT(numVertex > 0);
     bool normalSetExist = readBool();
-    if (!normalSetExist)
+    if (!normalSetExist) {
         return nullptr;
+    }
 
     auto *normalSet = new Normal3f[numVertex];
     readFloats(reinterpret_cast<float*>(normalSet), 3 * numVertex);
     return normalSet;
+}
+
+
+std::pair<Normal3f*, Normal3f*> MeshGeometryDeserializer::readTangentSetAndBitangentSet(uint32_t numVertex)
+{
+    SYRINX_EXPECT(numVertex > 0);
+    bool tangentSetAndBitangentSetExists = readBool();
+    if (!tangentSetAndBitangentSetExists) {
+        return {nullptr, nullptr};
+    }
+
+    auto *tangentSet = new Normal3f[numVertex];
+    auto *bitangentSet = new Normal3f[numVertex];
+    readFloats(reinterpret_cast<float*>(tangentSet), 3 * numVertex);
+    readFloats(reinterpret_cast<float*>(bitangentSet), 3 * numVertex);
+    return {tangentSet, bitangentSet};
 }
 
 

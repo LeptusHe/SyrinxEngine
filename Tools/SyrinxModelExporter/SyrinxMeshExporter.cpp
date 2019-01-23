@@ -42,6 +42,24 @@ void MeshExporter::exportMesh(const aiMesh& mesh, const std::string& outputFileN
         }
     }
 
+
+    Normal3f *tangentSet = nullptr;
+    Normal3f *bitangentSet = nullptr;
+    if (mesh.HasTangentsAndBitangents()) {
+        tangentSet = new Normal3f[numTriangle];
+        bitangentSet = new Normal3f[numTriangle];
+        for (int i = 0; i < numTriangle; ++ i) {
+            aiVector3D tangent = mesh.mTangents[i];
+            aiVector3D bitangent = mesh.mBitangents[i];
+            tangentSet[i][0] = tangent.x;
+            tangentSet[i][1] = tangent.y;
+            tangentSet[i][2] = tangent.z;
+            bitangentSet[i][0] = bitangent.x;
+            bitangentSet[i][1] = bitangent.y;
+            bitangentSet[i][2] = bitangent.z;
+        }
+    }
+
     std::vector<UVChannel*> uvChannelSet;
     for (unsigned int i = 0; i < mesh.GetNumUVChannels(); ++i) {
         const int numComponent = mesh.mNumUVComponents[i];
@@ -68,7 +86,7 @@ void MeshExporter::exportMesh(const aiMesh& mesh, const std::string& outputFileN
         }
     }
 
-    MeshGeometry meshGeometry(mesh.mName.C_Str(), mesh.mNumVertices, positionSet, normalSet, uvChannelSet, mesh.mNumFaces, indexSet);
+    MeshGeometry meshGeometry(mesh.mName.C_Str(), mesh.mNumVertices, positionSet, normalSet, tangentSet, bitangentSet, uvChannelSet, mesh.mNumFaces, indexSet);
     MeshGeometrySerializer meshGeometrySerializer;
 
     auto fileStream = mFileManager->openFile(outputFileName, FileAccessMode::WRITE);

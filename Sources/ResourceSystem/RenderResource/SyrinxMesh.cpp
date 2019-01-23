@@ -47,8 +47,12 @@ void Mesh::createVertexInputState()
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState, "mesh [{}] does not have normal", getName());
     }
 
-    mVertexInputState = new VertexInputState("[name=" + getName() + ", type=vertex input state]");
+    if (!mMeshGeometry->tangentSet) {
+        SYRINX_ASSERT(!mMeshGeometry->bitangentSet);
+        SYRINX_INFO_FMT("mesh [{}] doesn't have tangent and bitangent attribute", getName());
+    }
 
+    mVertexInputState = new VertexInputState("[name=" + getName() + ", type=vertex input state]");
 
     auto positionBuffer = createVertexBufferForVertexAttribute("position", 3 * sizeof(float), getPositionSet());
     mVertexInputState->addVertexAttributeDescription({0, VertexAttributeSemantic::Position, VertexAttributeDataType::FLOAT3});
@@ -58,6 +62,22 @@ void Mesh::createVertexInputState()
     mVertexInputState->addVertexAttributeDescription({1, VertexAttributeSemantic::Normal, VertexAttributeDataType::FLOAT3});
     mVertexInputState->addVertexDataDescription({normalBuffer, 1, 0, 3 * sizeof(float)});
 
+    uint8_t attributeIndex = 2;
+    if (mMeshGeometry->tangentSet) {
+        SYRINX_ASSERT(mMeshGeometry->bitangentSet);
+
+        auto tangentBuffer = createVertexBufferForVertexAttribute("tangent", 3 * sizeof(float), getTangentSet());
+        mVertexInputState->addVertexAttributeDescription({attributeIndex, VertexAttributeSemantic::Tangent, VertexAttributeDataType::FLOAT3});
+        mVertexInputState->addVertexDataDescription({tangentBuffer, attributeIndex, 0, 3 * sizeof(float)});
+        attributeIndex += 1;
+
+        auto bitangentBuffer = createVertexBufferForVertexAttribute("bitangent", 3 * sizeof(float), getBitangentSet());
+        mVertexInputState->addVertexAttributeDescription({attributeIndex, VertexAttributeSemantic::Bitangent, VertexAttributeDataType::FLOAT3});
+        mVertexInputState->addVertexDataDescription({bitangentBuffer, attributeIndex, 0, 3 * sizeof(float)});
+        attributeIndex += 1;
+    }
+
+
     if (mMeshGeometry->uvChannelSet.empty()) {
         SYRINX_DEBUG_FMT("mesh [{}] does not have tex coord", getName());
     } else {
@@ -65,8 +85,8 @@ void Mesh::createVertexInputState()
             SYRINX_DEBUG_FMT("mesh [{}] has {} tex coord channel", getName(), mMeshGeometry->uvChannelSet.size());
         }
         auto texCoordBuffer = createVertexBufferForVertexAttribute("tex coord", getUVChannel(0)->numElement * sizeof(float), getUVChannel(0)->uvSet);
-        mVertexInputState->addVertexAttributeDescription({2, VertexAttributeSemantic::TexCoord, VertexAttributeDataType::FLOAT2});
-        mVertexInputState->addVertexDataDescription({texCoordBuffer, 2, 0, 2 * sizeof(float)});
+        mVertexInputState->addVertexAttributeDescription({attributeIndex, VertexAttributeSemantic::TexCoord, VertexAttributeDataType::FLOAT2});
+        mVertexInputState->addVertexDataDescription({texCoordBuffer, attributeIndex, 0, 2 * sizeof(float)});
     }
     mVertexInputState->addIndexBuffer(createIndexBuffer());
     mVertexInputState->create();
@@ -107,6 +127,20 @@ const Normal3f* Mesh::getNormalSet() const
 {
     SYRINX_EXPECT(mMeshGeometry);
     return mMeshGeometry->normalSet;
+}
+
+
+const Normal3f* Mesh::getTangentSet() const
+{
+    SYRINX_EXPECT(mMeshGeometry);
+    return mMeshGeometry->tangentSet;
+}
+
+
+const Normal3f* Mesh::getBitangentSet() const
+{
+    SYRINX_EXPECT(mMeshGeometry);
+    return mMeshGeometry->bitangentSet;
 }
 
 

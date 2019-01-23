@@ -19,6 +19,7 @@ private:
     bool isClean() const override;
     void writePositionSet();
     void writeNormalSet();
+    void writeTangentAndBitangentSet();
     void writeUVChannelSet();
     void writeIndexSet();
 

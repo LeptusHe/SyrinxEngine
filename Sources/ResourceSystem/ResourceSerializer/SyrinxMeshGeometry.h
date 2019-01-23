@@ -21,7 +21,9 @@ public:
 class MeshGeometry {
 public:
     MeshGeometry();
-    MeshGeometry(const std::string& meshName, uint32_t vertexNumber, Point3f *positions, Normal3f *normals, const std::vector<UVChannel*>& uvChannels, uint32_t triangleNumber, uint32_t *indices);
+    MeshGeometry(const std::string& meshName, uint32_t vertexNumber,
+                 Point3f *positions, Normal3f *normals, Normal3f *tangents, Normal3f *bitangents,
+                 const std::vector<UVChannel*>& uvChannels, uint32_t triangleNumber, uint32_t *indices);
     MeshGeometry(const MeshGeometry& meshGeometry);
     MeshGeometry(MeshGeometry&& meshGeometry) noexcept;
     MeshGeometry& operator=(const MeshGeometry& meshGeometry);
@@ -41,6 +43,8 @@ public:
     uint32_t numVertex;
     Point3f *positionSet;
     Normal3f *normalSet;
+    Normal3f *tangentSet;
+    Normal3f *bitangentSet;
     std::vector<UVChannel*> uvChannelSet;
     uint32_t numTriangle;
     uint32_t *indexSet;

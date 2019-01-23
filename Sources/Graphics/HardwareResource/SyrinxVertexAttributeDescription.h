@@ -10,7 +10,8 @@ BETTER_ENUM(VertexAttributeSemantic, uint8_t,
     Position,
     Normal,
     TexCoord,
-    Tangent
+    Tangent,
+    Bitangent
 );
 
 

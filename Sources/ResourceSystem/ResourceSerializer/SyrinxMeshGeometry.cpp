@@ -43,12 +43,16 @@ MeshGeometry::MeshGeometry(const std::string& meshName,
                            uint32_t vertexNumber,
                            Point3f *positions,
                            Normal3f *normals,
+                           Normal3f *tangents,
+                           Normal3f *bitangents,
                            const std::vector<UVChannel*>& uvChannels,
                            uint32_t triangleNumber,
                            uint32_t *indices)
     : name(meshName)
     , numVertex(vertexNumber)
     , positionSet(positions)
+    , tangentSet(tangents)
+    , bitangentSet(bitangents)
     , normalSet(normals)
     , uvChannelSet(uvChannels)
     , numTriangle(triangleNumber)
@@ -63,6 +67,8 @@ MeshGeometry::MeshGeometry()
     , numVertex(0)
     , positionSet(nullptr)
     , normalSet(nullptr)
+    , tangentSet(nullptr)
+    , bitangentSet(nullptr)
     , uvChannelSet()
     , numTriangle(0)
     , indexSet(nullptr)
@@ -78,6 +84,8 @@ MeshGeometry::MeshGeometry(MeshGeometry&& meshGeometry) noexcept
     , numVertex(meshGeometry.numVertex)
     , positionSet(meshGeometry.positionSet)
     , normalSet(meshGeometry.normalSet)
+    , tangentSet(meshGeometry.tangentSet)
+    , bitangentSet(meshGeometry.bitangentSet)
     , uvChannelSet(std::move(meshGeometry.uvChannelSet))
     , numTriangle(meshGeometry.numTriangle)
     , indexSet(meshGeometry.indexSet)
@@ -93,6 +101,8 @@ MeshGeometry::~MeshGeometry()
     SYRINX_EXPECT(isValid() || isClean());
     delete[] positionSet;
     delete[] normalSet;
+    delete[] tangentSet;
+    delete[] bitangentSet;
     for (auto& uvChannel : uvChannelSet) {
         delete uvChannel;
     }
@@ -105,6 +115,8 @@ MeshGeometry::MeshGeometry(const MeshGeometry& meshGeometry)
     , numVertex(meshGeometry.numVertex)
     , positionSet(nullptr)
     , normalSet(nullptr)
+    , tangentSet(nullptr)
+    , bitangentSet(nullptr)
     , uvChannelSet(meshGeometry.uvChannelSet.size())
     , numTriangle(meshGeometry.numTriangle)
     , indexSet(nullptr)
@@ -118,6 +130,16 @@ MeshGeometry::MeshGeometry(const MeshGeometry& meshGeometry)
     if (meshGeometry.normalSet) {
         normalSet = new Normal3f[meshGeometry.numVertex];
         std::copy(meshGeometry.normalSet, meshGeometry.normalSet + meshGeometry.numVertex, normalSet);
+    }
+
+    if (meshGeometry.tangentSet) {
+        tangentSet = new Normal3f[meshGeometry.numVertex];
+        std::copy(meshGeometry.tangentSet, meshGeometry.tangentSet + meshGeometry.numVertex, tangentSet);
+    }
+
+    if (meshGeometry.bitangentSet) {
+        bitangentSet = new Normal3f[meshGeometry.numVertex];
+        std::copy(meshGeometry.bitangentSet, meshGeometry.bitangentSet + meshGeometry.numVertex, bitangentSet);
     }
 
     for (unsigned int i = 0; i < meshGeometry.uvChannelSet.size(); ++ i) {
@@ -161,6 +183,8 @@ MeshGeometry& MeshGeometry::operator=(MeshGeometry&& meshGeometry) noexcept
         numVertex = meshGeometry.numVertex;
         positionSet = meshGeometry.positionSet;
         normalSet = meshGeometry.normalSet;
+        tangentSet = meshGeometry.tangentSet;
+        bitangentSet = meshGeometry.bitangentSet;
         uvChannelSet = std::move(meshGeometry.uvChannelSet);
         numTriangle = meshGeometry.numTriangle;
         indexSet = meshGeometry.indexSet;
@@ -193,6 +217,10 @@ bool MeshGeometry::operator==(const MeshGeometry& rhs) const
         return false;
     if (!isArrayEqual(normalSet, rhs.normalSet, 3 * numVertex))
         return false;
+    if (!isArrayEqual(tangentSet, rhs.tangentSet, 3 * numVertex))
+        return false;
+    if (!isArrayEqual(bitangentSet, rhs.bitangentSet, 3 * numVertex))
+        return false;
     if (!isArrayEqual(indexSet, rhs.indexSet, 3 * numTriangle))
         return false;
     return true;
@@ -205,6 +233,8 @@ void MeshGeometry::swap(MeshGeometry& rhs) noexcept
     numVertex = rhs.numVertex;
     positionSet = rhs.positionSet;
     normalSet = rhs.normalSet;
+    tangentSet = rhs.tangentSet;
+    bitangentSet = rhs.bitangentSet;
     uvChannelSet.swap(rhs.uvChannelSet);
     numTriangle = rhs.numTriangle;
     indexSet = rhs.indexSet;
@@ -242,6 +272,8 @@ void MeshGeometry::clear()
     numVertex = 0;
     positionSet = nullptr;
     normalSet = nullptr;
+    tangentSet = nullptr;
+    bitangentSet = nullptr;
     uvChannelSet.clear();
     numTriangle = 0;
     indexSet = nullptr;

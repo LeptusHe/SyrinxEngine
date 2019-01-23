@@ -40,6 +40,7 @@ void MeshGeometrySerializer::serializeData()
     writeUInt32(mMeshGeometry->numVertex);
     writePositionSet();
     writeNormalSet();
+    writeTangentAndBitangentSet();
     writeUVChannelSet();
     writeIndexSet();
 }
@@ -83,6 +84,21 @@ void MeshGeometrySerializer::writeNormalSet()
         writeBool(true);
     }
     writeFloats(reinterpret_cast<const float*>(mMeshGeometry->normalSet), 3 * mMeshGeometry->numVertex);
+}
+
+
+void MeshGeometrySerializer::writeTangentAndBitangentSet()
+{
+    SYRINX_EXPECT((!mMeshGeometry->tangentSet && !mMeshGeometry->bitangentSet) ||
+                  (mMeshGeometry->tangentSet && mMeshGeometry->bitangentSet));
+    if (!mMeshGeometry->tangentSet && !mMeshGeometry->bitangentSet) {
+        writeBool(false);
+        return;
+    } else {
+        writeBool(true);
+        writeFloats(reinterpret_cast<const float*>(mMeshGeometry->tangentSet), 3 * mMeshGeometry->numVertex);
+        writeFloats(reinterpret_cast<const float*>(mMeshGeometry->bitangentSet), 3 * mMeshGeometry->numVertex);
+    }
 }
 
 

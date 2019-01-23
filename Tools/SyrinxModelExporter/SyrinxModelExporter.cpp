@@ -27,7 +27,7 @@ void ModelExporter::exportModel(const std::string& modelFile, const std::string&
     }
 
     Assimp::Importer importer;
-    const auto scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals);
+    const auto scene = importer.ReadFile(filePath, aiProcess_Triangulate | aiProcess_GenNormals | aiProcess_CalcTangentSpace);
     if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState, "fail to read model [{}] because [{}]", filePath, importer.GetErrorString());
     }

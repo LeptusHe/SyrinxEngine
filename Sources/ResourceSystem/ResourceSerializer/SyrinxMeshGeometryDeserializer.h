@@ -22,6 +22,7 @@ protected:
 private:
     Point3f* readPositionSet(uint32_t numVertex);
     Normal3f* readNormalSet(uint32_t numVertex);
+    std::pair<Normal3f*, Normal3f*> readTangentSetAndBitangentSet(uint32_t numVertex);
     void readUVChannelSet(uint32_t numVertex, std::vector<UVChannel*> *outUVChannelSet);
     uint32_t* readIndexSet(uint32_t *outNumTriangle);
 

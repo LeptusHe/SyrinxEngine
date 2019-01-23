@@ -18,6 +18,8 @@ public:
     const VertexInputState& getVertexInputState() const;
     const Point3f* getPositionSet() const;
     const Normal3f* getNormalSet() const;
+    const Normal3f* getTangentSet() const;
+    const Normal3f* getBitangentSet() const;
     const UVChannel* getUVChannel(int index) const;
     const uint32_t* getIndexSet() const;
     size_t getNumVertex() const;
