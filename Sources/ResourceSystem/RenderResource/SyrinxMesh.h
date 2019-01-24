@@ -35,7 +35,7 @@ private:
 private:
     std::string mFilePath;
     std::unique_ptr<MeshGeometry> mMeshGeometry;
-    VertexInputState *mVertexInputState;
+    std::unique_ptr<VertexInputState> mVertexInputState;
     HardwareResourceManager *mHardwareResourceManager;
 };
 

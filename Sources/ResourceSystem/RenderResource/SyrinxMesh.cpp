@@ -52,7 +52,7 @@ void Mesh::createVertexInputState()
         SYRINX_INFO_FMT("mesh [{}] doesn't have tangent and bitangent attribute", getName());
     }
 
-    mVertexInputState = new VertexInputState("[name=" + getName() + ", type=vertex input state]");
+    mVertexInputState = std::make_unique<VertexInputState>("[name=" + getName() + ", type=vertex input state]");
 
     auto positionBuffer = createVertexBufferForVertexAttribute("position", 3 * sizeof(float), getPositionSet());
     mVertexInputState->addVertexAttributeDescription({0, VertexAttributeSemantic::Position, VertexAttributeDataType::FLOAT3});
