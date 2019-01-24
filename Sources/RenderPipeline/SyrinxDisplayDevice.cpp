@@ -29,6 +29,7 @@ DisplayDevice::DisplayDevice()
 
 DisplayDevice::~DisplayDevice()
 {
+    delete mRenderWindow;
     glfwTerminate();
 }
 
@@ -42,7 +43,7 @@ RenderWindow* DisplayDevice::createWindow(const std::string& title, unsigned wid
     SYRINX_ENSURE(mRenderWindow);
 
     if (succeedToInitWindow && succeedToInit) {
-        return mRenderWindow.get();
+        return mRenderWindow;
     }
     return nullptr;
 }
@@ -50,13 +51,13 @@ RenderWindow* DisplayDevice::createWindow(const std::string& title, unsigned wid
 
 const RenderWindow* DisplayDevice::getRenderWindow() const
 {
-    return mRenderWindow.get();
+    return mRenderWindow;
 }
 
 
 RenderWindow* DisplayDevice::fetchRenderWindow()
 {
-    return mRenderWindow.get();
+    return mRenderWindow;
 }
 
 
@@ -123,7 +124,7 @@ bool DisplayDevice::initWindow(const std::string& title, unsigned width, unsigne
 
     if (windowHandle) {
         glfwMakeContextCurrent(windowHandle);
-        mRenderWindow = std::make_unique<RenderWindow>();
+        mRenderWindow = new RenderWindow();
         mRenderWindow->setWindowHandle(windowHandle);
         mRenderWindow->setTitle(title);
         mRenderWindow->setWidth(width);

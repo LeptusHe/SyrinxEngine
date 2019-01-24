@@ -33,7 +33,7 @@ private:
     unsigned mMajorVersionNumber;
     unsigned mMinorVersionNumber;
     DebugMessageHandler mDebugMessageHandler;
-    std::unique_ptr<RenderWindow> mRenderWindow;
+    RenderWindow *mRenderWindow;
 };
 
 } // namespace Syrinx
