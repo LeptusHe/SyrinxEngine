@@ -20,7 +20,7 @@ BETTER_ENUM(TextureType, uint8_t,
 class HardwareTexture : public HardwareResource {
 public:
     explicit HardwareTexture(const std::string& name);
-    ~HardwareTexture() override = default;
+    ~HardwareTexture() override;
 
     void setWidth(uint32_t width);
     void setHeight(uint32_t height);

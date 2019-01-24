@@ -14,7 +14,7 @@ public:
 
 public:
     explicit VertexInputState(const std::string& name);
-    ~VertexInputState() override = default;
+    ~VertexInputState() override;
 
     void addVertexAttributeDescription(const VertexAttributeDescription& vertexAttributeDescription);
     void addVertexDataDescription(const VertexDataDescription& vertexInputDataDescription);

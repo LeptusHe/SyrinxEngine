@@ -22,7 +22,7 @@ BETTER_ENUM(BufferUsage, std::uint8_t,
 class HardwareBuffer : public HardwareResource {
 public:
     explicit HardwareBuffer(const std::string& name);
-    ~HardwareBuffer() override = default;
+    ~HardwareBuffer() override;
 
     bool create() override;
     void read(size_t offset, size_t size, void *destination);

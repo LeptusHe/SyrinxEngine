@@ -16,6 +16,13 @@ HardwareBuffer::HardwareBuffer(const std::string& name)
 }
 
 
+HardwareBuffer::~HardwareBuffer()
+{
+    auto handle = getHandle();
+    glDeleteBuffers(1, &handle);
+}
+
+
 bool HardwareBuffer::create()
 {
     SYRINX_EXPECT(!isCreated());

@@ -19,6 +19,13 @@ HardwareTexture::HardwareTexture(const std::string& name)
 }
 
 
+HardwareTexture::~HardwareTexture()
+{
+    auto handle = getHandle();
+    glDeleteTextures(1, &handle);
+}
+
+
 void HardwareTexture::setWidth(uint32_t width)
 {
     SYRINX_EXPECT(width > 0);

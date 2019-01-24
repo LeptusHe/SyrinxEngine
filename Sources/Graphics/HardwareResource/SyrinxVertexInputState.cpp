@@ -13,6 +13,13 @@ VertexInputState::VertexInputState(const std::string& name)
 }
 
 
+VertexInputState::~VertexInputState()
+{
+    auto handle = getHandle();
+    glDeleteVertexArrays(1, &handle);
+}
+
+
 void VertexInputState::addVertexAttributeDescription(const VertexAttributeDescription& vertexAttributeDescription)
 {
     auto bindingPoint = vertexAttributeDescription.getBindingPoint();
