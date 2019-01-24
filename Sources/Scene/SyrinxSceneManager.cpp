@@ -26,7 +26,7 @@ Scene* SceneManager::loadScene(const std::string& fileName)
     if (!fileExist) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileNotFound, "can not find scene file [{}]", fileName);
     }
-    DataStream *dataStream = mFileManager->openFile(filePath, FileAccessMode::READ);
+    auto dataStream = mFileManager->openFile(filePath, FileAccessMode::READ);
     if (!dataStream) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileSystemError, "fail to open scene file [{}]", filePath);
     }

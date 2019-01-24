@@ -19,7 +19,7 @@ public:
     void addSearchPath(const std::string& path) noexcept(false);
     virtual std::pair<bool, std::string> findFile(const std::string& fileName) const;
     virtual std::pair<bool, std::string> findDirectory(const std::string& path) const;
-    virtual DataStream* openFile(const std::string& fileName, FileAccessMode accessMode) const;
+    virtual std::unique_ptr<DataStream> openFile(const std::string& fileName, FileAccessMode accessMode) const;
     virtual FileSystem* getFileSystem() const;
 
 private:

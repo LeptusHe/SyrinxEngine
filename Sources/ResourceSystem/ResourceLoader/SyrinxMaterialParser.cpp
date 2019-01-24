@@ -32,7 +32,7 @@ Material* MaterialParser::parseMaterial(const std::string& fileName)
     if (!fileExist) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileNotFound, "can not find file [{}]", fileName);
     }
-    DataStream *fileStream = mFileManager->openFile(filePath, FileAccessMode::READ);
+    auto fileStream = mFileManager->openFile(filePath, FileAccessMode::READ);
     if (!fileStream) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileSystemError, "can not open file [{}]", filePath);
     }

@@ -28,14 +28,14 @@ Mesh* MeshManager::createMesh(const std::string& name)
 
     auto mesh = new Mesh(name, filePath, mHardwareResourceManager);
     try {
-        auto *fileStream = mFileManager->openFile(filePath, FileAccessMode::READ);
+        auto fileStream = mFileManager->openFile(filePath, FileAccessMode::READ);
         if (!fileStream) {
             SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileSystemError, "can not open file [{}]", filePath);
         }
 
         auto meshGeometry = std::make_unique<MeshGeometry>();
         MeshGeometryDeserializer meshGeometryDeserializer;
-        meshGeometryDeserializer.deserialize(fileStream, meshGeometry.get());
+        meshGeometryDeserializer.deserialize(fileStream.get(), meshGeometry.get());
         mesh->setMeshGeometry(std::move(meshGeometry));
         SYRINX_ASSERT(!meshGeometry);
     } catch (...) {

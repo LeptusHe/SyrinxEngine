@@ -58,16 +58,16 @@ std::pair<bool, std::string> FileManager::findDirectory(const std::string& path)
 }
 
 
-DataStream* FileManager::openFile(const std::string& fileName, FileAccessMode accessMode) const
+std::unique_ptr<DataStream> FileManager::openFile(const std::string& fileName, FileAccessMode accessMode) const
 {
     SYRINX_EXPECT(!fileName.empty());
     if (accessMode == FileAccessMode::READ) {
         if (auto [exist, filePath] = findFile(fileName); exist) {
-            return new FileStream(filePath, accessMode);
+            return std::make_unique<FileStream>(filePath, accessMode);
         }
         return nullptr;
     } else {
-        return new FileStream(fileName, accessMode);
+        return std::make_unique<FileStream>(fileName, accessMode);
     }
 }
 
