@@ -1,5 +1,5 @@
 # get source files
-list(APPEND dirs TestDouble Core Graphics ResourceSystem Scene)
+list(APPEND dirs TestDouble Core) # Graphics ResourceSystem Scene)
 foreach(dir ${dirs})
     aux_source_directory(${dir} sources-founded)
     list(APPEND sources ${sources-founded})
