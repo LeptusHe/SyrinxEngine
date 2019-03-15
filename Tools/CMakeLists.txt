@@ -16,7 +16,6 @@ set(tool-required-libraries ${libraries} CACHE INTERNAL "libraries required by t
 
 # build tools
 add_subdirectory(SyrinxModelExporter)
-add_subdirectory(SyrinxGenPreComputedIBLImages)
 
 add_custom_target(AllTools)
-add_dependencies(AllTools SyrinxModelExporter SyrinxGenPreComputedIBLImages)
+add_dependencies(AllTools SyrinxModelExporter)

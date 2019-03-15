@@ -93,8 +93,7 @@ void MeshExporter::exportMesh(const aiMesh& mesh, const std::string& outputFileN
     if (!fileStream) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileSystemError, "can not open file [{}]", outputFileName);
     }
-    meshGeometrySerializer.serialize(fileStream, meshGeometry);
-    delete fileStream;
+    meshGeometrySerializer.serialize(fileStream.get(), meshGeometry);
 }
 
 
