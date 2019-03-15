@@ -10,7 +10,7 @@ list(APPEND include_dirs
 
 
 # add source files into sources
-list(APPEND sub_dirs ${root_dir} RenderSystem HardwareResource)
+list(APPEND sub_dirs ${root_dir} HardwareResource)
 foreach(sub_dir ${sub_dirs})
     aux_source_directory(${sub_dir} sources_founded)
     #message(STATUS "find source file in dir[${sub_dir}] : ${sources_founded}")
