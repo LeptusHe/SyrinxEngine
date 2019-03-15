@@ -31,7 +31,6 @@ add_subdirectory(LoadScene)
 add_subdirectory(RenderPipeline)
 add_subdirectory(TextureMipMap)
 add_subdirectory(ToneMapping)
-add_subdirectory(BindlessTexture)
 add_subdirectory(NormalMap)
 
 
@@ -49,5 +48,4 @@ add_dependencies(AllSamples
         RenderPipelineSample
         SkyboxSample
         LoadSceneSample
-        TextureMipMapSample
-        BindlessTextureSample)
+        TextureMipMapSample)
