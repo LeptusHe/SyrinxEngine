@@ -37,4 +37,13 @@ bool Input::isRepeat(Syrinx::Input::Key key) const
     return action._value == KeyAction::KeyRepeat;
 }
 
+
+Vector2f Input::getCursorPosition() const
+{
+    double xPos = 0.0;
+    double yPos = 0.0;
+    glfwGetCursorPos(mWindowHandle, &xPos, &yPos);
+    return {xPos, yPos};
+}
+
 } // namespace Syrinx

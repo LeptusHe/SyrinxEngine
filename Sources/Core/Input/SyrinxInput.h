@@ -3,6 +3,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include "Common/SyrinxSingleton.h"
+#include "Math/SyrinxMath.h"
 
 namespace Syrinx {
 
@@ -24,6 +25,7 @@ public:
     bool isPressed(Key key) const;
     bool isRelease(Key key) const;
     bool isRepeat(Key key) const;
+    Vector2f getCursorPosition() const;
 
 private:
     GLFWwindow *mWindowHandle;

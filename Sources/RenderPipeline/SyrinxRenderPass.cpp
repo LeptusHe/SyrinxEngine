@@ -26,9 +26,11 @@ void RenderPass::setShaderPassName(const std::string& name)
 }
 
 
-void RenderPass::setCamera(Camera *camera)
+void RenderPass::setCamera(Entity *camera)
 {
     SYRINX_EXPECT(camera);
+    SYRINX_EXPECT(camera->hasComponent<Transform>());
+    SYRINX_EXPECT(camera->hasComponent<Camera>());
     mCamera = camera;
     SYRINX_ENSURE(mCamera);
 }
@@ -77,7 +79,7 @@ const RenderTarget* RenderPass::getRenderTarget() const
 }
 
 
-Camera* RenderPass::getCamera() const
+Entity* RenderPass::getCamera() const
 {
     return mCamera;
 }

@@ -20,21 +20,21 @@ public:
     ~RenderPass() = default;
 
     void setShaderPassName(const std::string& name);
-    void setCamera(Camera *camera);
-    void addEntity(Entity* entity);
+    void setCamera(Entity *camera);
+    void addEntity(Entity *entity);
     void addEntityList(const std::vector<Entity*>& entityList);
     void setRenderTarget(const RenderTarget *renderTarget);
     const std::string& getName() const;
     const std::string& getShaderPassName() const;
     const RenderTarget* getRenderTarget() const;
-    Camera* getCamera() const;
+    Entity* getCamera() const;
     const EntityList& getEntityList() const;
     bool isValid() const;
 
 private:
     std::string mName;
     std::string mShaderPassName;
-    Camera *mCamera;
+    Entity *mCamera;
     EntityList mEntityList;
     const RenderTarget *mRenderTarget;
 

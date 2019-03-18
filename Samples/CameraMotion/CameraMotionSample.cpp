@@ -1,13 +1,13 @@
 #include <RenderPipeline/SyrinxEngine.h>
 #include <FileSystem/SyrinxFileSystem.h>
-#include "CubeMotionController.h"
+#include "CameraController.h"
 
 
 int main(int argc, char *argv[])
 {
     Syrinx::Engine engine;
     engine.init();
-    engine.createWindow("Render Pipeline Sample", 800, 800);
+    engine.createWindow("Camera Motion Sample", 800, 800);
 
     auto fileManager = engine.getFileManager();
     fileManager->addSearchPath("../../Medias/");
@@ -17,28 +17,25 @@ int main(int argc, char *argv[])
     scene = sceneManager->loadScene("cube-scene.scene");
     engine.setActiveScene(scene);
 
-    auto rootNode = scene->getRoot();
+    auto root = scene->getRoot();
     auto cameraNode = scene->createSceneNode("main camera");
-    rootNode->addChild(cameraNode);
+    root->addChild(cameraNode);
 
-    auto cameraEntity = sceneManager->createEntity("main camera entity");
+    auto cameraEntity = sceneManager->createEntity("camera entity");
     cameraNode->attachEntity(cameraEntity);
 
-    Syrinx::Transform cameraTransform;
-    Syrinx::Camera camera("main camera component");
+    Syrinx::Camera camera("main camera");
     camera.setPosition({0.0, 8.0, 40.0});
     camera.lookAt({0.0, 8.0, 0.0});
     camera.setViewportRect({0, 0, 800, 800});
-    cameraEntity->addComponent<Syrinx::Transform>(cameraTransform);
     cameraEntity->addComponent<Syrinx::Camera>(camera);
 
-    auto cubeEntityNode = scene->findSceneNode("cube-entity");
-    SYRINX_ASSERT(cubeEntityNode);
-    auto cubeEntity = cubeEntityNode->getEntity();
-    SYRINX_ASSERT(cubeEntity);
-    auto cubeMotionController = std::make_unique<CubeMotionController>();
-    cubeEntity->addController(cubeMotionController.get());
-    SYRINX_ASSERT(cubeEntity->hasComponent<Syrinx::Controller*>());
+    Syrinx::Transform cameraTransform;
+    cameraEntity->addComponent<Syrinx::Transform>(cameraTransform);
+
+    auto cameraMotionController = std::make_unique<CameraMotionController>();
+    cameraEntity->addController(cameraMotionController.get());
+    SYRINX_ASSERT(cameraEntity->hasComponent<Syrinx::Controller*>());
 
     auto lightingPass = std::make_unique<Syrinx::RenderPass>("lighting");
     lightingPass->setShaderPassName("lighting");

@@ -17,6 +17,7 @@ set(sample-required-libraries ${libraries} CACHE INTERNAL "libraries required by
 
 
 # build samples
+add_subdirectory(CameraMotion)
 add_subdirectory(CreateWindow)
 add_subdirectory(DrawTriangle)
 add_subdirectory(UpdateUniform)
@@ -36,6 +37,7 @@ add_subdirectory(NormalMap)
 
 add_custom_target(AllSamples)
 add_dependencies(AllSamples
+        CameraMotionSample
         CreateWindowSample
         DrawTriangleSample
         UpdateUniformSample

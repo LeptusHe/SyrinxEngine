@@ -15,19 +15,23 @@ public:
 
     void translate(const Vector3f& translation, Space space = Space::LocalSpace);
     void setScale(const Vector3f& scale);
+    void setEulerAngle(const Vector3f& eulerAngle);
     void setWorldMatrix(const Matrix4x4& worldMatrix);
     void combineParentWorldMatrix(const Matrix4x4& parentWorldMatrix);
-    void needUpdate(bool needUpdate);
     const Position& getLocalPosition() const;
     const Vector3f& getScale() const;
+    const Vector3f& getEulerAngle() const;
+    Matrix4x4 getRotateMatrix() const;
     const Matrix4x4& getLocalMatrix() const;
     const Matrix4x4& getWorldMatrix() const;
     Transform* getParent() const;
+    void needUpdate(bool needUpdate);
     bool needUpdate() const;
 
 private:
     Position mLocalPosition;
     Vector3f mScale;
+    Vector3f mEulerAngle;
     mutable Matrix4x4 mLocalMatrix;
     Matrix4x4 mWorldMatrix;
     bool mNeedUpdate;

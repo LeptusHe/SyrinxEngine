@@ -12,10 +12,11 @@ Transform::Transform() : Transform(nullptr)
 Transform::Transform(Transform *parent)
     : mLocalPosition(0.0f, 0.0f, 0.0f)
     , mScale(1.0f, 1.0f, 1.0f)
+    , mEulerAngle(0.0f, 0.0f, 0.0f)
     , mLocalMatrix(1.0f)
     , mWorldMatrix(1.0f)
-    , mParent(parent)
     , mNeedUpdate(true)
+    , mParent(parent)
 {
     SYRINX_ENSURE(mNeedUpdate);
 }
@@ -35,6 +36,12 @@ void Transform::setScale(const Vector3f& scale)
 }
 
 
+void Transform::setEulerAngle(const Vector3f& eulerAngle)
+{
+    mEulerAngle = eulerAngle;
+}
+
+
 void Transform::setWorldMatrix(const Matrix4x4& worldMatrix)
 {
     mWorldMatrix = worldMatrix;
@@ -44,12 +51,6 @@ void Transform::setWorldMatrix(const Matrix4x4& worldMatrix)
 void Transform::combineParentWorldMatrix(const Matrix4x4& parentWorldMatrix)
 {
     mWorldMatrix = parentWorldMatrix * getLocalMatrix();
-}
-
-
-void Transform::needUpdate(bool needUpdate)
-{
-    mNeedUpdate = needUpdate;
 }
 
 
@@ -65,10 +66,27 @@ const Vector3f& Transform::getScale() const
 }
 
 
+const Vector3f& Transform::getEulerAngle() const
+{
+    return mEulerAngle;
+}
+
+
+Matrix4x4 Transform::getRotateMatrix() const
+{
+    glm::mat4 rotateMatrix = glm::mat4(1.0);
+    rotateMatrix = glm::rotate(rotateMatrix, glm::radians(mEulerAngle.x), glm::vec3(1.0, 0.0, 0.0));
+    rotateMatrix = glm::rotate(rotateMatrix, glm::radians(mEulerAngle.y), glm::vec3(0.0, 1.0, 0.0));
+    rotateMatrix = glm::rotate(rotateMatrix, glm::radians(mEulerAngle.z), glm::vec3(0.0, 0.0, 1.0));
+    return rotateMatrix;
+}
+
+
 const Matrix4x4& Transform::getLocalMatrix() const
 {
     mLocalMatrix = Matrix4x4(1.0f);
     mLocalMatrix = glm::translate(mLocalMatrix, mLocalPosition);
+    mLocalMatrix = mLocalMatrix * getRotateMatrix();
     mLocalMatrix = glm::scale(mLocalMatrix, mScale);
     return mLocalMatrix;
 }
@@ -83,6 +101,12 @@ const Matrix4x4& Transform::getWorldMatrix() const
 Transform* Transform::getParent() const
 {
     return mParent;
+}
+
+
+void Transform::needUpdate(bool needUpdate)
+{
+    mNeedUpdate = needUpdate;
 }
 
 

@@ -102,10 +102,18 @@ void CommandSubmitter::submitCommandsToSetMVPMatrix(const Entity& entity, const 
     const auto& transform = entity.getComponent<const Transform>();
     auto vertexProgram = shaderPass.getProgramStage(ProgramStageType::VertexStage);
 
-    Camera* camera = mRenderPass->getCamera();
+    Entity* cameraEntity = mRenderPass->getCamera();
+    SYRINX_ASSERT(cameraEntity);
+    const auto& cameraTransform = cameraEntity->getComponent<Transform>();
+    const auto& cameraComponent = cameraEntity->getComponent<Camera>();
+
+    Syrinx::Matrix4x4 viewMatrix(1.0f);
+    viewMatrix = glm::translate(viewMatrix, -cameraTransform.getLocalPosition());
+    viewMatrix = viewMatrix * cameraTransform.getRotateMatrix();
+
     vertexProgram->updateParameter("uModelMatrix", transform.getWorldMatrix());
-    vertexProgram->updateParameter("uViewMatrix", camera->getViewMatrix());
-    vertexProgram->updateParameter("uProjectionMatrix", camera->getProjectionMatrix());
+    vertexProgram->updateParameter("uViewMatrix", viewMatrix);
+    vertexProgram->updateParameter("uProjectionMatrix", cameraComponent.getProjectionMatrix());
 }
 
 
