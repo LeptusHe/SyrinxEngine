@@ -4,13 +4,13 @@
 #include <unordered_map>
 #include "RenderResource/SyrinxMesh.h"
 #include "RenderResource/SyrinxMaterial.h"
-#include "RenderResource/SyrinxRenderResource.h"
+#include "RenderResource/SyrinxResource.h"
 #include "ResourceManager/SyrinxFileManager.h"
 #include "ResourceManager/SyrinxHardwareResourceManager.h"
 
 namespace Syrinx {
 
-class Model : public RenderResource {
+class Model : public Resource {
 public:
     using MeshMap = std::unordered_map<std::string, Mesh*>;
     using MeshList = std::vector<Mesh*>;

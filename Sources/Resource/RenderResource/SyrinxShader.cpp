@@ -2,7 +2,7 @@
 
 namespace Syrinx {
 
-Shader::Shader(const std::string& name) : RenderResource(name)
+Shader::Shader(const std::string& name) : Resource(name)
 {
 
 }

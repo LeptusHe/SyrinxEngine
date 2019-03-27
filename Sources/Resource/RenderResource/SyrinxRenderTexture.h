@@ -1,5 +1,5 @@
 #pragma once
-#include "Image/SyrinxImage.h"
+#include <Image/SyrinxImage.h>
 #include "HardwareResource/SyrinxHardwareTexture.h"
 
 namespace Syrinx {

@@ -3,13 +3,13 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
-#include "RenderResource/SyrinxRenderResource.h"
+#include "RenderResource/SyrinxResource.h"
 #include "RenderResource/SyrinxShader.h"
 #include "RenderResource/SyrinxShaderParameter.h"
 
 namespace Syrinx {
 
-class Material : public RenderResource {
+class Material : public Resource {
 public:
     using MaterialParameterList = std::vector<ShaderParameter*>;
     using MaterialParameterMap = std::unordered_map<std::string, std::unique_ptr<ShaderParameter>>;

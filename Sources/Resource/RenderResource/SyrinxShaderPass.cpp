@@ -71,7 +71,7 @@ bool VertexAttribute::isValid() const
 
 
 ShaderPass::ShaderPass(const std::string& name)
-    : RenderResource(name)
+    : Resource(name)
     , mProgramPipeline(nullptr)
 {
     SYRINX_ENSURE(!mProgramPipeline);

@@ -5,7 +5,7 @@
 namespace Syrinx {
 
 Mesh::Mesh(const std::string& name, const std::string& filePath, HardwareResourceManager *hardwareResourceManager)
-    : RenderResource(name)
+    : Resource(name)
     , mFilePath(filePath)
     , mMeshGeometry()
     , mVertexInputState(nullptr)

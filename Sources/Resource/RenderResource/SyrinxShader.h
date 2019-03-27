@@ -1,11 +1,11 @@
 #pragma once
-#include "RenderResource/SyrinxRenderResource.h"
+#include "RenderResource/SyrinxResource.h"
 #include "RenderResource/SyrinxShaderParameter.h"
 #include "RenderResource/SyrinxShaderPass.h"
 
 namespace Syrinx {
 
-class Shader : public RenderResource {
+class Shader : public Resource {
 public:
     using ShaderPassMap = std::unordered_map<std::string, std::unique_ptr<ShaderPass>>;
     using ShaderPassList = std::vector<ShaderPass*>;
@@ -13,7 +13,7 @@ public:
     using ShaderParameterList = std::vector<ShaderParameter*>;
 
 public:
-    explicit Shader(const std::string& name);
+    Shader(const std::string& name);
     ~Shader() override = default;
 
     void addShaderPassSet(std::vector<std::unique_ptr<ShaderPass>>&& shaderPassSet);

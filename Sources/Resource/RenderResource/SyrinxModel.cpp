@@ -4,7 +4,7 @@
 namespace Syrinx {
 
 Model::Model(const std::string& name)
-    : RenderResource(name)
+    : Resource(name)
     , mMeshMap()
     , mMeshList()
     , mMaterialMap()
@@ -47,7 +47,11 @@ void Model::addMesh(Mesh *mesh)
 void Model::addMaterial(Material *material)
 {
     SYRINX_EXPECT(material);
-    SYRINX_EXPECT(!getMaterial(material->getName()));
+
+    if (getMaterial(material->getName())) {
+        return;
+    }
+
     mMaterialMap[material->getName()] = material;
     mMaterialList.push_back(material);
     SYRINX_ENSURE(getMaterial(material->getName()) == material);

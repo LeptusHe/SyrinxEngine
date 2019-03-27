@@ -14,11 +14,14 @@ MaterialManager::MaterialManager(FileManager *fileManager, HardwareResourceManag
 }
 
 
-Material* MaterialManager::createMaterial(const std::string& fileName)
+Material* MaterialManager::createOrRetrieveMaterial(const std::string& fileName)
 {
     SYRINX_EXPECT(!fileName.empty());
-    auto material = parseMaterial(fileName);
-    addMaterial(material);
+    auto material = findMaterial(fileName);
+    if (!material) {
+        material = parseMaterial(fileName);
+        addMaterial(fileName, material);
+    }
     return material;
 }
 
@@ -41,13 +44,13 @@ Material* MaterialManager::findMaterial(const std::string& name) const
 }
 
 
-void MaterialManager::addMaterial(Material *material)
+void MaterialManager::addMaterial(const std::string& fileName, Material *material)
 {
     SYRINX_EXPECT(material);
-    SYRINX_EXPECT(!findMaterial(material->getName()));
+    SYRINX_EXPECT(!findMaterial(fileName));
     mMaterialList.push_back(material);
-    mMaterialMap[material->getName()] = std::unique_ptr<Material>(material);
-    SYRINX_EXPECT(findMaterial(material->getName()) == material);
+    mMaterialMap[fileName] = std::unique_ptr<Material>(material);
+    SYRINX_EXPECT(findMaterial(fileName) == material);
 }
 
 

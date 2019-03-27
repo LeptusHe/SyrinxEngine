@@ -1,13 +1,13 @@
 #pragma once
 #include <memory>
-#include "RenderResource/SyrinxRenderResource.h"
+#include "RenderResource/SyrinxResource.h"
 #include <HardwareResource/SyrinxVertexInputState.h>
 #include "ResourceSerializer/SyrinxMeshGeometry.h"
 #include "ResourceManager/SyrinxHardwareResourceManager.h"
 
 namespace Syrinx {
 
-class Mesh : public RenderResource {
+class Mesh : public Resource {
 public:
     Mesh(const std::string& name, const std::string& filePath, HardwareResourceManager *hardwareResourceManager);
     ~Mesh() override = default;

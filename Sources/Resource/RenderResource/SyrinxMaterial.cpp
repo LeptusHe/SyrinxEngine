@@ -3,7 +3,7 @@
 namespace Syrinx {
 
 Material::Material(const std::string& mName)
-    : RenderResource(mName)
+    : Resource(mName)
     , mShader(nullptr)
 {
     SYRINX_ENSURE(!mShader);

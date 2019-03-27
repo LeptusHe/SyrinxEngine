@@ -16,14 +16,14 @@ public:
 public:
     explicit MaterialManager(FileManager *fileManager, HardwareResourceManager *hardwareResourceManager);
     virtual ~MaterialManager() = default;
-    virtual Material* createMaterial(const std::string& name);
+    virtual Material* createOrRetrieveMaterial(const std::string& fileName);
     virtual Material* findMaterial(const std::string& name) const;
     virtual Shader* createShader(const std::string& name);
     virtual Shader* findShader(const std::string& name) const;
 
 private:
     virtual Material* parseMaterial(const std::string& filePath);
-    virtual void addMaterial(Material *material);
+    virtual void addMaterial(const std::string& fileName, Material *material);
     virtual void addShader(Shader *shader);
 
 private:

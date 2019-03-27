@@ -3,10 +3,10 @@
 
 namespace Syrinx {
 
-class RenderResource {
+class Resource {
 public:
-    explicit RenderResource(const std::string& name);
-    virtual ~RenderResource() = default;
+    explicit Resource(const std::string& name);
+    virtual ~Resource() = default;
 
     const std::string& getName() const;
 

@@ -46,7 +46,7 @@ Model* ModelManager::createModel(const std::string& name)
             std::string materialFile = getAttribute(meshMaterialPairNode, "material-file").as_string();
 
             Mesh *mesh = mMeshManager->createMesh(meshFile);
-            Material *material = mMaterialManager->createMaterial(materialFile);
+            Material *material = mMaterialManager->createOrRetrieveMaterial(materialFile);
             model->addMeshMaterialPair({mesh, material});
         }
     } catch (...) {

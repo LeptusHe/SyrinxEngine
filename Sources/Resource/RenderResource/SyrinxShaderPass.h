@@ -5,7 +5,7 @@
 #include <HardwareResource/SyrinxVertexDataDescription.h>
 #include <HardwareResource/SyrinxProgramStage.h>
 #include <HardwareResource/SyrinxProgramPipeline.h>
-#include "RenderResource/SyrinxRenderResource.h"
+#include "RenderResource/SyrinxResource.h"
 #include "RenderResource/SyrinxShaderParameter.h"
 
 namespace Syrinx {
@@ -32,7 +32,7 @@ private:
 
 
 
-class ShaderPass : public RenderResource {
+class ShaderPass : public Resource {
 public:
     using ParameterMap = std::unordered_map<std::string, ShaderParameter*>;
     using ProgramStageList = std::vector<ProgramStage*>;
