@@ -1,4 +1,4 @@
-#include "RenderPipeline/SyrinxCommandSubmitter.h"
+#include "SyrinxCommandSubmitter.h"
 #include <Component/SyrinxRenderer.h>
 #include <Component/SyrinxTransform.h>
 #include <Exception/SyrinxException.h>

@@ -4,10 +4,10 @@
 #include <HardwareResource/SyrinxProgramPipeline.h>
 #include <RenderResource/SyrinxMesh.h>
 #include <RenderResource/SyrinxModel.h>
+#include <RenderResource/SyrinxRenderTarget.h>
 #include <Scene/SyrinxEntity.h>
 #include <Scene/Component/SyrinxCamera.h>
-#include "RenderPipeline/SyrinxRenderState.h"
-#include "RenderResource/SyrinxRenderTarget.h"
+#include "SyrinxRenderState.h"
 
 namespace Syrinx {
 

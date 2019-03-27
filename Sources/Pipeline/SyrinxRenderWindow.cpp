@@ -1,4 +1,4 @@
-#include "RenderPipeline/SyrinxRenderWindow.h"
+#include "SyrinxRenderWindow.h"
 #include <Logging/SyrinxLogManager.h>
 
 namespace Syrinx {

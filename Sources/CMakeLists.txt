@@ -1,5 +1,5 @@
 add_subdirectory(Core)
 add_subdirectory(Graphics)
-add_subdirectory(ResourceSystem)
-add_subdirectory(RenderPipeline)
+add_subdirectory(Resource)
+add_subdirectory(Pipeline)
 add_subdirectory(Scene)

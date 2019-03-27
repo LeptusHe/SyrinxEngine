@@ -11,9 +11,9 @@
 #include <ResourceManager/SyrinxModelManager.h>
 #include <ResourceManager/SyrinxMaterialManager.h>
 #include <Scene/SyrinxSceneManager.h>
-#include "RenderPipeline/SyrinxDisplayDevice.h"
-#include "RenderPipeline/SyrinxEngineSetting.h"
-#include "RenderPipeline/SyrinxRenderPipeline.h"
+#include "SyrinxDisplayDevice.h"
+#include "SyrinxEngineSetting.h"
+#include "SyrinxRenderPipeline.h"
 
 namespace Syrinx {
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <Streaming/SyrinxDataStream.h>
 #include <pugixml.hpp>
-#include "ResourceManager/SyrinxModelManager.h"
+#include <ResourceManager/SyrinxModelManager.h>
 #include "Scene/SyrinxScene.h"
 #include "Scene/SyrinxSceneNode.h"
 

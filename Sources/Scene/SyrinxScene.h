@@ -3,12 +3,12 @@
 #include <string>
 #include <memory>
 #include <unordered_map>
-#include <RenderResource/SyrinxRenderResource.h>
+#include <RenderResource/SyrinxResource.h>
 #include "Scene/SyrinxSceneNode.h"
 
 namespace Syrinx {
 
-class Scene : public RenderResource {
+class Scene : public Resource {
 public:
     using SceneNodeList = std::vector<SceneNode*>;
     using SceneNodeMap = std::unordered_map<std::string, std::unique_ptr<SceneNode>>;

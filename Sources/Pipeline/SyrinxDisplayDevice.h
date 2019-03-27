@@ -1,6 +1,6 @@
 #pragma once
-#include "RenderPipeline/SyrinxRenderWindow.h"
-#include "RenderPipeline/SyrinxEngineSetting.h"
+#include "SyrinxEngineSetting.h"
+#include "SyrinxRenderWindow.h"
 
 namespace Syrinx {
 

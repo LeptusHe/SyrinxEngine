@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "RenderPipeline/SyrinxRenderPass.h"
+#include "SyrinxRenderPass.h"
 
 namespace Syrinx {
 

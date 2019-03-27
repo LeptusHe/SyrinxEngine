@@ -51,7 +51,7 @@ Entity* SceneManager::createEntity(const std::string& name)
     auto entityId = mEntityManager.create();
     auto entity = new Entity(name, entityId);
     //auto model = mModelManager->createModel(modelFile);
-    //auto material = mMaterialManager->createMaterial(materialFile);
+    //auto material = mMaterialManager->createOrRetrieveMaterial(materialFile);
     //entity->setModel(model);
     //entity->setMaterial(material);
     return entity;

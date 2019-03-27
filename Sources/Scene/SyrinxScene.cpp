@@ -5,7 +5,7 @@
 namespace Syrinx {
 
 Scene::Scene(const std::string& name)
-    : RenderResource(name)
+    : Resource(name)
     , mRoot(nullptr)
 {
     SYRINX_ENSURE(!mRoot);

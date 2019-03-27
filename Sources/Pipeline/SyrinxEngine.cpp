@@ -1,6 +1,6 @@
-#include "RenderPipeline/SyrinxEngine.h"
+#include "SyrinxEngine.h"
 #include <Exception/SyrinxException.h>
-#include <RenderPipeline/SyrinxCommandSubmitter.h>
+#include "SyrinxCommandSubmitter.h"
 
 namespace Syrinx {
 

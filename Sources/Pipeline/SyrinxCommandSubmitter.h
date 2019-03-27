@@ -1,5 +1,5 @@
 #pragma once
-#include "RenderPipeline/SyrinxRenderPipeline.h"
+#include "SyrinxRenderPipeline.h"
 
 namespace Syrinx {
 

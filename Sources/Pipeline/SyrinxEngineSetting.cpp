@@ -1,4 +1,4 @@
-#include "RenderPipeline/SyrinxEngineSetting.h"
+#include "SyrinxEngineSetting.h"
 #include <Common/SyrinxAssert.h>
 #include <iostream>
 

@@ -1,4 +1,4 @@
-#include "RenderPipeline/SyrinxDisplayDevice.h"
+#include "SyrinxDisplayDevice.h"
 #include <iostream>
 #include <Logging/SyrinxLogManager.h>
 

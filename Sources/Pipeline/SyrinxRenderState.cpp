@@ -1,4 +1,4 @@
-#include "RenderPipeline/SyrinxRenderState.h"
+#include "SyrinxRenderState.h"
 
 namespace Syrinx {
 

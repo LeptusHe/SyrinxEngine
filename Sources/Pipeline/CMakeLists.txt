@@ -7,7 +7,7 @@ list(APPEND include_dirs
         ${PROJECT_SOURCE_DIR}/Sources
         ${PROJECT_SOURCE_DIR}/Sources/Core
         ${PROJECT_SOURCE_DIR}/Sources/Graphics
-        ${PROJECT_SOURCE_DIR}/Sources/ResourceSystem
+        ${PROJECT_SOURCE_DIR}/Sources/Resource
         ${PROJECT_SOURCE_DIR}/Sources/Scene)
 
 
