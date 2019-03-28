@@ -15,8 +15,6 @@ protected:
 };
 
 
-uint32_t Manager::mManagerCounter = 0;
-
 
 
 template <typename T>
@@ -58,13 +56,13 @@ template <typename T>
 typename ResourceManager<T>::Resource* ResourceManager<T>::createOrRetrieve(const std::string& name)
 {
     SYRINX_EXPECT(!name.empty());
-    auto resource = find(name);
+    Resource *resource = find(name);
     if (!resource) {
-        resource = create(name);
-        add(resource);
+        auto resourceCreated = create(name);
+        resource = add(std::move(resourceCreated));
     }
     SYRINX_ENSURE(find(name));
-    return resource.get();
+    return resource;
 }
 
 
@@ -73,10 +71,10 @@ typename ResourceManager<T>::Resource* ResourceManager<T>::find(const std::strin
 {
     SYRINX_EXPECT(!name.empty());
     auto iter = mResourceMap.find(name);
-    if (iter != std::end(mResourceMap)) {
-        return iter->second.get();
+    if (iter == std::end(mResourceMap)) {
+        return nullptr;
     }
-    return nullptr;
+    return iter->second.get();
 }
 
 
@@ -85,8 +83,12 @@ typename ResourceManager<T>::Resource* ResourceManager<T>::add(std::unique_ptr<R
 {
     SYRINX_EXPECT(resource);
     SYRINX_ENSURE(!find(resource->getName()));
+    Resource *result = resource.get();
     mResourceMap[resource->getName()] = std::move(resource);
-    SYRINX_ENSURE(find(resource->getName()));
+    SYRINX_ENSURE(!resource);
+    SYRINX_ENSURE(find(result->getName()));
+    SYRINX_ENSURE(result);
+    return result;
 }
 
 } // namespace Syrinx

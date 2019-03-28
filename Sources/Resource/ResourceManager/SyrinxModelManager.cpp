@@ -5,21 +5,18 @@
 namespace Syrinx {
 
 ModelManager::ModelManager(FileManager *fileManager, MeshManager *meshManager, MaterialManager *materialManager)
-    : mFileManager(fileManager)
+    : ResourceManager<Model>()
+    , mFileManager(fileManager)
     , mMeshManager(meshManager)
     , mMaterialManager(materialManager)
-    , mModelMap()
-    , mModelList()
 {
     SYRINX_ENSURE(mFileManager);
     SYRINX_ENSURE(mMeshManager);
     SYRINX_ENSURE(mMaterialManager);
-    SYRINX_ENSURE(mModelMap.empty());
-    SYRINX_ENSURE(mModelList.empty());
 }
 
 
-Model* ModelManager::createModel(const std::string& name)
+std::unique_ptr<Model> ModelManager::create(const std::string& name)
 {
     SYRINX_EXPECT(!name.empty());
     auto [fileExist, filePath] = mFileManager->findFile(name);
@@ -31,7 +28,7 @@ Model* ModelManager::createModel(const std::string& name)
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileSystemError, "fail to open model file [{}]", filePath);
     }
     
-    auto model = new Model(name);
+    auto model = std::make_unique<Model>(name);
     try {
         pugi::xml_document document;
         document.load_string(fileStream->getAsString().c_str());
@@ -50,37 +47,15 @@ Model* ModelManager::createModel(const std::string& name)
             model->addMeshMaterialPair({mesh, material});
         }
     } catch (...) {
-        delete model;
         throw;
     }
-    addModel(model);
     return model;
-}
-
-
-Model* ModelManager::findModel(const std::string& name)
-{
-    SYRINX_EXPECT(!name.empty());
-    auto iter = mModelMap.find(name);
-    if (iter == std::end(mModelMap)) {
-        return nullptr;
-    }
-    return iter->second;
 }
 
 
 FileManager* ModelManager::getFileManager() const
 {
     return mFileManager;
-}
-
-
-void ModelManager::addModel(Model *model)
-{
-    SYRINX_EXPECT(model);
-    mModelList.push_back(std::unique_ptr<Model>(model));
-    mModelMap[model->getName()] = model;
-    SYRINX_ENSURE(findModel(model->getName()) == model);
 }
 
 } // namespace Syrinx

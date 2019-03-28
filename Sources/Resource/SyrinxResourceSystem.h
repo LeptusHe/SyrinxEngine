@@ -27,6 +27,7 @@ bool ResourceSystem::addResourceManager(std::unique_ptr<ResourceManager<T>>&& re
     SYRINX_EXPECT(!mResourceManagerMap.find(managerType));
     mResourceManagerMap[managerType] = std::move(resourceManager);
     SYRINX_ENSURE(mResourceManagerMap.find(managerType));
+    return true;
 }
 
 

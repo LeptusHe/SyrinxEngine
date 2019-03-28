@@ -6,7 +6,7 @@ list(APPEND include_dirs
         ${root_dir}
         ${PROJECT_SOURCE_DIR}/Sources/Core
         ${PROJECT_SOURCE_DIR}/Sources/Graphics
-        ${PROJECT_SOURCE_DIR}/Sources/ResourceSystem)
+        ${PROJECT_SOURCE_DIR}/Sources/Resource)
 
 
 # add source files into sources

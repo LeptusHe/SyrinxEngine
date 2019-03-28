@@ -72,7 +72,7 @@ SceneNode* SceneLoader::processNode(const pugi::xml_node& nodeElement, Scene *sc
     float zScale = getAttribute(scaleElement, "z").as_float();
     modelTransform.setScale({xScale, yScale, zScale});
 
-    Model* model = mModelManager->createModel(modelFile);
+    Model* model = mModelManager->createOrRetrieve(modelFile);
     SYRINX_ASSERT(model);
     for (const auto [mesh, material] : model->getMeshMaterialPairList()) {
         auto meshNode = scene->createSceneNode(mesh->getName());
