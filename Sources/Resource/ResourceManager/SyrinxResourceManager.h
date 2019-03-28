@@ -33,8 +33,6 @@ public:
     Resource* createOrRetrieve(const std::string& name);
     virtual std::unique_ptr<T> create(const std::string& name) = 0;
     Resource* find(const std::string& name);
-
-private:
     Resource* add(std::unique_ptr<Resource>&& resource);
 
 private:

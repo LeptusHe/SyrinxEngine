@@ -56,7 +56,7 @@ Mesh* MeshGenerator::build(const std::string& name)
     std::unique_ptr<MeshGeometry> meshGeometry = buildMeshGeometry();
     auto mesh = new Mesh(name, name, mHardwareResourceManager);
     mesh->setMeshGeometry(std::move(meshGeometry));
-    mMeshManager->addMesh(mesh);
+    mMeshManager->add(std::unique_ptr<Mesh>(mesh));
     mMeshName.clear();
     SYRINX_ENSURE(mMeshName.empty());
     return mesh;

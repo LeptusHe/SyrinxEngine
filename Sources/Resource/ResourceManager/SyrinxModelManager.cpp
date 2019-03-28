@@ -42,7 +42,7 @@ std::unique_ptr<Model> ModelManager::create(const std::string& name)
             std::string meshFile = getAttribute(meshMaterialPairNode, "mesh-file").as_string();
             std::string materialFile = getAttribute(meshMaterialPairNode, "material-file").as_string();
 
-            Mesh *mesh = mMeshManager->createMesh(meshFile);
+            Mesh *mesh = mMeshManager->createOrRetrieve(meshFile);
             Material *material = mMaterialManager->createOrRetrieveMaterial(materialFile);
             model->addMeshMaterialPair({mesh, material});
         }
