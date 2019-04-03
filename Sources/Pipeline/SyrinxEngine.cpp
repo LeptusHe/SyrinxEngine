@@ -50,7 +50,8 @@ void Engine::init()
     mFileManager = std::make_unique<FileManager>();
     mHardwareResourceManager = std::make_unique<HardwareResourceManager>(getFileManager());
     mMeshManager = std::make_unique<MeshManager>(getFileManager(), getHardwareResourceManager());
-    mMaterialManager = std::make_unique<MaterialManager>(getFileManager(), getHardwareResourceManager());
+    mShaderManager = std::make_unique<ShaderManager>(getFileManager(), getHardwareResourceManager());
+    mMaterialManager = std::make_unique<MaterialManager>(getFileManager(), getHardwareResourceManager(), getShaderManager());
     mModelManager = std::make_unique<ModelManager>(getFileManager(), getMeshManager(), getMaterialManager());
     mSceneManager = std::make_unique<SceneManager>(getFileManager(), getModelManager());
 }
@@ -152,6 +153,13 @@ MeshManager* Engine::getMeshManager() const
 {
     SYRINX_EXPECT(mMeshManager);
     return mMeshManager.get();
+}
+
+
+ShaderManager* Engine::getShaderManager() const
+{
+    SYRINX_EXPECT(mShaderManager);
+    return mShaderManager.get();
 }
 
 

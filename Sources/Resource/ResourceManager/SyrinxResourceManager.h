@@ -34,6 +34,7 @@ public:
     virtual std::unique_ptr<T> create(const std::string& name) = 0;
     Resource* find(const std::string& name);
     Resource* add(std::unique_ptr<Resource>&& resource);
+    bool remove(const std::string& name);
 
 private:
     ResourceMap mResourceMap;
@@ -87,6 +88,19 @@ typename ResourceManager<T>::Resource* ResourceManager<T>::add(std::unique_ptr<R
     SYRINX_ENSURE(find(result->getName()));
     SYRINX_ENSURE(result);
     return result;
+}
+
+
+template <typename T>
+bool ResourceManager<T>::remove(const std::string& name)
+{
+    SYRINX_ENSURE(!name.empty());
+    auto iter = mResourceMap.find(name);
+    if (iter != std::end(mResourceMap)) {
+        mResourceMap.erase(iter);
+        return true;
+    }
+    return false;
 }
 
 } // namespace Syrinx

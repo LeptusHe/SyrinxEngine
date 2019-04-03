@@ -9,6 +9,7 @@
 #include <ResourceManager/SyrinxHardwareResourceManager.h>
 #include <ResourceManager/SyrinxMeshManager.h>
 #include <ResourceManager/SyrinxModelManager.h>
+#include <ResourceManager/SyrinxShaderManager.h>
 #include <ResourceManager/SyrinxMaterialManager.h>
 #include <Scene/SyrinxSceneManager.h>
 #include "SyrinxDisplayDevice.h"
@@ -37,6 +38,7 @@ public:
     FileManager* getFileManager() const;
     HardwareResourceManager* getHardwareResourceManager() const;
     MeshManager* getMeshManager() const;
+    ShaderManager* getShaderManager() const;
     MaterialManager* getMaterialManager() const;
     ModelManager* getModelManager() const;
     SceneManager* getSceneManager() const;
@@ -56,6 +58,7 @@ private:
     std::unique_ptr<FileManager> mFileManager;
     std::unique_ptr<HardwareResourceManager> mHardwareResourceManager;
     std::unique_ptr<MeshManager> mMeshManager;
+    std::unique_ptr<ShaderManager> mShaderManager;
     std::unique_ptr<MaterialManager> mMaterialManager;
     std::unique_ptr<ModelManager> mModelManager;
     std::unique_ptr<SceneManager> mSceneManager;
