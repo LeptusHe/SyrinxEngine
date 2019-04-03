@@ -1,0 +1,13 @@
+<material name="fabric_c">
+    <input-parameter-set>
+        <parameter name="ambientTex" type="texture-2d">
+            <image-file>textures\sponza_curtain_diff.tga</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+        <parameter name="diffuseTex" type="texture-2d">
+            <image-file>textures\sponza_curtain_diff.tga</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+    </input-parameter-set>
+    <shader-file>default-shader-file.shader</shader-file>
+</material>

@@ -1,0 +1,17 @@
+<material name="Material__57">
+    <input-parameter-set>
+        <parameter name="ambientTex" type="texture-2d">
+            <image-file>textures\vase_plant.tga</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+        <parameter name="diffuseTex" type="texture-2d">
+            <image-file>textures\vase_plant.tga</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+        <parameter name="opacityTex" type="texture-2d">
+            <image-file>textures\vase_plant_mask.tga</image-file>
+            <image-format>rbga8</image-format>
+        </parameter>
+    </input-parameter-set>
+    <shader-file>default-shader-file.shader</shader-file>
+</material>

@@ -1,0 +1,13 @@
+<material name="bump-cube">
+    <input-parameter-set>
+        <parameter name="uAlbedoMap" type="texture-2d">
+            <image-file>stone-albedo-map.png</image-file>
+            <image-format>rgba8</image-format>
+        </parameter>
+        <parameter name="uNormalMap" type="texture-2d">
+            <image-file>stone-normal-map.png</image-file>
+            <image-format>rgba8</image-format>
+        </parameter>
+    </input-parameter-set>
+    <shader-file>bump.shader</shader-file>
+</material>

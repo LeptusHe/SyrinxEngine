@@ -1,0 +1,4 @@
+<material name="Material__47">
+    <input-parameter-set />
+    <shader-file>default-shader-file.shader</shader-file>
+</material>

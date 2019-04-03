@@ -1,0 +1,7 @@
+<scene>
+    <node name="sponza-entity">
+        <position x="0.0" y="0.0" z="0.0"/>
+        <scale x="1" y="1" z="1"/>
+        <entity name="sponza" model-file="sponza-red.smodel"/>
+    </node>
+</scene>
