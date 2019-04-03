@@ -19,6 +19,7 @@ ModelManager::ModelManager(FileManager *fileManager, MeshManager *meshManager, M
 std::unique_ptr<Model> ModelManager::create(const std::string& name)
 {
     SYRINX_EXPECT(!name.empty());
+    SYRINX_EXPECT(!find(name));
     auto [fileExist, filePath] = mFileManager->findFile(name);
     if (!fileExist) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileNotFound, "can not find model file [{}]", name);
@@ -43,7 +44,7 @@ std::unique_ptr<Model> ModelManager::create(const std::string& name)
             std::string materialFile = getAttribute(meshMaterialPairNode, "material-file").as_string();
 
             Mesh *mesh = mMeshManager->createOrRetrieve(meshFile);
-            Material *material = mMaterialManager->createOrRetrieveMaterial(materialFile);
+            Material *material = mMaterialManager->createOrRetrieve(materialFile);
             model->addMeshMaterialPair({mesh, material});
         }
     } catch (...) {

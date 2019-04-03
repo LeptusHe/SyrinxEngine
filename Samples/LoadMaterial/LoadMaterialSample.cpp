@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
     fileManager.addSearchPath("../../Medias/");
     auto cubeMesh = meshManager.createMesh("cube.smesh");
-    auto cubeMaterial = materialManager.createMaterial("display-red-color.smat");
+    auto cubeMaterial = materialManager.createOrRetrieveMaterial("display-red-color.smat");
 
     auto displayColorShader = cubeMaterial->getShader();
     auto lightingPass = displayColorShader->getShaderPass("lighting");

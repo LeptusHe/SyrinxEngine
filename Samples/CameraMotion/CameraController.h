@@ -36,8 +36,8 @@ public:
         }
 
         auto eulerAngle = transform.getEulerAngle();
-        eulerAngle.x += cursorPosition.y * 0.1;
-        eulerAngle.y += cursorPosition.x * 0.1;
+        eulerAngle.x += cursorPosition.y * 0.05;
+        eulerAngle.y += cursorPosition.x * 0.05;
         transform.setEulerAngle(eulerAngle);
     }
 
@@ -48,7 +48,6 @@ public:
 
         static bool firstUpdate = true;
         if (firstUpdate) {
-
             mLastCursorPosition = input.getCursorPosition();
             firstUpdate = false;
             return {0, 0};

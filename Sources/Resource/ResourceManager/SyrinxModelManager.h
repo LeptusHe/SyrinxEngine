@@ -13,7 +13,7 @@ namespace Syrinx {
 class ModelManager : public ResourceManager<Model> {
 public:
     ModelManager(FileManager *fileManager, MeshManager *meshManager, MaterialManager *materialManager);
-    virtual ~ModelManager() = default;
+    ~ModelManager() override = default;
 
     std::unique_ptr<Model> create(const std::string& name) override;
     virtual FileManager* getFileManager() const;

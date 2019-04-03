@@ -1,4 +1,4 @@
-#include <RenderPipeline/SyrinxDisplayDevice.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
 #include <Logging/SyrinxLogManager.h>
 
 int main(int argc, char *argv[])

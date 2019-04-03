@@ -1,4 +1,4 @@
-#include <RenderPipeline/SyrinxEngine.h>
+#include <Pipeline/SyrinxEngine.h>
 #include <FileSystem/SyrinxFileSystem.h>
 #include "CameraController.h"
 
@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     Syrinx::Scene *scene = nullptr;
     Syrinx::SceneManager *sceneManager = engine.getSceneManager();
-    scene = sceneManager->loadScene("cube-scene.scene");
+    scene = sceneManager->loadScene("sponza-vertex-normal.scene");
     engine.setActiveScene(scene);
 
     auto root = scene->getRoot();

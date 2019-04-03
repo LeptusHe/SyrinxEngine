@@ -12,7 +12,7 @@ namespace Syrinx {
 class MeshManager : public ResourceManager<Mesh> {
 public:
     explicit MeshManager(FileManager *fileManager, HardwareResourceManager *hardwareResourceManager);
-    ~MeshManager() = default;
+    ~MeshManager() override = default;
     std::unique_ptr<Mesh> create(const std::string& name) override;
 
 private:

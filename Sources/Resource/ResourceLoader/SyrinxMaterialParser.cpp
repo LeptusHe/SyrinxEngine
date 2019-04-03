@@ -46,8 +46,7 @@ Material* MaterialParser::parseMaterial(const std::string& fileName)
     Material *material = nullptr;
     try {
         auto materialNode = getChild(document, "material");
-        std::string materialName = getAttribute(materialNode, "name").as_string();
-        material = new Material(materialName);
+        material = new Material(fileName);
         mMaterial = material;
         SYRINX_ENSURE(mMaterial);
 
