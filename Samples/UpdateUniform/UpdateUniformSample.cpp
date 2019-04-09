@@ -1,6 +1,6 @@
 #include <Logging/SyrinxLogManager.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
-#include <RenderPipeline/SyrinxEngineSetting.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
+#include <Pipeline/SyrinxEngineSetting.h>
 #include <HardwareResource/SyrinxProgramStage.h>
 #include <HardwareResource/SyrinxProgramPipeline.h>
 #include <HardwareResource/SyrinxHardwareVertexBuffer.h>

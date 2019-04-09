@@ -1,7 +1,7 @@
 #include <Math/SyrinxMath.h>
 #include <Component/SyrinxRenderer.h>
 #include <Logging/SyrinxLogManager.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
 #include <Scene/SyrinxSceneManager.h>
 
 
@@ -20,7 +20,8 @@ int main(int argc, char *argv[])
     Syrinx::FileManager fileManager;
     fileManager.addSearchPath("../../Medias/");
     Syrinx::HardwareResourceManager hardwareResourceManager(&fileManager);
-    Syrinx::MaterialManager materialManager(&fileManager, &hardwareResourceManager);
+    Syrinx::ShaderManager shaderManager(&fileManager, &hardwareResourceManager);
+    Syrinx::MaterialManager materialManager(&fileManager, &hardwareResourceManager, &shaderManager);
     Syrinx::MeshManager meshManager(&fileManager, &hardwareResourceManager);
     Syrinx::ModelManager modelManager(&fileManager, &meshManager, &materialManager);
     Syrinx::SceneManager sceneManager(&fileManager, &modelManager);

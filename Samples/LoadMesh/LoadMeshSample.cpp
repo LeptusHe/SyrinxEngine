@@ -1,10 +1,10 @@
 #include <Math/SyrinxMath.h>
 #include <Logging/SyrinxLogManager.h>
-#include <ResourceManager/SyrinxMeshManager.h>
-#include <RenderPipeline/SyrinxEngineSetting.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
 #include <HardwareResource/SyrinxProgramStage.h>
 #include <HardwareResource/SyrinxProgramPipeline.h>
+#include <Pipeline/SyrinxEngineSetting.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
+#include <ResourceManager/SyrinxMeshManager.h>
 
 
 int main(int argc, char *argv[])
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
     fileManager.addSearchPath("../../Medias/Models/");
     Syrinx::HardwareResourceManager hardwareResourceManager(&fileManager);
     Syrinx::MeshManager meshManager(&fileManager, &hardwareResourceManager);
-    auto cubeMesh = meshManager.createMesh("cube.smesh");
+    auto cubeMesh = meshManager.createOrRetrieve("cube.smesh");
     while (renderWindow->isOpen()) {
         float defaultValueForColorAttachment[] = {0.0, 0.0, 1.0, 1.0};
         glClearNamedFramebufferfv(0, GL_COLOR, 0, defaultValueForColorAttachment);

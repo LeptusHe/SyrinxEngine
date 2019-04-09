@@ -1,6 +1,6 @@
 #include <Math/SyrinxMath.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
 #include <Logging/SyrinxLogManager.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
 #include <ResourceManager/SyrinxModelManager.h>
 
 
@@ -20,9 +20,10 @@ int main(int argc, char *argv[])
     fileManager.addSearchPath("../../Medias");
     Syrinx::HardwareResourceManager hardwareResourceManager(&fileManager);
     Syrinx::MeshManager meshManager(&fileManager, &hardwareResourceManager);
-    Syrinx::MaterialManager materialManager(&fileManager, &hardwareResourceManager);
+    Syrinx::ShaderManager shaderManager(&fileManager, &hardwareResourceManager);
+    Syrinx::MaterialManager materialManager(&fileManager, &hardwareResourceManager, &shaderManager);
     Syrinx::ModelManager modelManager(&fileManager, &meshManager, &materialManager);
-    auto cubeModel = modelManager.createModel("bump-cube.smodel");
+    auto cubeModel = modelManager.createOrRetrieve("bump-cube.smodel");
 
     while (renderWindow->isOpen()) {
         float defaultValueForColorAttachment[] = {0.0, 0.0, 1.0, 1.0};

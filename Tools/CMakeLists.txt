@@ -4,7 +4,7 @@ set(include_dirs
         ${PROJECT_SOURCE_DIR}/Sources/
         ${PROJECT_SOURCE_DIR}/Sources/Core
         ${PROJECT_SOURCE_DIR}/Sources/Graphics
-        ${PROJECT_SOURCE_DIR}/Sources/ResourceSystem)
+        ${PROJECT_SOURCE_DIR}/Sources/Resource)
 
 set(tool-required-include-dirs ${include_dirs} CACHE INTERNAL "include dirs required by tools")
 

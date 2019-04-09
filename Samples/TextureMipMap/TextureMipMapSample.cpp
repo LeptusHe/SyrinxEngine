@@ -7,8 +7,8 @@
 #include <HardwareResource/SyrinxHardwareIndexBuffer.h>
 #include <HardwareResource/SyrinxVertexInputState.h>
 #include <HardwareResource/SyrinxHardwareTexture.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
 #include <ResourceManager/SyrinxFileManager.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
 
 
 int main(int argc, char *argv[])

@@ -1,6 +1,6 @@
 #include <Math/SyrinxMath.h>
 #include <Logging/SyrinxLogManager.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
 #include <ResourceManager/SyrinxMeshManager.h>
 #include <ResourceManager/SyrinxMaterialManager.h>
 
@@ -20,11 +20,12 @@ int main(int argc, char *argv[])
     Syrinx::FileManager fileManager;
     Syrinx::HardwareResourceManager hardwareResourceManager(&fileManager);
     Syrinx::MeshManager meshManager(&fileManager, &hardwareResourceManager);
-    Syrinx::MaterialManager materialManager(&fileManager, &hardwareResourceManager);
+    Syrinx::ShaderManager shaderManager(&fileManager, &hardwareResourceManager);
+    Syrinx::MaterialManager materialManager(&fileManager, &hardwareResourceManager, &shaderManager);
 
     fileManager.addSearchPath("../../Medias/");
-    auto cubeMesh = meshManager.createMesh("cube.smesh");
-    auto cubeMaterial = materialManager.createOrRetrieveMaterial("display-red-color.smat");
+    auto cubeMesh = meshManager.createOrRetrieve("cube.smesh");
+    auto cubeMaterial = materialManager.createOrRetrieve("display-red-color.smat");
 
     auto displayColorShader = cubeMaterial->getShader();
     auto lightingPass = displayColorShader->getShaderPass("lighting");

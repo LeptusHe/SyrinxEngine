@@ -1,4 +1,4 @@
-#include <RenderPipeline/SyrinxEngine.h>
+#include <Pipeline/SyrinxEngine.h>
 #include <FileSystem/SyrinxFileSystem.h>
 
 int main(int argc, char *argv[])
@@ -14,14 +14,26 @@ int main(int argc, char *argv[])
     Syrinx::SceneManager *sceneManager = engine.getSceneManager();
     scene = sceneManager->loadScene("cube-scene.scene");
     engine.setActiveScene(scene);
-    auto camera = std::make_unique<Syrinx::Camera>("main camera");
-    camera->setPosition({0.0, 8.0, 40.0});
-    camera->lookAt({0.0, 8.0, 0.0});
-    camera->setViewportRect({0, 0, 800, 800});
+
+    auto root = scene->getRoot();
+    auto cameraNode = scene->createSceneNode("main camera");
+    root->addChild(cameraNode);
+
+    auto cameraEntity = sceneManager->createEntity("camera entity");
+    cameraNode->attachEntity(cameraEntity);
+
+    Syrinx::Camera camera("main camera");
+    camera.setPosition({0.0, 8.0, 40.0});
+    camera.lookAt({0.0, 8.0, 0.0});
+    camera.setViewportRect({0, 0, 800, 800});
+    cameraEntity->addComponent<Syrinx::Camera>(camera);
+
+    Syrinx::Transform cameraTransform;
+    cameraEntity->addComponent<Syrinx::Transform>(cameraTransform);
 
     auto lightingPass = std::make_unique<Syrinx::RenderPass>("lighting");
     lightingPass->setShaderPassName("lighting");
-    lightingPass->setCamera(camera.get());
+    lightingPass->setCamera(cameraEntity);
     lightingPass->addEntityList(scene->getEntityList());
 
     auto renderPipeline = std::make_unique<Syrinx::RenderPipeline>("display constant color");

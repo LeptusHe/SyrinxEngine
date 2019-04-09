@@ -1,10 +1,10 @@
 #include <Math/SyrinxMath.h>
 #include <Image/SyrinxImage.h>
 #include <Image/SyrinxImageReader.h>
+#include <Component/SyrinxCamera.h>
 #include <Logging/SyrinxLogManager.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
-#include <RenderPipeline/SyrinxEngineSetting.h>
-#include <RenderSystem/SyrinxCamera.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
+#include <Pipeline/SyrinxEngineSetting.h>
 #include <RenderResource/SyrinxCubeMap.h>
 #include <HardwareResource/SyrinxProgramStage.h>
 #include <HardwareResource/SyrinxProgramPipeline.h>

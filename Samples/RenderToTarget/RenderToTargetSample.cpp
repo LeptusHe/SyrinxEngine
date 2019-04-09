@@ -3,10 +3,10 @@
 #include <HardwareResource/SyrinxProgramPipeline.h>
 #include <HardwareResource/SyrinxVertexInputState.h>
 #include <RenderResource/SyrinxRenderTexture.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
+#include <Pipeline/SyrinxEngineSetting.h>
 #include <RenderResource/SyrinxDepthTexture.h>
 #include <RenderResource/SyrinxRenderTarget.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
-#include <RenderPipeline/SyrinxEngineSetting.h>
 
 
 int main(int argc, char *argv[])

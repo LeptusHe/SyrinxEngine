@@ -1,13 +1,13 @@
 #include <Image/SyrinxImage.h>
 #include <Image/SyrinxImageReader.h>
 #include <Logging/SyrinxLogManager.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
 #include <HardwareResource/SyrinxProgramStage.h>
 #include <HardwareResource/SyrinxProgramPipeline.h>
 #include <HardwareResource/SyrinxHardwareVertexBuffer.h>
 #include <HardwareResource/SyrinxHardwareIndexBuffer.h>
 #include <HardwareResource/SyrinxVertexInputState.h>
 #include <HardwareResource/SyrinxHardwareTexture.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
 #include <ResourceManager/SyrinxFileManager.h>
 
 
