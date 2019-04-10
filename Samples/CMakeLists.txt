@@ -27,12 +27,9 @@ add_subdirectory(LoadModel)
 add_subdirectory(LoadMaterial)
 add_subdirectory(MotionController)
 add_subdirectory(RenderToTarget)
-#add_subdirectory(Skybox)
 add_subdirectory(LoadScene)
 add_subdirectory(RenderPipeline)
 add_subdirectory(TextureMipMap)
-add_subdirectory(ToneMapping)
-add_subdirectory(NormalMap)
 
 
 add_custom_target(AllSamples)
@@ -48,6 +45,5 @@ add_dependencies(AllSamples
         MotionControllerSample
         RenderToTargetSample
         RenderPipelineSample
-        #SkyboxSample
         LoadSceneSample
         TextureMipMapSample)

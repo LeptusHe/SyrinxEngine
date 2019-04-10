@@ -1,19 +1,19 @@
-#include <GL/glew.h>
 #include <fstream>
 #include <sstream>
 #include <Image/SyrinxImage.h>
+#include <Image/SyrinxImageReader.h>
 #include <HardwareResource/SyrinxHardwareTexture.h>
 #include <Logging/SyrinxLogManager.h>
 #include <ResourceManager/SyrinxFileManager.h>
-#include <RenderPipeline/SyrinxDisplayDevice.h>
 #include <HardwareResource/SyrinxProgramStage.h>
 #include <HardwareResource/SyrinxProgramPipeline.h>
 #include <HardwareResource/SyrinxHardwareVertexBuffer.h>
 #include <HardwareResource/SyrinxHardwareIndexBuffer.h>
 #include <HardwareResource/SyrinxVertexInputState.h>
-#include <ResourceSystem/RenderResource/SyrinxRenderTexture.h>
-#include <ResourceSystem/RenderResource/SyrinxDepthTexture.h>
-#include <ResourceSystem/RenderResource/SyrinxRenderTarget.h>
+#include <Pipeline/SyrinxDisplayDevice.h>
+#include <RenderResource/SyrinxRenderTexture.h>
+#include <RenderResource/SyrinxDepthTexture.h>
+#include <RenderResource/SyrinxRenderTarget.h>
 
 const int WIDTH = 1024, HEIGHT = 768;
 
@@ -192,7 +192,8 @@ int main(int argc, char *argv[])
     vertexInputState.create();
 
 	//--------------------------------Texture -------------------------------------
-    Syrinx::Image image("../../Medias/withoutToneMapping.png", Syrinx::ImageFormat::RGBA8);
+	Syrinx::ImageReader imageReader;
+	Syrinx::Image image = imageReader.read("../../Medias/withoutToneMapping.png", Syrinx::ImageFormat::RGBA8);
 
     Syrinx::HardwareTexture skyTexture("without tone mapping texture");
     skyTexture.setType(Syrinx::TextureType::TEXTURE_2D);
