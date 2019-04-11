@@ -131,7 +131,7 @@ bool DisplayDevice::initWindow(const std::string& title, unsigned width, unsigne
         mRenderWindow->setHeight(height);
         SYRINX_INFO_FMT("succeed to create window [title={}, major version={}, minor version={}]", title, mMajorVersionNumber, mMinorVersionNumber);
     } else {
-        SYRINX_FAULT_FMT("fail to create window [title={}, major version={}, minor version={}]", title, mMinorVersionNumber, mMinorVersionNumber);
+        SYRINX_FAULT_FMT("fail to create window [title={}, major version={}, minor version={}]", title, mMajorVersionNumber, mMinorVersionNumber);
         glfwTerminate();
         return false;
     }
