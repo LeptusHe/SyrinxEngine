@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
             GLuint vertexInputStateHandle = mesh->getVertexInputState().getHandle();
             glBindVertexArray(vertexInputStateHandle);
 
-            const Syrinx::Material* material = cubeModel->getMaterial("bump-cube");
+            const Syrinx::Material* material = cubeModel->getMaterial("bump-cube.smat");
             SYRINX_ASSERT(material);
             auto lightingShaderPass = material->getShader()->getShaderPass("lighting");
             SYRINX_ASSERT(lightingShaderPass);
