@@ -47,6 +47,10 @@ add_subdirectory(glm)
 # build imgui
 add_subdirectory(imgui)
 
+# build lua
+aux_source_directory(lua lua-sources)
+add_library(lua ${lua-sources})
+
 # build pugixml
 add_subdirectory(pugixml)
 
@@ -65,6 +69,7 @@ set(glfw-headers ${root_dir}/glfw/include)
 set(glm-headers ${root_dir}/glm)
 set(imgui-headers ${root_dir})
 set(json-headers ${root_dir}/json/single_include)
+set(lua-headers ${root_dir}/lua)
 set(pugixml-headers ${root_dir}/pugixml/src)
 set(tinyobjloader-headers ${root_dir}/tinyobjloader)
 
@@ -81,6 +86,7 @@ list(APPEND third_party_headers
         ${glm-headers}
         ${imgui-headers}
         ${json-headers}
+        ${lua-headers}
         ${pugixml-headers}
         ${tinyobjloader-headers})
 set(third_party_INCLUDE_DIRS ${third_party_headers} CACHE INTERNAL "include directories for third party libraries")

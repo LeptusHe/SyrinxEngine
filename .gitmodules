@@ -42,3 +42,9 @@
 [submodule "ThirdParty/imgui"]
 	path = ThirdParty/imgui
 	url = git@git.dev.tencent.com:Leptus/imgui.git
+[submodule "ThirdParty/lua"]
+	path = ThirdParty/lua
+	url = https://github.com/lua/lua.git
+[submodule "ThirdParty/sol2"]
+	path = ThirdParty/sol2
+	url = https://github.com/ThePhD/sol2.git
