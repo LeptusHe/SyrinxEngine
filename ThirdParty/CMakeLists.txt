@@ -10,7 +10,7 @@ set(ASSIMP_BUILD_OBJ_IMPORTER TRUE CACHE BOOL "enable obj importer")
 set(ASSIMP_BUILD_STL_IMPORTER TRUE CACHE BOOL "enable stl importer")
 set(ASSIMP_BUILD_PLY_IMPORTER TRUE CACHE BOOL "enable ply importer")
 set(ASSIMP_BUILD_FBX_IMPORTER TRUE CACHE BOOL "enable fbx importer")
-add_subdirectory(assimp)
+#add_subdirectory(assimp)
 
 # build cxxopts
 add_subdirectory(cxxopts)
@@ -54,6 +54,17 @@ add_library(lua ${lua-sources})
 # build pugixml
 add_subdirectory(pugixml)
 
+# build SPIRV-Cross
+set(SPIRV_CROSS_SHARED OFF CACHE BOOL "Build the C API as a single shared library.")
+set(SPIRV_CROSS_STATIC ON CACHE BOOL "Build the C and C++ API as static libraries.")
+set(SPIRV_CROSS_CLI OFF CACHE BOOL "Build the CLI binary. Requires SPIRV_CROSS_STATIC.")
+set(SPIRV_CROSS_ENABLE_TESTS OFF CACHE BOOL "Enable SPIRV-Cross tests.")
+set(SPIRV_CROSS_ENABLE_HLSL OFF CACHE BOOL "Enable HLSL target support.")
+set(SPIRV_CROSS_ENABLE_MSL OFF CACHE BOOL "Enable MSL target support.")
+set(SPIRV_CROSS_ENABLE_CPP OFF CACHE BOOL "Enable C++ target support.")
+set(SPIRV_CROSS_ENABLE_C_API ON CACHE BOOL "Enable C API wrapper support in static library.")
+add_subdirectory(SPIRV-Cross)
+
 # build tinyobjloader library
 add_subdirectory(tinyobjloader)
 
@@ -71,6 +82,7 @@ set(imgui-headers ${root_dir})
 set(json-headers ${root_dir}/json/single_include)
 set(lua-headers ${root_dir}/lua)
 set(pugixml-headers ${root_dir}/pugixml/src)
+set(SPIRV-Cross-header ${root_dir}/SPIRV-Cross)
 set(tinyobjloader-headers ${root_dir}/tinyobjloader)
 
 # set headers for third party
@@ -88,5 +100,6 @@ list(APPEND third_party_headers
         ${json-headers}
         ${lua-headers}
         ${pugixml-headers}
+        ${SPIRV-Cross-header}
         ${tinyobjloader-headers})
 set(third_party_INCLUDE_DIRS ${third_party_headers} CACHE INTERNAL "include directories for third party libraries")

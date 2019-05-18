@@ -48,3 +48,6 @@
 [submodule "ThirdParty/sol2"]
 	path = ThirdParty/sol2
 	url = https://github.com/ThePhD/sol2.git
+[submodule "ThirdParty/SPIRV-Cross"]
+	path = ThirdParty/SPIRV-Cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
