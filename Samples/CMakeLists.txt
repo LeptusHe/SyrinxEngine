@@ -30,6 +30,7 @@ add_subdirectory(RenderToTarget)
 add_subdirectory(LoadScene)
 add_subdirectory(RenderPipeline)
 add_subdirectory(TextureMipMap)
+add_subdirectory(SPIRVReflection)
 
 
 add_custom_target(AllSamples)
