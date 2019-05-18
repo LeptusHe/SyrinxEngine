@@ -22,4 +22,4 @@ endforeach()
 # build core library
 include_directories(${include_dirs})
 add_library(Graphics STATIC ${sources})
-target_link_libraries(Graphics Core ResourceSystem assimp)
+target_link_libraries(Graphics Core ResourceSystem glew)
