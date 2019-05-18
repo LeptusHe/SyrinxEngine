@@ -100,6 +100,19 @@ std::string FileStream::getAsString()
 }
 
 
+std::vector<char> FileStream::getAsByteArray()
+{
+    if (!isReadable()) {
+        SYRINX_DEBUG_FMT("fail to read line from file stream [{}] which is not readable", getName());
+        return {};
+    }
+    auto size = getSize();
+    std::vector<char> byteArray(size);
+    mFileStream->read(byteArray.data(), size);
+    return byteArray;
+}
+
+
 void FileStream::skip(uint64_t byteSize)
 {
     SYRINX_EXPECT(isReadable());

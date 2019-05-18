@@ -20,6 +20,7 @@ public:
     std::string getLine() override;
     bool getLine(std::string& line) override;
     std::string getAsString() override;
+    std::vector<char> getAsByteArray() override;
     void skip(uint64_t byteSize) override;
     void seek(size_t pos) override;
     size_t tell() const override;

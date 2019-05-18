@@ -1,6 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include <cstring>
+#include <vector>
 
 namespace Syrinx {
 
@@ -17,6 +19,8 @@ public:
     virtual std::string getLine() = 0;
     virtual bool getLine(std::string& line) = 0;
     virtual std::string getAsString() = 0;
+    template <typename T> std::vector<T> getAsDataArray();
+    virtual std::vector<char> getAsByteArray() = 0;
     virtual void skip(uint64_t byteSize) = 0;
     virtual size_t tell() const = 0;
     virtual void seek(size_t pos) = 0;
@@ -33,5 +37,17 @@ private:
     std::string mName;
     size_t mSize;
 };
+
+
+template <typename T>
+std::vector<T> DataStream::getAsDataArray()
+{
+    auto byteArray = getAsByteArray();
+    auto byteSize = byteArray.size();
+    size_t numDataElement = (byteSize + sizeof(T) - 1) / sizeof(T);
+    std::vector<T> dataArray(numDataElement);
+    std::memcpy(dataArray.data(), byteArray.data(), byteSize);
+    return dataArray;
+}
 
 } // namespace Syrinx
