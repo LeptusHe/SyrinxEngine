@@ -2,6 +2,11 @@
     <node name="node-name">
         <position x="0.0" y="0.0" z="0.0"/>
         <scale x="1" y="1" z="1"/>
-        <entity name="entity-name" model-file="model-file.smodel" material-file="material-file.smat"/>
+        <entity name="entity-name" type="model" model-file="model-file.smodel"/>
+    </node>
+    <node name="main-camera-node">
+        <position x="0.0" y="0.0" z="0.0"/>
+        <scale x="1" y="1" z="1"/>
+        <entity name="main-camera" type="camera"/>
     </node>
 </scene>
