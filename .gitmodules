@@ -18,9 +18,6 @@
 	path = ThirdParty/stb
 	url = https://github.com/nothings/stb.git
     ignore = untracked
-[submodule "ThirdParty/glm"]
-	path = ThirdParty/glm
-	url = https://github.com/g-truc/glm.git
 [submodule "ThirdParty/tinyobjloader"]
 	path = ThirdParty/tinyobjloader
 	url = https://github.com/syoyo/tinyobjloader.git
@@ -48,6 +45,9 @@
 [submodule "ThirdParty/sol2"]
 	path = ThirdParty/sol2
 	url = https://github.com/ThePhD/sol2.git
-[submodule "ThirdParty/SPIRV-Cross"]
-	path = ThirdParty/SPIRV-Cross
-	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "ThirdParty/shaderc"]
+	path = ThirdParty/shaderc
+	url = git@github.com:google/shaderc.git
+[submodule "ThirdParty/glm"]
+	path = ThirdParty/glm
+	url = git@github.com:g-truc/glm.git

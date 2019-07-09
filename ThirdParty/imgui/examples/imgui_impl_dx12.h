@@ -3,6 +3,7 @@
 
 // Implemented features:
 //  [X] Renderer: User texture binding. Use 'D3D12_GPU_DESCRIPTOR_HANDLE' as ImTextureID. Read the FAQ about ImTextureID in imgui.cpp.
+//  [X] Renderer: Support for large meshes (64k+ vertices) with 16-bits indices.
 // Issues:
 //  [ ] 64-bit only for now! (Because sizeof(ImTextureId) == sizeof(void*)). See github.com/ocornut/imgui/pull/301
 
@@ -19,7 +20,7 @@ struct D3D12_CPU_DESCRIPTOR_HANDLE;
 struct D3D12_GPU_DESCRIPTOR_HANDLE;
 
 // cmd_list is the command list that the implementation will use to render imgui draw lists.
-// Before calling the render function, caller must prepare cmd_list by resetting it and setting the appropriate 
+// Before calling the render function, caller must prepare cmd_list by resetting it and setting the appropriate
 // render target and descriptor heap that contains font_srv_cpu_desc_handle/font_srv_gpu_desc_handle.
 // font_srv_cpu_desc_handle and font_srv_gpu_desc_handle are handles to a single SRV descriptor to use for the internal font texture.
 IMGUI_IMPL_API bool     ImGui_ImplDX12_Init(ID3D12Device* device, int num_frames_in_flight, DXGI_FORMAT rtv_format,
