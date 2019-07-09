@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
 
     Syrinx::ImageReader imageReader;
     Syrinx::Image image = imageReader.read(imageFilePath, Syrinx::ImageFormat::RGB8);
-    Syrinx::TextureSamplingSetting textureSamplingSetting;
+    Syrinx::SamplingSetting textureSamplingSetting;
     textureSamplingSetting.setMagFilterMethod(Syrinx::TextureMagFilterMethod::NEAREST);
     textureSamplingSetting.setMinFilterMethod(Syrinx::TextureMinFilterMethod::NEAREST_MIPMAP_NEAREST);
     textureSamplingSetting.setWrapSMethod(Syrinx::TextureWrapMethod::CLAMP_TO_EDGE);
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
     hardwareTexture.setHeight(image.getHeight());
     hardwareTexture.create();
     hardwareTexture.write(image.getData(), image.getWidth(), image.getHeight());
-    hardwareTexture.generateTextureMipMap();
+    hardwareTexture.generateMipMap();
 
 
     float quadVertices[] = {

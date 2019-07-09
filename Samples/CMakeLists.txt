@@ -6,13 +6,14 @@ set(include_dirs
         ${PROJECT_SOURCE_DIR}/Sources/Graphics
         ${PROJECT_SOURCE_DIR}/Sources/Resource
         ${PROJECT_SOURCE_DIR}/Sources/Scene
-        ${PROJECT_SOURCE_DIR}/Sources/Pipeline)
+        ${PROJECT_SOURCE_DIR}/Sources/Pipeline
+        ${PROJECT_SOURCE_DIR}/Sources/GUI)
 
 set(sample-required-include-dirs ${include_dirs} CACHE INTERNAL "include dirs required by samples")
 
 
 # get libraries
-set(libraries Core Graphics ResourceSystem Scene RenderPipeline glew_s glfw glm pugixml)
+set(libraries RenderPipeline GUI)
 set(sample-required-libraries ${libraries} CACHE INTERNAL "libraries required by samples")
 
 
@@ -21,16 +22,18 @@ add_subdirectory(CameraMotion)
 add_subdirectory(CreateWindow)
 add_subdirectory(DrawTriangle)
 add_subdirectory(UpdateUniform)
-add_subdirectory(LoadTexture)
 add_subdirectory(LoadMesh)
 add_subdirectory(LoadModel)
 add_subdirectory(LoadMaterial)
+add_subdirectory(LoadTexture)
+add_subdirectory(LuaScript)
 add_subdirectory(MotionController)
 add_subdirectory(RenderToTarget)
 add_subdirectory(LoadScene)
 add_subdirectory(RenderPipeline)
 add_subdirectory(TextureMipMap)
 add_subdirectory(SPIRVReflection)
+add_subdirectory(GuiRender)
 
 
 add_custom_target(AllSamples)
@@ -43,6 +46,7 @@ add_dependencies(AllSamples
         LoadMeshSample
         LoadModelSample
         LoadMaterialSample
+        LuaScriptSample
         MotionControllerSample
         RenderToTargetSample
         RenderPipelineSample

@@ -1,5 +1,8 @@
-#include "DefaultVS.glsl"
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 normal;
+layout(location = 2) in vec2 tex;
 
+/*
 struct Falloff {
     float distance;
     float attention;
@@ -15,14 +18,19 @@ struct LightInfo {
     uint type;
     Intensity intensity;
 };
+*/
 
-layout(std140, binding = 0) uniform matrix_state {
+layout(std140, binding = 0) uniform matrixState {
+/*
     mat4 vmat;
     mat4 projmat;
     mat4 mvmat;
     mat4 mvpmat;
     vec3 light_pos;
-    LightInfo light;
+*/
+   uint uintParameter;
+   int intParameter;
+   float floatParameter;
 } matrix;
 
 

@@ -1,6 +1,8 @@
 #include <Logging/SyrinxLogManager.h>
 #include <Pipeline/SyrinxDisplayDevice.h>
 #include <Pipeline/SyrinxEngineSetting.h>
+#include <Program/SyrinxProgramCompiler.h>
+#include <Manager/SyrinxHardwareResourceManager.h>
 #include <HardwareResource/SyrinxProgramStage.h>
 #include <HardwareResource/SyrinxProgramPipeline.h>
 #include <HardwareResource/SyrinxHardwareVertexBuffer.h>
@@ -14,12 +16,11 @@ int main(int argc, char *argv[])
     Syrinx::DisplayDevice displayDevice;
 
     displayDevice.setMajorVersionNumber(4);
-    displayDevice.setMinorVersionNumber(5);
+    displayDevice.setMinorVersionNumber(6);
     displayDevice.setDebugMessageHandler(Syrinx::DefaultDebugHandler);
     auto renderWindow = displayDevice.createWindow("Update Uniform Sample", 800, 600);
 
     const std::string vertexProgramSource =
-        "#version 450 core\n"
         "layout(location = 0) in vec3 aPos;\n"
         "out gl_PerVertex {\n"
         "    vec4 gl_Position;\n"
@@ -29,30 +30,30 @@ int main(int argc, char *argv[])
         "}\n";
 
     const std::string fragmentProgramSource =
-        "#version 450 core\n"
-        "out vec4 FragColor;\n"
-        "uniform vec4 uColor = vec4(0.0);"
+        "layout(location = 0) out vec4 FragColor;\n"
+        "layout(std140, binding = 0) uniform material {\n"
+        "    vec4 diffuseColor;\n"
+        "};\n"
         "void main()\n"
         "{\n"
-        "   FragColor = vec4(uColor.xyz, 1.0f);\n"
+        "   FragColor = vec4(diffuseColor.xyz, 1.0f);\n"
         "}\n";
 
+    Syrinx::ProgramCompiler compiler;
+    Syrinx::HardwareResourceManager hardwareResourceManager;
+    auto vertexProgramBinarySource = compiler.compile("vertex", vertexProgramSource, Syrinx::ProgramStageType::VertexStage);
+    auto vertexProgram = hardwareResourceManager.createProgramStage("update uniform vertex program",
+                                                                    std::move(vertexProgramBinarySource),
+                                                                    Syrinx::ProgramStageType::VertexStage);
 
-    auto vertexProgram = std::make_unique<Syrinx::ProgramStage>("update color vertex program");
-    vertexProgram->setType(Syrinx::ProgramStageType::VertexStage);
-    vertexProgram->setSource(vertexProgramSource);
-    vertexProgram->create();
+    auto fragmentProgramBinarySource = compiler.compile("fragment", fragmentProgramSource, Syrinx::ProgramStageType::FragmentStage);
+    auto fragmentProgram = hardwareResourceManager.createProgramStage("update uniform fragment program",
+                                                                      std::move(fragmentProgramBinarySource),
+                                                                      Syrinx::ProgramStageType::FragmentStage);
 
-    auto fragmentProgram = std::make_unique<Syrinx::ProgramStage>("update color fragment program");
-    fragmentProgram->setType(Syrinx::ProgramStageType::FragmentStage);
-    fragmentProgram->setSource(fragmentProgramSource);
-    fragmentProgram->create();
-
-    Syrinx::ProgramPipeline programPipeline("update color");
-    programPipeline.create();
-    programPipeline.bindProgramStage(vertexProgram.get());
-    programPipeline.bindProgramStage(fragmentProgram.get());
-
+    auto programPipeline = hardwareResourceManager.createProgramPipeline("draw model program pipeline");
+    programPipeline->bindProgramStage(vertexProgram);
+    programPipeline->bindProgramStage(fragmentProgram);
 
     float vertices[] = {
         -0.5f, -0.5f, 0.0f,
@@ -68,14 +69,14 @@ int main(int argc, char *argv[])
     Syrinx::HardwareVertexBuffer hardwareVertexBuffer(std::move(vertexBuffer));
     hardwareVertexBuffer.setVertexNumber(3);
     hardwareVertexBuffer.setVertexSizeInBytes(3 * sizeof(float));
-    hardwareVertexBuffer.setData(vertices);
+    hardwareVertexBuffer.initData(vertices);
     hardwareVertexBuffer.create();
 
     auto indexBuffer = std::make_unique<Syrinx::HardwareBuffer>("triangle index buffer");
     Syrinx::HardwareIndexBuffer hardwareIndexBuffer(std::move(indexBuffer));
     hardwareIndexBuffer.setIndexType(Syrinx::IndexType::UINT16);
     hardwareIndexBuffer.setIndexNumber(3);
-    hardwareIndexBuffer.setData(indices);
+    hardwareIndexBuffer.initData(indices);
     hardwareIndexBuffer.create();
 
     Syrinx::VertexAttributeDescription vertexAttributeDescription(0, Syrinx::VertexAttributeSemantic::Position, Syrinx::VertexAttributeDataType::FLOAT3);
@@ -98,6 +99,7 @@ int main(int argc, char *argv[])
         return {0.0, 0.0, 0.0};
     };
 
+    auto& fragmentProgramVars = *(fragmentProgram->getProgramVars());
     unsigned int frameCounter = 0;
     while (renderWindow->isOpen()) {
         frameCounter += 1;
@@ -107,12 +109,17 @@ int main(int argc, char *argv[])
         glClearNamedFramebufferfv(0, GL_DEPTH, 0, &defaultDepthValue);
 
         glBindVertexArray(vertexInputState.getHandle());
-        glBindProgramPipeline(programPipeline.getHandle());
+        glBindProgramPipeline(programPipeline->getHandle());
 
         auto [red, green, blue] = generateColor(frameCounter);
-        fragmentProgram->updateParameter("uColor", Syrinx::Color(red, green, blue, 1.0));
-        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, nullptr);
+        auto& materialUniformBlock = fragmentProgramVars["material"];
+        materialUniformBlock["diffuseColor"] = glm::vec4(red, green, blue, 1.0);
+        materialUniformBlock.uniformBuffer->updateToGPU();
 
+        auto uniformBufferHandle = materialUniformBlock.uniformBuffer->getHandle();
+        glBindBufferBase(GL_UNIFORM_BUFFER, materialUniformBlock.binding, uniformBufferHandle);
+
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, nullptr);
         renderWindow->swapBuffer();
     }
 

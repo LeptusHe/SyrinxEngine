@@ -1,44 +1,87 @@
 #include <Logging/SyrinxLogManager.h>
-#include <ResourceManager/SyrinxFileManager.h>
+#include <FileSystem/SyrinxFileManager.h>
 #include <spirv_glsl.hpp>
+#include <shaderc/shaderc.hpp>
 #include <Logging/SyrinxLogManager.h>
+#include <Program/SyrinxProgramReflector.h>
+#include <iostream>
+#include "SyrinxFileIncluder.h"
+
+
+void printStructInfo(Syrinx::StructBlockInfo *structBlockInfo, const std::string& indent)
+{
+    SYRINX_EXPECT(structBlockInfo);
+    std::cout << indent
+              << "struct block info : [name =" << structBlockInfo->name
+              << ", offset =" << structBlockInfo->offset
+              << ", size = " << structBlockInfo->size << "]" << std::endl;
+    std::cout << indent << "struct member list info: {" << std::endl;
+    for (const auto memberInfo : structBlockInfo->memberInfoList) {
+        if (memberInfo->type.basetype == Syrinx::ReflectionType::BaseType::Struct) {
+            printStructInfo(reinterpret_cast<Syrinx::StructBlockInfo*>(memberInfo), indent + "    ");
+        } else {
+            std::cout << indent + "    "
+                      <<  "name: " << memberInfo->name
+                      << ", offset: " << memberInfo->offset
+                      << ", size: " << memberInfo->size << std::endl;
+        }
+    }
+}
+
+
 
 int main(int argc, char *argv[])
 {
-    Syrinx::LogManager *logManager = new Syrinx::LogManager();
+    auto logManager = std::make_unique<Syrinx::LogManager>();
     Syrinx::FileManager fileManager;
 
     fileManager.addSearchPath(".");
-    auto fileStream = fileManager.openFile("VertexShaderUnActive.spv", Syrinx::FileAccessMode::READ);
-    SYRINX_ASSERT(fileStream);
-    auto byteArray = fileStream->getAsDataArray<uint32_t>();
+    auto [fileExist, fileFullPath] = fileManager.findFile("VertexShader.vert");
+    SYRINX_ASSERT(fileExist);
+    auto sourceFileStream = fileManager.openFile(fileFullPath, Syrinx::FileAccessMode::READ);
 
-    spirv_cross::CompilerGLSL glslShader(std::move(byteArray));
-    auto activeInterfaceVariables = glslShader.get_active_interface_variables();
-    auto shaderResources = glslShader.get_shader_resources(activeInterfaceVariables);
+    shaderc::Compiler compiler;
+    shaderc::CompileOptions compileOptions;
+    compileOptions.SetForcedVersionProfile(450, shaderc_profile_core);
+    compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, 0);
+    compileOptions.SetSourceLanguage(shaderc_source_language_glsl);
+    compileOptions.SetGenerateDebugInfo();
+    compileOptions.SetWarningsAsErrors();
+    auto fileIncluder = std::make_unique<Syrinx::FileIncluder>();
+    fileIncluder->addSearchPath(".");
+    compileOptions.SetIncluder(std::move(fileIncluder));
 
-    // stage inputs
-    for (const auto& stageInput : shaderResources.stage_inputs) {
-        auto location = glslShader.get_decoration(stageInput.id, spv::DecorationLocation);
-        SYRINX_INFO_FMT("stage input: [name={}, location={}]", stageInput.name, location);
+    const std::string sources = sourceFileStream->getAsString();
+    auto module = compiler.CompileGlslToSpv(sources, shaderc_glsl_vertex_shader, fileFullPath.c_str(), compileOptions);
+    if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
+        SYRINX_DEBUG_FMT("compile error: [{}]", module.GetErrorMessage());
     }
 
-    // stage outputs
-    for (const auto& stageOutput : shaderResources.stage_outputs) {
-        auto location = glslShader.get_decoration(stageOutput.id, spv::DecorationLocation);
-        SYRINX_INFO_FMT("stage output: [name={}, location = {}]", stageOutput.name, location);
+    std::vector<uint32_t> byteArray{module.cbegin(), module.cend()};
+    Syrinx::ProgramReflector programReflector(std::move(byteArray));
+    auto inputInterfaceList = programReflector.getInputInterfaceList();
+    for (const auto& input : inputInterfaceList) {
+        SYRINX_INFO_FMT("stage input: [name={}, location={}]", input->name, input->location);
     }
 
-    // uniform values
-    for (const auto& uniformBuffer : shaderResources.uniform_buffers) {
-        auto binding = glslShader.get_decoration(uniformBuffer.id, spv::DecorationBinding);
-        SYRINX_INFO_FMT("uniform buffer: [name={}, binding={}]", uniformBuffer.name, binding);
+    auto sampledTextureList = programReflector.getSampledTextureList();
+    for (const auto& sampledTexture : sampledTextureList) {
+        SYRINX_INFO_FMT("sampled texture: [name={}, type={}, binding={}]", sampledTexture->name, sampledTexture->type._to_string(), sampledTexture->binding);
     }
 
-    // push constants
-    for (const auto& uniformValue : shaderResources.push_constant_buffers) {
-        SYRINX_INFO_FMT("uniform value: [name={}]", uniformValue.name);
+    auto uniformBufferList = programReflector.getUniformBufferList();
+    for (const auto uniformBuffer : uniformBufferList) {
+        SYRINX_INFO_FMT("uniform buffer: [name={}, binding={}, size={}]",
+            uniformBuffer->name,
+            uniformBuffer->binding,
+            uniformBuffer->size);
+        printStructInfo(uniformBuffer, "");
     }
+
+    auto matrixStateUniformBuffer = *uniformBufferList[0];
+    assert(matrixStateUniformBuffer.isMemberExist("light_pos"));
+    auto lightPos = matrixStateUniformBuffer["light_pos"];
+    SYRINX_INFO_FMT("light pos: [size={}, offset={}]", lightPos.size, lightPos.offset);
 
     return 0;
 }

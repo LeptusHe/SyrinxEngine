@@ -1,6 +1,9 @@
 #include <Image/SyrinxImage.h>
 #include <Image/SyrinxImageReader.h>
+#include <FileSystem/SyrinxFileManager.h>
 #include <Logging/SyrinxLogManager.h>
+#include <Program/SyrinxProgramCompiler.h>
+#include <Manager/SyrinxHardwareResourceManager.h>
 #include <HardwareResource/SyrinxProgramStage.h>
 #include <HardwareResource/SyrinxProgramPipeline.h>
 #include <HardwareResource/SyrinxHardwareVertexBuffer.h>
@@ -8,74 +11,70 @@
 #include <HardwareResource/SyrinxVertexInputState.h>
 #include <HardwareResource/SyrinxHardwareTexture.h>
 #include <Pipeline/SyrinxDisplayDevice.h>
-#include <ResourceManager/SyrinxFileManager.h>
 
 
 int main(int argc, char *argv[])
 {
-    Syrinx::LogManager *logManager = new Syrinx::LogManager();
+    auto logManager = std::make_unique<Syrinx::LogManager>();
 
     Syrinx::DisplayDevice displayDevice;
     displayDevice.setMajorVersionNumber(4);
-    displayDevice.setMinorVersionNumber(5);
+    displayDevice.setMinorVersionNumber(6);
     displayDevice.setDebugMessageHandler(Syrinx::DefaultDebugHandler);
     auto renderWindow = displayDevice.createWindow("Load Texture Sample", 800, 600);
 
     const std::string vertexProgramSource =
-        "#version 450 core\n"
         "layout(location = 0) in vec3 aPos;\n"
+        "layout(location = 0) out vec2 texCoord;\n"
         "out gl_PerVertex {\n"
         "    vec4 gl_Position;\n"
         "};\n"
-        "out vec2 texCoord;\n"
         "void main() {\n"
         "    texCoord = aPos.xy + vec2(0.5); \n"
         "    gl_Position = vec4(aPos, 1.0);\n"
         "}\n";
 
     const std::string fragmentProgramSource =
-        "#version 450 core\n"
-        "out vec4 FragColor;\n"
+        "layout(location = 0) in vec2 texCoord;\n"
+        "layout(location = 0) out vec4 FragColor;\n"
         "uniform sampler2D uDiffuseTex;\n"
-        "in vec2 texCoord;\n"
         "void main()\n"
         "{\n"
-        "   FragColor = texture(uDiffuseTex, texCoord);\n"
+        "   FragColor = texture(uDiffuseTex, vec2(2.0) * texCoord);\n"
         "}\n";
 
-    auto vertexProgram = std::make_unique<Syrinx::ProgramStage>("load texture vertex program");
-    vertexProgram->setType(Syrinx::ProgramStageType::VertexStage);
-    vertexProgram->setSource(vertexProgramSource);
-    vertexProgram->create();
 
-    auto fragmentProgram = std::make_unique<Syrinx::ProgramStage>("load texture fragment program");
-    fragmentProgram->setType(Syrinx::ProgramStageType::FragmentStage);
-    fragmentProgram->setSource(fragmentProgramSource);
-    fragmentProgram->create();
+    Syrinx::ProgramCompiler compiler;
+    Syrinx::HardwareResourceManager hardwareResourceManager;
+    auto vertexProgramBinarySource = compiler.compile("vertex", vertexProgramSource, Syrinx::ProgramStageType::VertexStage);
+    auto vertexProgram = hardwareResourceManager.createProgramStage("load texture vertex program",
+                                                                    std::move(vertexProgramBinarySource),
+                                                                    Syrinx::ProgramStageType::VertexStage);
 
-    Syrinx::ProgramPipeline programPipeline("load texture program pipeline");
-    programPipeline.create();
-    programPipeline.bindProgramStage(vertexProgram.get());
-    programPipeline.bindProgramStage(fragmentProgram.get());
+    auto fragmentProgramBinarySource = compiler.compile("fragment", fragmentProgramSource, Syrinx::ProgramStageType::FragmentStage);
+    auto fragmentProgram = hardwareResourceManager.createProgramStage("load texture fragment program",
+                                                                      std::move(fragmentProgramBinarySource),
+                                                                      Syrinx::ProgramStageType::FragmentStage);
+
+    auto programPipeline = hardwareResourceManager.createProgramPipeline("draw model program pipeline");
+    programPipeline->bindProgramStage(vertexProgram);
+    programPipeline->bindProgramStage(fragmentProgram);
 
     Syrinx::FileManager fileManager;
-    fileManager.addSearchPath("../../Medias");
-    const std::string imageFile = "checkerboard.png";
+    fileManager.addSearchPath("../SampleMedias/");
+    const std::string imageFile = "mipmap-test.png";
     auto [imageExist, filePath] = fileManager.findFile(imageFile);
     if (!imageExist) {
         SYRINX_FAULT_FMT("can not find image [{}]", imageFile);
         return 0;
     }
-
-    Syrinx::ImageReader imageReader;
-    Syrinx::Image image = imageReader.read(filePath, Syrinx::ImageFormat::RGBA8);
-    Syrinx::HardwareTexture hardwareTexture("quad texture");
-    hardwareTexture.setType(Syrinx::TextureType::TEXTURE_2D);
-    hardwareTexture.setPixelFormat(Syrinx::PixelFormat::RGBA8);
-    hardwareTexture.setWidth(image.getWidth());
-    hardwareTexture.setHeight(image.getHeight());
-    hardwareTexture.create();
-    hardwareTexture.write(image.getData(), image.getWidth(), image.getHeight());
+    auto hardwareTexture = hardwareResourceManager.createTexture(filePath, Syrinx::ImageFormat::RGB8, true);
+    Syrinx::TextureViewDesc textureViewDesc;
+    textureViewDesc.type = Syrinx::TextureType::TEXTURE_2D;
+    textureViewDesc.levelCount = hardwareTexture->getMaxMipMapLevel();
+    auto hardwareTextureView = hardwareResourceManager.createTextureView("texture view", hardwareTexture, textureViewDesc);
+    SYRINX_ASSERT(hardwareTexture);
+    SYRINX_ASSERT(hardwareTextureView);
 
     float vertices[] = {
         -0.5f, -0.5f, 0.0f,
@@ -89,52 +88,51 @@ int main(int argc, char *argv[])
         1, 2, 3
     };
 
-    auto vertexBuffer = std::make_unique<Syrinx::HardwareBuffer>("quad vertex buffer");
-    Syrinx::HardwareVertexBuffer hardwareVertexBuffer(std::move(vertexBuffer));
-    hardwareVertexBuffer.setVertexNumber(4);
-    hardwareVertexBuffer.setVertexSizeInBytes(3 * sizeof(float));
-    hardwareVertexBuffer.setData(vertices);
-    hardwareVertexBuffer.create();
+    auto hardwareVertexBuffer = hardwareResourceManager.createVertexBuffer("quad vertex buffer", 4, 3 * sizeof(float), vertices);
+    auto hardwareIndexBuffer = hardwareResourceManager.createIndexBuffer("quad index buffer", 6, Syrinx::IndexType::UINT16, indices);
 
-    auto indexBuffer = std::make_unique<Syrinx::HardwareBuffer>("quad index buffer");
-    Syrinx::HardwareIndexBuffer hardwareIndexBuffer(std::move(indexBuffer));
-    hardwareIndexBuffer.setIndexType(Syrinx::IndexType::UINT16);
-    hardwareIndexBuffer.setIndexNumber(6);
-    hardwareIndexBuffer.setData(indices);
-    hardwareIndexBuffer.create();
+    Syrinx::VertexAttributeDescription positionAttributeDescription;
+    positionAttributeDescription.setLocation(0)
+                              .setSemantic(Syrinx::VertexAttributeSemantic::Position)
+                              .setDataType(Syrinx::VertexAttributeDataType::FLOAT3)
+                              .setDataOffset(0)
+                              .setBindingPoint(0);
+    Syrinx::VertexAttributeLayoutDesc vertexAttributeLayoutDesc;
+    vertexAttributeLayoutDesc.addVertexAttributeDesc(positionAttributeDescription);
 
-    Syrinx::VertexAttributeDescription vertexAttributeDescription(0, Syrinx::VertexAttributeSemantic::Position, Syrinx::VertexAttributeDataType::FLOAT3);
-    Syrinx::VertexDataDescription vertexDataDescription(&hardwareVertexBuffer, 0, 0, 3 * sizeof(float));
+    auto vertexInputState = hardwareResourceManager.createVertexInputState("quad vertex input state");
+    vertexInputState->setVertexAttributeLayoutDesc(std::move(vertexAttributeLayoutDesc));
+    vertexInputState->setVertexBuffer(0, hardwareVertexBuffer);
+    vertexInputState->setIndexBuffer(hardwareIndexBuffer);
+    vertexInputState->setup();
 
-    Syrinx::VertexInputState vertexInputState("quad vertex input state");
-    vertexInputState.addVertexAttributeDescription(vertexAttributeDescription);
-    vertexInputState.addVertexDataDescription(vertexDataDescription);
-    vertexInputState.addIndexBuffer(&hardwareIndexBuffer);
-    vertexInputState.create();
+    Syrinx::SamplingSetting samplingSetting;
+    samplingSetting.setBorderColor(Syrinx::Color(1.0, 0.0, 0.0, 1.0));
+    samplingSetting.setWrapSMethod(Syrinx::TextureWrapMethod::CLAMP_TO_BORDER);
+    samplingSetting.setWrapTMethod(Syrinx::TextureWrapMethod::CLAMP_TO_BORDER);
+    samplingSetting.setWrapRMethod(Syrinx::TextureWrapMethod::CLAMP_TO_BORDER);
+    samplingSetting.setMinFilterMethod(Syrinx::TextureMinFilterMethod::LINEAR_MIPMAP_LINEAR);
+    samplingSetting.setMagFilterMethod(Syrinx::TextureMagFilterMethod::LINEAR);
 
+    auto sampler = hardwareResourceManager.createSampler("border sampling", samplingSetting);
+    SYRINX_ASSERT(sampler);
 
-    auto generateColor = [](unsigned int counter) -> std::tuple<float, float, float> {
-        unsigned int colorIndex = (counter / 10) % 3;
-        switch (colorIndex) {
-            case 0: return {1.0, 0.0, 0.0};
-            case 1: return {0.0, 1.0, 0.0};
-            case 2: return {0.0, 0.0, 1.0};
-            default: SYRINX_ASSERT(false && "invalid color index");
-        }
-        return {0.0, 0.0, 0.0};
-    };
-
+    auto fragmentVars = fragmentProgram->getProgramVars();
+    Syrinx::SampledTexture sampledTexture(*hardwareTextureView, *sampler);
+    fragmentVars->setTexture("uDiffuseTex", &sampledTexture);
+    SYRINX_ASSERT(fragmentVars);
     while (renderWindow->isOpen()) {
         float defaultValueForColorAttachment[] = {1.0, 1.0, 0.0, 1.0};
         glClearNamedFramebufferfv(0, GL_COLOR, 0, defaultValueForColorAttachment);
         float defaultDepthValue = 1.0;
         glClearNamedFramebufferfv(0, GL_DEPTH, 0, &defaultDepthValue);
 
-        glBindTextureUnit(0, hardwareTexture.getHandle());
-        fragmentProgram->updateParameter("uDiffuseTex", 0);
+        fragmentProgram->updateProgramVars(*fragmentVars);
+        fragmentProgram->uploadParametersToGpu();
+        fragmentProgram->bindResources();
 
-        glBindVertexArray(vertexInputState.getHandle());
-        glBindProgramPipeline(programPipeline.getHandle());
+        glBindVertexArray(vertexInputState->getHandle());
+        glBindProgramPipeline(programPipeline->getHandle());
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
         renderWindow->swapBuffer();
