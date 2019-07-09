@@ -1,7 +1,7 @@
 #include <gmock/gmock.h>
 #include <memory>
 #include <Exception/SyrinxException.h>
-#include <Scene/SyrinxSceneLoader.h>
+#include <Scene/SyrinxSceneImporter.h>
 #include <ResourceManager/SyrinxModelManager.h>
 #include <ResourceManager/SyrinxMaterialManager.h>
 #include <TestDouble/DefaultDataStream.h>

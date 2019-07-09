@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include <HardwareResource/SyrinxHardwareTextureSampler.h>
+#include <HardwareResource/SyrinxHardwareSampler.h>
 
 using namespace testing;
 using namespace Syrinx;

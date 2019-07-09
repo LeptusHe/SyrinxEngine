@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include <ResourceLoader/SyrinxMaterialParser.h>
+#include <ResourceLoader/SyrinxMaterialImporter.h>
 #include <TestDouble/DefaultDataStream.h>
 #include <TestDouble/DefaultFileManager.h>
 #include <TestDouble/DefaultProgramStage.h>

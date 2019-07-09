@@ -1,5 +1,5 @@
 #include <gmock/gmock.h>
-#include <Container/String.h>
+#include <Container/SyrinxString.h>
 
 using namespace testing;
 using namespace Syrinx;

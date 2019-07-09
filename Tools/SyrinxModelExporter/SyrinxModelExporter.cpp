@@ -3,7 +3,7 @@
 #include <Exception/SyrinxException.h>
 #include <FileSystem/SyrinxFileSystem.h>
 #include <Logging/SyrinxLogManager.h>
-#include <Container/String.h>
+#include <Container/SyrinxString.h>
 #include "SyrinxMeshExporter.h"
 #include "SyrinxMaterialExporter.h"
 
