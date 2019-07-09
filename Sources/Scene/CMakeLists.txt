@@ -22,5 +22,9 @@ endforeach()
 
 # build core library
 include_directories(${include_dirs})
-add_library(Scene STATIC ${sources})
-target_link_libraries(Scene Core Graphics ResourceSystem entityx pugixml)
+if (BUILD_SHARED_LIBRARY)
+    add_library(Scene SHARED ${sources})
+else()
+    add_library(Scene STATIC ${sources})
+endif()
+target_link_libraries(Scene Resource entityx pugixml)

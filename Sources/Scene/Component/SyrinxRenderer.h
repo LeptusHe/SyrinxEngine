@@ -12,7 +12,7 @@ public:
     void setMesh(Mesh *mesh);
     void setMaterial(Material *material);
     const Mesh* getMesh() const;
-    const Material* getMaterial() const;
+    Material* getMaterial();
     bool isValid() const;
 
 private:

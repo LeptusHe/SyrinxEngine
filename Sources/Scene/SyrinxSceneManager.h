@@ -22,7 +22,7 @@ public:
 public:
     SceneManager(FileManager *fileManager, ModelManager *modelManager);
     ~SceneManager() = default;
-    Scene* loadScene(const std::string& fileName) noexcept(false);
+    Scene* importScene(const std::string& fileName) noexcept(false);
     Scene* createScene(const std::string& name);
     Entity* createEntity(const std::string& name);
     Scene* findScene(const std::string& name) const;

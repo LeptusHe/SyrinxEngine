@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdio>
 #include <Math/SyrinxMath.h>
-#include <RenderResource/SyrinxRenderTarget.h>
+#include <HardwareResource/SyrinxRenderTarget.h>
 
 namespace Syrinx {
 

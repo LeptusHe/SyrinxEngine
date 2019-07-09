@@ -1,6 +1,6 @@
 #include "Scene/SyrinxSceneManager.h"
 #include <Exception/SyrinxException.h>
-#include "Scene/SyrinxSceneLoader.h"
+#include "Scene/SyrinxSceneImporter.h"
 #include "Component/SyrinxTransform.h"
 
 namespace Syrinx {
@@ -19,7 +19,7 @@ SceneManager::SceneManager(FileManager *fileManager, ModelManager *modelManager)
 }
 
 
-Scene* SceneManager::loadScene(const std::string& fileName)
+Scene* SceneManager::importScene(const std::string& fileName)
 {
     SYRINX_EXPECT(!fileName.empty());
     auto [fileExist, filePath] = mFileManager->findFile(fileName);
@@ -30,8 +30,8 @@ Scene* SceneManager::loadScene(const std::string& fileName)
     if (!dataStream) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileSystemError, "fail to open scene file [{}]", filePath);
     }
-    SceneLoader sceneLoader(this, mModelManager);
-    Scene *scene = sceneLoader.loadScene(*dataStream);
+    SceneImporter sceneImporter(this, mModelManager);
+    Scene *scene = sceneImporter.import(*dataStream);
     return scene;
 }
 

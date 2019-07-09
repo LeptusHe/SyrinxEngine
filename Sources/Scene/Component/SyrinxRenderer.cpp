@@ -32,7 +32,7 @@ const Mesh* Renderer::getMesh() const
 }
 
 
-const Material* Renderer::getMaterial() const
+Material* Renderer::getMaterial()
 {
     return mMaterial;
 }
