@@ -1,7 +1,7 @@
 #include "RenderResource/SyrinxMeshGenerator.h"
 #include <Exception/SyrinxException.h>
+#include <Manager/SyrinxHardwareResourceManager.h>
 #include "ResourceManager/SyrinxMeshManager.h"
-#include "ResourceManager/SyrinxHardwareResourceManager.h"
 
 namespace Syrinx {
 

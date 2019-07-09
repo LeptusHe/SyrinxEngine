@@ -2,10 +2,10 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <FileSystem/SyrinxFileManager.h>
+#include <Manager/SyrinxHardwareResourceManager.h>
 #include "RenderResource/SyrinxMesh.h"
-#include "ResourceManager/SyrinxFileManager.h"
 #include "ResourceManager/SyrinxResourceManager.h"
-#include "ResourceManager/SyrinxHardwareResourceManager.h"
 
 namespace Syrinx {
 

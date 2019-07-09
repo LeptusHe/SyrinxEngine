@@ -77,7 +77,7 @@ const Model::MeshList& Model::getMeshList() const
 }
 
 
-const Material* Model::getMaterial(const std::string& name) const
+Material* Model::getMaterial(const std::string& name)
 {
     auto iter = mMaterialMap.find(name);
     if (iter == std::end(mMaterialMap)) {

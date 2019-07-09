@@ -1,8 +1,8 @@
 #pragma once
+#include <FileSystem/SyrinxFileManager.h>
 #include "RenderResource/SyrinxMaterial.h"
-#include "ResourceManager/SyrinxFileManager.h"
 #include "ResourceManager/SyrinxResourceManager.h"
-#include "ResourceManager/SyrinxHardwareResourceManager.h"
+#include <Manager/SyrinxHardwareResourceManager.h>
 #include "ResourceManager/SyrinxShaderManager.h"
 
 namespace Syrinx {

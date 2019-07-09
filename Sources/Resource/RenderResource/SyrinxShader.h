@@ -1,35 +1,26 @@
 #pragma once
 #include "RenderResource/SyrinxResource.h"
-#include "RenderResource/SyrinxShaderParameter.h"
-#include "RenderResource/SyrinxShaderPass.h"
+#include <HardwareResource/SyrinxProgramStage.h>
+#include <HardwareResource/SyrinxProgramPipeline.h>
 
 namespace Syrinx {
 
 class Shader : public Resource {
 public:
-    using ShaderPassMap = std::unordered_map<std::string, std::unique_ptr<ShaderPass>>;
-    using ShaderPassList = std::vector<ShaderPass*>;
-    using ShaderParameterMap = std::unordered_map<std::string, std::unique_ptr<ShaderParameter>>;
-    using ShaderParameterList = std::vector<ShaderParameter*>;
+    using ShaderModuleType = int;
+    using ShaderModuleMap = std::unordered_map<ShaderModuleType, ProgramStage*>;
 
 public:
-    Shader(const std::string& name);
+    explicit Shader(const std::string& name);
     ~Shader() override = default;
 
-    void addShaderPassSet(std::vector<std::unique_ptr<ShaderPass>>&& shaderPassSet);
-    void addShaderPass(std::unique_ptr<ShaderPass>&& shaderPass);
-    void addShaderParameterSet(std::vector<std::unique_ptr<ShaderParameter>>&& shaderParameterSet);
-    void addShaderParameter(std::unique_ptr<ShaderParameter>&& shaderParameter);
-    ShaderPass* getShaderPass(const std::string& name) const;
-    ShaderParameter* getShaderParameter(const std::string& name) const;
-    const ShaderPassList& getShaderPassList() const;
-    const ShaderParameterList& getShaderParameterList() const;
+    void addProgramPipeline(ProgramPipeline *programPipeline);
+    ProgramStage* getShaderModule(const ProgramStageType& type) const;
+    ProgramPipeline* getProgramPipeline() const;
 
 private:
-    ShaderPassMap mShaderPassMap;
-    ShaderPassList mShaderPassList;
-    ShaderParameterMap mShaderParameterMap;
-    ShaderParameterList mShaderParameterList;
+    ShaderModuleMap mShaderModuleMap;
+    ProgramPipeline *mProgramPipeline;
 };
 
 } // namespace Syrinx

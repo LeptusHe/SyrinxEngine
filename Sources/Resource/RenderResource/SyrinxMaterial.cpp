@@ -4,49 +4,35 @@ namespace Syrinx {
 
 Material::Material(const std::string& mName)
     : Resource(mName)
-    , mShader(nullptr)
+    , mShaderVarsMap()
 {
-    SYRINX_ENSURE(!mShader);
+    SYRINX_ENSURE(mShaderVarsMap.empty());
 }
 
 
-void Material::setShader(Shader *shader)
+void Material::addShaderVars(std::unique_ptr<ShaderVars>&& shaderVars)
 {
-    mShader = shader;
-    SYRINX_ENSURE(mShader);
+    const auto& shader = shaderVars->getShader();
+    const std::string& shaderName = shader.getName();
+    SYRINX_ASSERT(!shaderName.empty());
+
+    if (getShaderVars(shaderName)) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+                                  "fail to add shader vars [{}] into material [{}]",
+                                  shaderName, getName());
+    }
+    mShaderVarsMap[shaderName] = std::move(shaderVars);
 }
 
 
-void Material::addMaterialParameter(ShaderParameter *shaderParameter)
+ShaderVars* Material::getShaderVars(const std::string& shaderName)
 {
-    SYRINX_EXPECT(shaderParameter);
-    SYRINX_EXPECT(!getMaterialParameter(shaderParameter->getName()));
-    mParameterList.push_back(shaderParameter);
-    mParameterMap[shaderParameter->getName()] = std::unique_ptr<ShaderParameter>(shaderParameter);
-    SYRINX_ENSURE(getMaterialParameter(shaderParameter->getName()) == shaderParameter);
-}
-
-
-Shader* Material::getShader() const
-{
-    return mShader;
-}
-
-
-ShaderParameter* Material::getMaterialParameter(const std::string& name) const
-{
-    SYRINX_EXPECT(!name.empty());
-    auto iter = mParameterMap.find(name);
-    if  (iter == std::end(mParameterMap)) {
+    SYRINX_EXPECT(!shaderName.empty());
+    auto iter = mShaderVarsMap.find(shaderName);
+    if (iter == std::end(mShaderVarsMap)) {
         return nullptr;
     }
     return iter->second.get();
-}
-
-
-const Material::MaterialParameterList& Material::getMaterialParameterList() const
-{
-    return mParameterList;
 }
 
 } // namespace Syrinx

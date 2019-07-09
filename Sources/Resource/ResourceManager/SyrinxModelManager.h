@@ -2,8 +2,8 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <FileSystem/SyrinxFileManager.h>
 #include <RenderResource/SyrinxModel.h>
-#include <ResourceManager/SyrinxFileManager.h>
 #include <ResourceManager/SyrinxMeshManager.h>
 #include <ResourceManager/SyrinxMaterialManager.h>
 #include <ResourceManager/SyrinxResourceManager.h>

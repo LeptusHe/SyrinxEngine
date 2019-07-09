@@ -52,31 +52,57 @@ void Mesh::createVertexInputState()
         SYRINX_INFO_FMT("mesh [{}] doesn't have tangent and bitangent attribute", getName());
     }
 
-    mVertexInputState = std::make_unique<VertexInputState>("[name=" + getName() + ", type=vertex input state]");
+    mVertexInputState = mHardwareResourceManager->createVertexInputState("[name=" + getName() + ", type=vertex input state]");
+
+    VertexAttributeDescription positionAttributeDesc;
+    positionAttributeDesc.setSemantic(VertexAttributeSemantic::Position)
+                         .setLocation(0)
+                         .setBindingPoint(0)
+                         .setDataOffset(0)
+                         .setDataType(VertexAttributeDataType::FLOAT3);
+
+    VertexAttributeDescription normalAttributeDesc;
+    normalAttributeDesc.setSemantic(VertexAttributeSemantic::Normal)
+                       .setLocation(1)
+                       .setBindingPoint(1)
+                       .setDataOffset(0)
+                       .setDataType(VertexAttributeDataType::FLOAT3);
+
+    VertexAttributeLayoutDesc vertexAttributeLayoutDesc;
+    vertexAttributeLayoutDesc.addVertexAttributeDesc(positionAttributeDesc);
+    vertexAttributeLayoutDesc.addVertexAttributeDesc(normalAttributeDesc);
 
     auto positionBuffer = createVertexBufferForVertexAttribute("position", 3 * sizeof(float), getPositionSet());
-    mVertexInputState->addVertexAttributeDescription({0, VertexAttributeSemantic::Position, VertexAttributeDataType::FLOAT3});
-    mVertexInputState->addVertexDataDescription({positionBuffer, 0, 0, 3 * sizeof(float)});
-
     auto normalBuffer = createVertexBufferForVertexAttribute("normal", 3 * sizeof(float), getNormalSet());
-    mVertexInputState->addVertexAttributeDescription({1, VertexAttributeSemantic::Normal, VertexAttributeDataType::FLOAT3});
-    mVertexInputState->addVertexDataDescription({normalBuffer, 1, 0, 3 * sizeof(float)});
+    mVertexInputState->setVertexBuffer(positionAttributeDesc.getBindingPoint(), positionBuffer);
+    mVertexInputState->setVertexBuffer(normalAttributeDesc.getBindingPoint(), normalBuffer);
 
     uint8_t attributeIndex = 2;
     if (mMeshGeometry->tangentSet) {
         SYRINX_ASSERT(mMeshGeometry->bitangentSet);
 
         auto tangentBuffer = createVertexBufferForVertexAttribute("tangent", 3 * sizeof(float), getTangentSet());
-        mVertexInputState->addVertexAttributeDescription({attributeIndex, VertexAttributeSemantic::Tangent, VertexAttributeDataType::FLOAT3});
-        mVertexInputState->addVertexDataDescription({tangentBuffer, attributeIndex, 0, 3 * sizeof(float)});
+        VertexAttributeDescription tangentAttributeDesc;
+        tangentAttributeDesc.setSemantic(VertexAttributeSemantic::Tangent)
+                            .setLocation(attributeIndex)
+                            .setBindingPoint(attributeIndex)
+                            .setDataOffset(0)
+                            .setDataType(VertexAttributeDataType::FLOAT3);
+        vertexAttributeLayoutDesc.addVertexAttributeDesc(tangentAttributeDesc);
+        mVertexInputState->setVertexBuffer(tangentAttributeDesc.getBindingPoint(), tangentBuffer);
         attributeIndex += 1;
 
         auto bitangentBuffer = createVertexBufferForVertexAttribute("bitangent", 3 * sizeof(float), getBitangentSet());
-        mVertexInputState->addVertexAttributeDescription({attributeIndex, VertexAttributeSemantic::Bitangent, VertexAttributeDataType::FLOAT3});
-        mVertexInputState->addVertexDataDescription({bitangentBuffer, attributeIndex, 0, 3 * sizeof(float)});
+        VertexAttributeDescription bitangentAttributeDesc;
+        bitangentAttributeDesc.setSemantic(VertexAttributeSemantic::Bitangent)
+                              .setLocation(attributeIndex)
+                              .setBindingPoint(attributeIndex)
+                              .setDataOffset(0)
+                              .setDataType(VertexAttributeDataType::FLOAT3);
+        vertexAttributeLayoutDesc.addVertexAttributeDesc(bitangentAttributeDesc);
+        mVertexInputState->setVertexBuffer(bitangentAttributeDesc.getBindingPoint(), bitangentBuffer);
         attributeIndex += 1;
     }
-
 
     if (mMeshGeometry->uvChannelSet.empty()) {
         SYRINX_DEBUG_FMT("mesh [{}] does not have tex coord", getName());
@@ -85,11 +111,19 @@ void Mesh::createVertexInputState()
             SYRINX_DEBUG_FMT("mesh [{}] has {} tex coord channel", getName(), mMeshGeometry->uvChannelSet.size());
         }
         auto texCoordBuffer = createVertexBufferForVertexAttribute("tex coord", getUVChannel(0)->numElement * sizeof(float), getUVChannel(0)->uvSet);
-        mVertexInputState->addVertexAttributeDescription({attributeIndex, VertexAttributeSemantic::TexCoord, VertexAttributeDataType::FLOAT2});
-        mVertexInputState->addVertexDataDescription({texCoordBuffer, attributeIndex, 0, 2 * sizeof(float)});
+        VertexAttributeDescription texCoordAttributeDesc;
+        texCoordAttributeDesc.setSemantic(VertexAttributeSemantic::TexCoord)
+                             .setLocation(attributeIndex)
+                             .setBindingPoint(attributeIndex)
+                             .setDataOffset(0)
+                             .setDataType(VertexAttributeDataType::FLOAT2);
+        vertexAttributeLayoutDesc.addVertexAttributeDesc(texCoordAttributeDesc);
+        mVertexInputState->setVertexBuffer(texCoordAttributeDesc.getBindingPoint(), texCoordBuffer);
     }
-    mVertexInputState->addIndexBuffer(createIndexBuffer());
-    mVertexInputState->create();
+
+    mVertexInputState->setVertexAttributeLayoutDesc(std::move(vertexAttributeLayoutDesc));
+    mVertexInputState->setIndexBuffer(createIndexBuffer());
+    mVertexInputState->setup();
 
     SYRINX_ENSURE(mVertexInputState);
     SYRINX_ENSURE(mVertexInputState->isCreated());

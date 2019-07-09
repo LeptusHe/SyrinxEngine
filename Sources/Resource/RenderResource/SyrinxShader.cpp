@@ -1,72 +1,34 @@
 #include "RenderResource/SyrinxShader.h"
+#include <Exception/SyrinxException.h>
 
 namespace Syrinx {
 
-Shader::Shader(const std::string& name) : Resource(name)
+Shader::Shader(const std::string& name)
+    : Resource(name)
+    , mShaderModuleMap()
+    , mProgramPipeline(nullptr)
 {
-
+    SYRINX_ENSURE(mShaderModuleMap.empty());
+    SYRINX_ENSURE(!mProgramPipeline);
 }
 
 
-void Shader::addShaderPassSet(std::vector<std::unique_ptr<Syrinx::ShaderPass>>&& shaderPassSet)
+void Shader::addProgramPipeline(ProgramPipeline *programPipeline)
 {
-    for (auto& shaderPass : shaderPassSet) {
-        addShaderPass(std::move(shaderPass));
-    }
+    SYRINX_EXPECT(programPipeline);
+    mProgramPipeline = programPipeline;
 }
 
 
-void Shader::addShaderPass(std::unique_ptr<ShaderPass>&& shaderPass)
+ProgramStage* Shader::getShaderModule(const ProgramStageType& type) const
 {
-    SYRINX_EXPECT(shaderPass);
-    mShaderPassList.push_back(shaderPass.get());
-    mShaderPassMap[shaderPass->getName()] = std::move(shaderPass);
-    SYRINX_ENSURE(!shaderPass);
-    SYRINX_ENSURE(getShaderPass(mShaderPassList[mShaderPassList.size() - 1]->getName()));
+    return mProgramPipeline->getProgramStage(type);
 }
 
 
-void Shader::addShaderParameterSet(std::vector<std::unique_ptr<Syrinx::ShaderParameter>>&& shaderParameterSet)
+ProgramPipeline* Shader::getProgramPipeline() const
 {
-    for (auto& shaderParameter : shaderParameterSet) {
-        addShaderParameter(std::move(shaderParameter));
-    }
-}
-
-
-void Shader::addShaderParameter(std::unique_ptr<ShaderParameter>&& shaderParameter)
-{
-    SYRINX_EXPECT(shaderParameter);
-    mShaderParameterList.push_back(shaderParameter.get());
-    mShaderParameterMap[shaderParameter->getName()] = std::move(shaderParameter);
-    SYRINX_ENSURE(!shaderParameter);
-    SYRINX_ENSURE(getShaderParameter(mShaderParameterList[mShaderParameterList.size() - 1]->getName()));
-}
-
-
-ShaderPass* Shader::getShaderPass(const std::string& name) const
-{
-    const auto& iter = mShaderPassMap.find(name);
-    return (iter != std::end(mShaderPassMap)) ? iter->second.get() : nullptr;
-}
-
-
-ShaderParameter* Shader::getShaderParameter(const std::string& name) const
-{
-    const auto& iter = mShaderParameterMap.find(name);
-    return (iter != std::end(mShaderParameterMap)) ? iter->second.get() : nullptr;
-}
-
-
-const Shader::ShaderPassList& Shader::getShaderPassList() const
-{
-    return mShaderPassList;
-}
-
-
-const Shader::ShaderParameterList& Shader::getShaderParameterList() const
-{
-    return mShaderParameterList;
+    return mProgramPipeline;
 }
 
 } // namespace

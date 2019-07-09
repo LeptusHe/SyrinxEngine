@@ -2,11 +2,11 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <FileSystem/SyrinxFileManager.h>
+#include <Manager/SyrinxHardwareResourceManager.h>
 #include "RenderResource/SyrinxMesh.h"
 #include "RenderResource/SyrinxMaterial.h"
 #include "RenderResource/SyrinxResource.h"
-#include "ResourceManager/SyrinxFileManager.h"
-#include "ResourceManager/SyrinxHardwareResourceManager.h"
 
 namespace Syrinx {
 
@@ -28,7 +28,7 @@ public:
     const Mesh* getMesh(const std::string& name) const;
     const MeshMap& getMeshMap() const;
     const MeshList& getMeshList() const;
-    const Material* getMaterial(const std::string& name) const;
+    Material* getMaterial(const std::string& name);
     const MaterialMap& getMaterialMap() const;
     const MaterialList& getMaterialList() const;
     const MeshMaterialPairMap& getMeshMaterialPairMap() const;

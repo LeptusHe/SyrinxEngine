@@ -1,9 +1,9 @@
 #pragma once
 #include <memory>
 #include "RenderResource/SyrinxResource.h"
+#include <Manager/SyrinxHardwareResourceManager.h>
 #include <HardwareResource/SyrinxVertexInputState.h>
 #include "ResourceSerializer/SyrinxMeshGeometry.h"
-#include "ResourceManager/SyrinxHardwareResourceManager.h"
 
 namespace Syrinx {
 
@@ -35,7 +35,7 @@ private:
 private:
     std::string mFilePath;
     std::unique_ptr<MeshGeometry> mMeshGeometry;
-    std::unique_ptr<VertexInputState> mVertexInputState;
+    VertexInputState *mVertexInputState;
     HardwareResourceManager *mHardwareResourceManager;
 };
 

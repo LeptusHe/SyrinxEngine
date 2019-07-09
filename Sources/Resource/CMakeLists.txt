@@ -26,5 +26,9 @@ endforeach()
 
 # build core library
 include_directories(${include_dirs})
-add_library(ResourceSystem STATIC ${sources})
-target_link_libraries(ResourceSystem Core Graphics)
+if (BUILD_SHARED_LIBRARY)
+    add_library(Resource SHARED ${sources})
+else()
+    add_library(Resource STATIC ${sources})
+endif()
+target_link_libraries(Resource Graphics lua pugixml)

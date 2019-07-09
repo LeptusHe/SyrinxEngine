@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 #include <utility>
-#include "ResourceManager/SyrinxFileManager.h"
+#include <FileSystem/SyrinxFileManager.h>
 
 namespace Syrinx {
 

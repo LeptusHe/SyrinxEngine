@@ -1,7 +1,7 @@
 #include "ResourceManager/SyrinxMaterialManager.h"
 #include <pugixml.hpp>
 #include <Exception/SyrinxException.h>
-#include "ResourceLoader/SyrinxMaterialParser.h"
+#include "ResourceLoader/SyrinxMaterialImporter.h"
 
 namespace Syrinx {
 
@@ -20,8 +20,8 @@ std::unique_ptr<Material> MaterialManager::create(const std::string& name)
 {
     SYRINX_EXPECT(!name.empty());
     SYRINX_EXPECT(!find(name));
-    MaterialParser materialParser(mFileManager, mHardwareResourceManager, mShaderManager);
-    auto material = materialParser.parseMaterial(name);
+    MaterialImporter materialImporter(mFileManager, mHardwareResourceManager, mShaderManager);
+    auto material = materialImporter.import(name);
     SYRINX_ASSERT(material);
     return material;
 }
