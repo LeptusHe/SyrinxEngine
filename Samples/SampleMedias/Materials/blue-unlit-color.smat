@@ -1,0 +1,10 @@
+material = {
+    constant_shader_parameters = {
+        file_name = "constant-color.shader",
+        fragment_program_parameters = {
+            ColorBuffer = {
+                displayColor = {0.0, 1.0, 0.0}
+            }
+        }
+    }
+}

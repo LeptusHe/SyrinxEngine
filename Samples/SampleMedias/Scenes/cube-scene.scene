@@ -1,0 +1,7 @@
+<scene>
+    <node name="cube-entity">
+        <position x="0.0" y="0.0" z="-50.0"/>
+        <scale x="10" y="10" z="10"/>
+        <entity name="cube" type="model" model-file="blue-cube.smodel"/>
+    </node>
+</scene>
