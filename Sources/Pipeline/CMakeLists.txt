@@ -23,5 +23,9 @@ endforeach()
 
 # build core library
 include_directories(${include_dirs})
-add_library(RenderPipeline STATIC ${sources})
-target_link_libraries(RenderPipeline Core Graphics ResourceSystem Scene)
+if (BUILD_SHARED_LIBRARY)
+    add_library(RenderPipeline SHARED ${sources})
+else()
+    add_library(RenderPipeline STATIC ${sources})
+endif()
+target_link_libraries(RenderPipeline Scene)

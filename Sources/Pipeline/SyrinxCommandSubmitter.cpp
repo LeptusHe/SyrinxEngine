@@ -5,31 +5,15 @@
 
 namespace Syrinx {
 
-namespace {
-
-template <typename T>
-void updateParameter(ProgramStage& programStage, const ShaderParameter& shaderParameter)
-{
-    const auto& parameterName = shaderParameter.getName();
-    const auto& parameterValue = shaderParameter.getValue();
-    if (auto value = std::get_if<T>(&parameterValue); value) {
-        programStage.updateParameter(parameterName, *value);
-    }
-}
-
-} // namespace anonymous
-
-
-
-
-CommandSubmitter::CommandSubmitter()
-    : mRenderPipeline(nullptr)
+CommandSubmitter::CommandSubmitter(ShaderManager *shaderManager)
+    : mShaderManager(shaderManager)
+    , mRenderContext()
+    , mRenderPipeline(nullptr)
     , mRenderPass(nullptr)
-    , mMaterial(nullptr)
 {
+    SYRINX_ENSURE(mShaderManager);
     SYRINX_ENSURE(!mRenderPipeline);
     SYRINX_ENSURE(!mRenderPass);
-    SYRINX_ENSURE(!mMaterial);
 }
 
 
@@ -41,128 +25,120 @@ void CommandSubmitter::submit(const RenderPipeline& renderPipeline)
         SYRINX_ASSERT(mRenderPass == renderPass);
         submitCommandsForRenderPass(*renderPass);
     }
-    resetToDefaultState();
+    reset();
     SYRINX_ENSURE(!mRenderPipeline);
     SYRINX_ENSURE(!mRenderPass);
-    SYRINX_ENSURE(!mMaterial);
 }
 
 
 void CommandSubmitter::submitCommandsForRenderPass(const RenderPass& renderPass)
 {
-    submitCommandsToSetRenderState(renderPass.state);
-    for (const auto& entity : renderPass.getEntityList()) {
+    auto shader = mShaderManager->find(renderPass.getShaderName());
+    if (!shader) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+            "fail to execute render pass [{}] because shader [{}] doesn't exist", renderPass.getName(), renderPass.getShaderName());
+    }
+
+    RenderState *renderState = renderPass.getRenderState();
+    renderState->setProgramPipeline(shader->getProgramPipeline());
+
+    mRenderContext.setRenderState(renderState);
+    mRenderContext.prepareDraw();
+
+    for (auto entity : renderPass.getEntityList()) {
         submitCommandsToDrawEntity(*entity);
     }
 }
 
 
-void CommandSubmitter::submitCommandsToSetRenderState(const RenderState& renderState)
+void CommandSubmitter::submitCommandsToDrawEntity(Entity& entity)
 {
-    float defaultValueForColorAttachment[] = {0.5, 0.0, 0.5, 1.0};
-    glClearNamedFramebufferfv(0, GL_COLOR, 0, defaultValueForColorAttachment);
-    float defaultDepthValue = 1.0;
-    glClearNamedFramebufferfv(0, GL_DEPTH, 0, &defaultDepthValue);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-}
-
-
-void CommandSubmitter::submitCommandsToDrawEntity(const Entity& entity)
-{
-    if (!entity.hasComponent<const Renderer>()) {
+    if (!entity.hasComponent<Renderer>()) {
         return;
     }
 
-    const auto& renderer = entity.getComponent<const Renderer>();
+    auto& renderer = entity.getComponent<Renderer>();
     const Mesh *mesh = renderer.getMesh();
-    mMaterial = renderer.getMaterial();
-    SYRINX_ASSERT(mMaterial == renderer.getMaterial());
 
-    auto shader = mMaterial->getShader();
-    auto shaderPass = shader->getShaderPass(mRenderPass->getShaderPassName());
-    if (!shaderPass) {
-        return;
+    auto material = renderer.getMaterial();
+    auto shaderVars = material->getShaderVars(mRenderPass->getShaderName());
+    if (!shaderVars) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+            "fail to render entity [{}] in render pass [{}] because it doesn't have shader [{}] in material [{}]",
+            entity.getName(), mRenderPass->getName(), mRenderPass->getShaderName(), material->getName());
     }
-    submitCommandsToSetMVPMatrix(entity, *shaderPass);
-    submitCommandsToBindShaderPass(*shaderPass);
+
+    submitCommandsToSetMatrices(entity, shaderVars);
+    submitCommandsToUpdateParameters(shaderVars);
     submitCommandsToDrawMesh(*mesh);
 }
 
 
-void CommandSubmitter::submitCommandsToSetMVPMatrix(const Entity& entity, const ShaderPass& shaderPass)
+void CommandSubmitter::submitCommandsToSetMatrices(Entity& entity, ShaderVars *shaderVars)
 {
-    if (!entity.hasComponent<Transform>()) {
-        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState, "entity [{}] doesn't have transform component", entity.getName());
-    }
+    SYRINX_EXPECT(shaderVars);
+    const auto& shader = shaderVars->getShader();
+    auto cameraEntity = mRenderPass->getCamera();
     if (!mRenderPass->getCamera()) {
-        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState, "render pass [{}] doesn't have camera", mRenderPass->getName());
+        return;
     }
 
-    const auto& transform = entity.getComponent<const Transform>();
-    auto vertexProgram = shaderPass.getProgramStage(ProgramStageType::VertexStage);
+    if (!cameraEntity->hasComponent<Camera>()) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+            "the camera entity [{}] of render pass [{}] doesn't have camera component", cameraEntity->getName(), mRenderPass->getName());
+    }
 
-    Entity* cameraEntity = mRenderPass->getCamera();
-    SYRINX_ASSERT(cameraEntity);
-    const auto& cameraTransform = cameraEntity->getComponent<Transform>();
-    const auto& cameraComponent = cameraEntity->getComponent<Camera>();
+    auto& camera = cameraEntity->getComponent<Camera>();
+    auto projectionMat = camera.getProjectionMatrix();
+    auto viewMat = camera.getViewMatrix();
 
-    Syrinx::Matrix4x4 viewMatrix(1.0f);
-    viewMatrix = glm::translate(viewMatrix, -cameraTransform.getLocalPosition());
-    viewMatrix = viewMatrix * cameraTransform.getRotateMatrix();
+    if (!entity.hasComponent<Transform>()) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+            "fail to execute render pass [{}] because entity [{}] doesn't have transform component", mRenderPass->getName(), entity.getName());
+    }
+    auto& transform = entity.getComponent<Transform>();
+    auto worldMatrix = transform.getWorldMatrix();
 
-    vertexProgram->updateParameter("uModelMatrix", transform.getWorldMatrix());
-    vertexProgram->updateParameter("uViewMatrix", viewMatrix);
-    vertexProgram->updateParameter("uProjectionMatrix", cameraComponent.getProjectionMatrix());
+    auto vertexStage = shader.getShaderModule(ProgramStageType::VertexStage);
+    auto& vertexStageVars = *(shaderVars->getProgramVars(ProgramStageType::VertexStage));
+    vertexStageVars["SyrinxMatrixBuffer"]["SYRINX_MATRIX_PROJ"] = projectionMat;
+    vertexStageVars["SyrinxMatrixBuffer"]["SYRINX_MATRIX_VIEW"] = viewMat;
+    vertexStageVars["SyrinxMatrixBuffer"]["SYRINX_MATRIX_WORLD"] = worldMatrix;
+
+    vertexStage->updateProgramVars(vertexStageVars);
+    vertexStage->uploadParametersToGpu();
+    vertexStage->bindResources();
 }
 
 
-void CommandSubmitter::submitCommandsToBindShaderPass(const ShaderPass& shaderPass)
+void CommandSubmitter::submitCommandsToUpdateParameters(ShaderVars *shaderVars)
 {
-    auto programPipeline = shaderPass.getProgramPipeline();
-    glBindProgramPipeline(programPipeline->getHandle());
-    for (const auto& [parameterName, ProgramStageList] : shaderPass.getParameterReferenceMap()) {
-        ShaderParameter *shaderParameter = shaderPass.getParameter(parameterName);
-        if (auto materialParameter = mMaterial->getMaterialParameter(shaderParameter->getName()); materialParameter) {
-            shaderParameter = materialParameter;
-        }
-        SYRINX_ASSERT(shaderParameter);
-        for (auto programStage : ProgramStageList) {
-            submitCommandsToUpdateShaderParameter(*programStage, *shaderParameter);
-        }
-    }
-}
+    SYRINX_EXPECT(shaderVars);
+    auto shader = shaderVars->getShader();
+    auto fragmentStage = shader.getShaderModule(ProgramStageType::FragmentStage);
+    auto fragmentVars = shaderVars->getProgramVars(ProgramStageType::FragmentStage);
 
-
-void CommandSubmitter::submitCommandsToUpdateShaderParameter(ProgramStage& programStage, const ShaderParameter& shaderParameter)
-{
-    updateParameter<int>(programStage, shaderParameter);
-    updateParameter<float>(programStage, shaderParameter);
-    updateParameter<Color>(programStage, shaderParameter);
-
-    const auto& parameterName = shaderParameter.getName();
-    const auto& parameterValue = shaderParameter.getValue();
-    if (shaderParameter.getType()._value == ShaderParameterType::TEXTURE_2D) {
-        const auto& textureValue = std::get<TextureValue>(parameterValue);
-        glBindTextureUnit(static_cast<unsigned int>(textureValue.textureUnit), textureValue.texture->getHandle());
-        programStage.updateParameter(shaderParameter.getName(), static_cast<int>(textureValue.textureUnit));
-    }
+    fragmentStage->updateProgramVars(*fragmentVars);
+    fragmentStage->uploadParametersToGpu();
+    fragmentStage->bindResources();
 }
 
 
 void CommandSubmitter::submitCommandsToDrawMesh(const Mesh& mesh)
 {
     const auto& vertexInputState = mesh.getVertexInputState();
-    glBindVertexArray(vertexInputState.getHandle());
-    glDrawElements(GL_TRIANGLES, static_cast<int>(3 * mesh.getNumTriangle()), GL_UNSIGNED_INT, nullptr);
+    auto renderState = mRenderPass->getRenderState();
+    renderState->setVertexInputState(&vertexInputState);
+
+    mRenderContext.drawIndexed(3 * mesh.getNumTriangle());
 }
 
 
-void CommandSubmitter::resetToDefaultState()
+void CommandSubmitter::reset()
 {
+    mRenderContext.setRenderState(nullptr);
     mRenderPipeline = nullptr;
     mRenderPass = nullptr;
-    mMaterial = nullptr;
 }
 
 } // namespace Syrinx

@@ -5,8 +5,8 @@
 #include <Input/SyrinxInput.h>
 #include <Logging/SyrinxLogManager.h>
 #include <Time/SyrinxTimer.h>
-#include <ResourceManager/SyrinxFileManager.h>
-#include <ResourceManager/SyrinxHardwareResourceManager.h>
+#include <FileSystem/SyrinxFileManager.h>
+#include <Manager/SyrinxHardwareResourceManager.h>
 #include <ResourceManager/SyrinxMeshManager.h>
 #include <ResourceManager/SyrinxModelManager.h>
 #include <ResourceManager/SyrinxShaderManager.h>

@@ -48,7 +48,7 @@ void Engine::init()
     mDisplayDevice = std::make_unique<DisplayDevice>();
     mLogManager = std::make_unique<LogManager>();
     mFileManager = std::make_unique<FileManager>();
-    mHardwareResourceManager = std::make_unique<HardwareResourceManager>(getFileManager());
+    mHardwareResourceManager = std::make_unique<HardwareResourceManager>();
     mMeshManager = std::make_unique<MeshManager>(getFileManager(), getHardwareResourceManager());
     mShaderManager = std::make_unique<ShaderManager>(getFileManager(), getHardwareResourceManager());
     mMaterialManager = std::make_unique<MaterialManager>(getFileManager(), getHardwareResourceManager(), getShaderManager());
@@ -124,7 +124,7 @@ void Engine::run()
 {
     SYRINX_EXPECT(isValidToRun());
     auto renderWindow = mDisplayDevice->getRenderWindow();
-    CommandSubmitter commandSubmitter;
+    CommandSubmitter commandSubmitter(mShaderManager.get());
     while (!shouldStop()) {
         SYRINX_ASSERT(mActiveRenderPipeline);
         update(mTimer->end());

@@ -1,13 +1,8 @@
 #pragma once
 #include <vector>
-#include <HardwareResource/SyrinxVertexInputState.h>
-#include <HardwareResource/SyrinxProgramPipeline.h>
-#include <RenderResource/SyrinxMesh.h>
-#include <RenderResource/SyrinxModel.h>
-#include <RenderResource/SyrinxRenderTarget.h>
+#include <Graphics/SyrinxRenderState.h>
 #include <Scene/SyrinxEntity.h>
 #include <Scene/Component/SyrinxCamera.h>
-#include "SyrinxRenderState.h"
 
 namespace Syrinx {
 
@@ -19,27 +14,24 @@ public:
     explicit RenderPass(const std::string& name);
     ~RenderPass() = default;
 
-    void setShaderPassName(const std::string& name);
+    void setShaderName(const std::string& name);
     void setCamera(Entity *camera);
     void addEntity(Entity *entity);
     void addEntityList(const std::vector<Entity*>& entityList);
-    void setRenderTarget(const RenderTarget *renderTarget);
+    void setRenderState(RenderState *renderState);
     const std::string& getName() const;
-    const std::string& getShaderPassName() const;
-    const RenderTarget* getRenderTarget() const;
+    const std::string& getShaderName() const;
     Entity* getCamera() const;
     const EntityList& getEntityList() const;
+    RenderState* getRenderState() const;
     bool isValid() const;
 
 private:
     std::string mName;
-    std::string mShaderPassName;
+    std::string mShaderName;
     Entity *mCamera;
     EntityList mEntityList;
-    const RenderTarget *mRenderTarget;
-
-public:
-    RenderState state;
+    RenderState *mRenderState;
 };
 
 } // namespace Syrinx

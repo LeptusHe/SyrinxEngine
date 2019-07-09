@@ -17,7 +17,7 @@ void glfwErrorMessageHandler(int errorCode, const char *description)
 
 DisplayDevice::DisplayDevice()
     : mMajorVersionNumber(4)
-    , mMinorVersionNumber(5)
+    , mMinorVersionNumber(6)
     , mDebugMessageHandler(nullptr)
     , mRenderWindow(nullptr)
 {

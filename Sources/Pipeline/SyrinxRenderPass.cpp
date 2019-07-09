@@ -4,25 +4,23 @@ namespace Syrinx {
 
 RenderPass::RenderPass(const std::string& name)
     : mName(name)
-    , mShaderPassName()
+    , mShaderName()
     , mCamera(nullptr)
     , mEntityList()
-    , mRenderTarget(nullptr)
-    , state()
+    , mRenderState(nullptr)
 {
     SYRINX_ENSURE(!mName.empty());
-    SYRINX_ENSURE(mShaderPassName.empty());
+    SYRINX_ENSURE(mShaderName.empty());
     SYRINX_ENSURE(!mCamera);
     SYRINX_ENSURE(mEntityList.empty());
-    SYRINX_ENSURE(!mRenderTarget);
+    SYRINX_ENSURE(!mRenderState);
 }
 
 
-void RenderPass::setShaderPassName(const std::string& name)
+void RenderPass::setShaderName(const std::string& name)
 {
-    SYRINX_EXPECT(!name.empty());
-    mShaderPassName = name;
-    SYRINX_ENSURE(mShaderPassName == name);
+    mShaderName = name;
+    SYRINX_ENSURE(!mShaderName.empty());
 }
 
 
@@ -43,7 +41,7 @@ void RenderPass::addEntity(Entity *entity)
 }
 
 
-void RenderPass::addEntityList(const std::vector<Entity*>& entityList)
+void RenderPass::addEntityList(const std::vector<Entity *>& entityList)
 {
     for (auto entity : entityList) {
         addEntity(entity);
@@ -51,12 +49,9 @@ void RenderPass::addEntityList(const std::vector<Entity*>& entityList)
 }
 
 
-void RenderPass::setRenderTarget(const RenderTarget *renderTarget)
+void RenderPass::setRenderState(RenderState *renderState)
 {
-    SYRINX_EXPECT(!mRenderTarget);
-    mRenderTarget = renderTarget;
-    SYRINX_ENSURE(mRenderTarget);
-    SYRINX_ENSURE(mRenderTarget->isCreated());
+    mRenderState = renderState;
 }
 
 
@@ -66,16 +61,9 @@ const std::string& RenderPass::getName() const
 }
 
 
-const std::string& RenderPass::getShaderPassName() const
+const std::string& RenderPass::getShaderName() const
 {
-    return mShaderPassName;
-}
-
-
-const RenderTarget* RenderPass::getRenderTarget() const
-{
-    SYRINX_EXPECT(isValid());
-    return mRenderTarget;
+    return mShaderName;
 }
 
 
@@ -91,9 +79,15 @@ const RenderPass::EntityList& RenderPass::getEntityList() const
 }
 
 
+RenderState* RenderPass::getRenderState() const
+{
+    return mRenderState;
+}
+
+
 bool RenderPass::isValid() const
 {
-    return mRenderTarget && !mEntityList.empty() && mCamera;
+    return mRenderState && !mEntityList.empty() && mCamera;
 }
 
 } // namespace Syrinx
