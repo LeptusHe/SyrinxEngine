@@ -14,7 +14,7 @@ DateTime DateTime::now()
 
     std::time_t timeSinceEpoch = secondsSinEpoch.count();
 
-#if defined(SYRINX_OS_WINDOWS)
+#if defined(SYRINX_OS_WINDOWS) || defined(SYRINX_OS_MINGW)
     #define LOCALTIME(time, tm) localtime_s((&tm), (&time))
 #elif defined(SYRINX_OS_LINUX)
     #define LOCALTIME(time, tm) localtime_r((&time), (&tm))

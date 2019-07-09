@@ -10,31 +10,56 @@ Input::Input(GLFWwindow *windowHandle) : mWindowHandle(windowHandle)
 }
 
 
-KeyAction Input::getKeyAction(Input::Key key) const
+void Input::pollInputEvents()
+{
+    glfwPollEvents();
+}
+
+
+InputAction Input::getKeyAction(Input::Key key) const
 {
     auto action = glfwGetKey(mWindowHandle, key);
-    return KeyAction::_from_index(static_cast<size_t>(action));
+    return InputAction::_from_index(static_cast<size_t>(action));
+}
+
+
+InputAction Input::getMouseAction(MouseBotton mouseBotton) const
+{
+    auto action = glfwGetMouseButton(mWindowHandle, mouseBotton._value);
+    return InputAction::_from_index(static_cast<size_t>(action));
+}
+
+
+void Input::setMousePos(float posX, float posY)
+{
+    glfwSetCursorPos(mWindowHandle, posX, posY);
 }
 
 
 bool Input::isPressed(Input::Key key) const
 {
-    KeyAction action = getKeyAction(key);
-    return action._value == KeyAction::KeyPressed;
+    InputAction action = getKeyAction(key);
+    return action._value == InputAction::Pressed;
 }
 
 
 bool Input::isRelease(Input::Key key) const
 {
-    KeyAction action = getKeyAction(key);
-    return action._value == KeyAction::KeyRelease;
+    InputAction action = getKeyAction(key);
+    return action._value == InputAction::Release;
 }
 
 
-bool Input::isRepeat(Syrinx::Input::Key key) const
+bool Input::isRepeat(Input::Key key) const
 {
-    KeyAction action = getKeyAction(key);
-    return action._value == KeyAction::KeyRepeat;
+    InputAction action = getKeyAction(key);
+    return action._value == InputAction::Repeat;
+}
+
+
+bool Input::isFocused() const
+{
+    return glfwGetWindowAttrib(mWindowHandle, GLFW_FOCUSED) != 0;
 }
 
 

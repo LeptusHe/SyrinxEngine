@@ -67,7 +67,7 @@ public:
 	using MessageFormater = std::function<std::string(const LogInfo&)>;
 
 public:
-	LogManager(const MessageFormater& formater = DefaultMessageFormater, const OutputStream& outputStream = OutputStream());
+	explicit LogManager(const MessageFormater& formater = DefaultMessageFormater, const OutputStream& outputStream = OutputStream());
 	~LogManager() = default;
 	LogManager(const LogManager&) = delete;
 	LogManager& operator=(const LogManager&) = delete;

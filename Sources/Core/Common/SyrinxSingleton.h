@@ -21,14 +21,16 @@ public:
 public:
 	Singleton()
 	{
-		SYRINX_ASSERT(!mSingleton);
-		mSingleton = static_cast<T*>(this);
+		SYRINX_EXPECT(!mSingleton);
+		mSingleton = reinterpret_cast<T*>(this);
+		SYRINX_ENSURE(mSingleton);
 	}
 
 	~Singleton()
 	{
-		SYRINX_ASSERT(mSingleton);
+		SYRINX_EXPECT(mSingleton);
 		mSingleton = nullptr;
+		SYRINX_ENSURE(!mSingleton);
 	}
 
 	Singleton(const Singleton<T>&) = delete;
