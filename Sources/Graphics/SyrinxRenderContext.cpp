@@ -76,6 +76,7 @@ void RenderContext::prepareDraw()
         SYRINX_THROW_EXCEPTION(ExceptionCode::InvalidState, "fail to draw indexed");
     }
 
+    //TODO: set blend state for attachments in render target
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -91,7 +92,20 @@ void RenderContext::prepareDraw()
     } else {
         glDisable(GL_DEPTH_TEST);
     }
-    glDisable(GL_CULL_FACE);
+
+    auto& cullMode = mRenderState->rasterizationState.cullMode;
+    if (cullMode._value == CullMode::None) {
+        glDisable(GL_CULL_FACE);
+    } else {
+        glEnable(GL_CULL_FACE);
+        if (cullMode._value == CullMode::Front) {
+            glCullFace(GL_FRONT);
+        } else if (cullMode._value == CullMode::Back) {
+            glCullFace(GL_BACK);
+        } else {
+            glCullFace(GL_FRONT_AND_BACK);
+        }
+    }
 
     auto programPipeline = mRenderState->getProgramPipeline();
     auto renderTarget = mRenderState->getRenderTarget();

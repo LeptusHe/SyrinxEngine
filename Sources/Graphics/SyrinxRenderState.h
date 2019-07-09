@@ -55,12 +55,14 @@ public:
     ColorBlendState& setBlendEnable(uint32_t attachmentIndex, bool enable);
     ColorBlendState& setColorBlendFunc(uint32_t attachmentIndex, const BlendFactor& srcBlendFactor, const BlendOp& blendOp, const BlendFactor& dstBlendFactor);
     ColorBlendState& setAlphaBlendFunc(uint32_t attachmentIndex, const BlendFactor& srcBlendFactor, const BlendOp& blendOp, const BlendFactor& dstBlendFactor);
+    const AttachmentBlendState& getAttachmentBlendState(uint32_t attachmentIndex);
+    const std::vector<AttachmentBlendState>& getAttachmentBlendStateList() const;
 
 private:
     void resizeAttachmentStateSize(uint32_t size);
 
 private:
-    std::vector<AttachmentBlendState> mAttachmentBlendState{4};
+    std::vector<AttachmentBlendState> mAttachmentBlendStateList{4};
 };
 
 
