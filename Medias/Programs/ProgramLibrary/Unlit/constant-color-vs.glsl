@@ -1,5 +1,3 @@
-#version 450 core
-
 uniform mat4 uModelMatrix;
 uniform mat4 uViewMatrix;
 uniform mat4 uProjectionMatrix;

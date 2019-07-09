@@ -1,7 +1,8 @@
-#version 450 core
+layout(std140, binding = 0) uniform Buffer {
+    float displayColor;
+};
 
-uniform vec4 displayColor;
-out vec4 _outFragColor;
+layout(location = 0) out vec4 _outFragColor;
 
 void main()
 {
