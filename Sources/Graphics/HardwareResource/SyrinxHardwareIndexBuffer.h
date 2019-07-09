@@ -23,10 +23,16 @@ public:
     void create();
     void setIndexType(IndexType type);
     void setIndexNumber(size_t numIndexes);
+
+    template <typename T> void initData(const T *sourceData);
+    template <typename T> void initData(const T *elemArray, size_t numElements);
     template <typename T> void setData(const T* source);
     template <typename T> void setData(const T* elemArray, size_t numElements);
+    void uploadToGpu(size_t offset, size_t size);
+    void uploadToGpu();
     const HardwareBuffer& getBuffer() const;
     HardwareResource::ResourceHandle getHandle() const;
+    size_t getSize() const;
     IndexType getIndexType() const;
     size_t getNumIndexes() const;
     bool isCreated() const;
@@ -36,6 +42,20 @@ private:
     size_t mNumIndexes;
     std::unique_ptr<HardwareBuffer> mHardwareBuffer;
 };
+
+
+template <typename T>
+void HardwareIndexBuffer::initData(const T *sourceData)
+{
+    mHardwareBuffer->initData(sourceData);
+}
+
+
+template <typename T>
+void HardwareIndexBuffer::initData(const T *elemArray, size_t numElements)
+{
+    mHardwareBuffer->initData(elemArray, numElements);
+}
 
 
 template <typename T>

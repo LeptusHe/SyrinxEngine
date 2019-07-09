@@ -2,10 +2,14 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <unordered_map>
 #include <better-enums/enum.h>
 #include <Math/SyrinxMath.h>
 #include <Logging/SyrinxLogManager.h>
 #include "HardwareResource/SyrinxHardwareResource.h"
+#include "HardwareResource/SyrinxHardwareUniformBuffer.h"
+#include "Program/SyrinxProgramVariables.h"
+#include "Program/SyrinxProgramReflector.h"
 
 namespace Syrinx {
 
@@ -20,20 +24,27 @@ BETTER_ENUM(ProgramStageType, std::uint8_t,
 );
 
 
+class HardwareResourceManager;
+
+
 class ProgramStage : public HardwareResource {
 public:
     bool sameType(const ProgramStage& lhs, const ProgramStage& rhs);
 
 public:
-    explicit ProgramStage(const std::string& name);
+    ProgramStage(const std::string& name, HardwareResourceManager *hardwareResourceManager);
     ~ProgramStage() override = default;
     bool operator<(const ProgramStage& rhs);
-    void setSource(const std::string& source);
-    void setSource(std::string&& source);
+    void setBinarySource(const std::vector<uint32_t>& binarySource);
+    void setBinarySource(std::vector<uint32_t>&& binarySource);
     void setType(ProgramStageType type);
-    const std::string& getSource() const;
     ProgramStageType getType() const;
     bool create() override;
+    ProgramVars* getProgramVars();
+    HardwareUniformBuffer* getHardwareUniformBuffer(const std::string& uniformBufferName) const;
+    void updateProgramVars(const ProgramVars& programVars);
+    void uploadParametersToGpu();
+    void bindResources();
     void updateParameter(const std::string& name, int value);
     void updateParameter(const std::string& name, GLuint64 value);
     void updateParameter(const std::string& name, float value);
@@ -46,12 +57,20 @@ public:
     bool isValidParameterLocation(GLint location) const;
 
 private:
+    void createHardwareUniformBuffer();
     template <typename T> void updateParameter(const std::string& name, const T& updateOperation);
     bool isValidToCreate() const override;
+    std::string getHardwareUniformBufferName(const std::string& uniformBufferName) const;
 
 private:
-    std::string mSource;
+    HardwareResourceManager *mHardwareResourceManager;
+    std::vector<uint32_t> mBinarySource;
     ProgramStageType mType;
+    std::unique_ptr<ProgramReflector> mReflector;
+    bool mIsHardwareUniformBufferCreated;
+    std::unordered_map<std::string, HardwareUniformBuffer*> mHardwareUniformBufferList;
+    std::vector<std::unique_ptr<ProgramVars>> mProgramVarsList;
+    ProgramVars *mProgramVars;
 };
 
 

@@ -7,15 +7,15 @@ namespace Syrinx {
 
 class ProgramPipeline : public HardwareResource {
 public:
-    using ProgramStageMap = std::map<ProgramStageType, const ProgramStage*>;
+    using ProgramStageMap = std::map<ProgramStageType, ProgramStage*>;
 
 public:
     explicit ProgramPipeline(const std::string& name);
     ~ProgramPipeline() override = default;
 
     bool create() override;
-    void bindProgramStage(const ProgramStage *programStage);
-    const ProgramStage* getProgramStage(ProgramStageType type) const;
+    void bindProgramStage(ProgramStage *programStage);
+    ProgramStage* getProgramStage(ProgramStageType type);
     const ProgramStageMap& getProgramStageMap() const;
 
 private:

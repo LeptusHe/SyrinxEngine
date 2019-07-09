@@ -1,38 +1,71 @@
 #pragma once
-#include <map>
-#include "HardwareResource/SyrinxHardwareResource.h"
-#include "HardwareResource/SyrinxHardwareIndexBuffer.h"
-#include "HardwareResource/SyrinxVertexDataDescription.h"
-#include "HardwareResource/SyrinxVertexAttributeDescription.h"
+#include <list>
+#include <vector>
+#include "SyrinxHardwareResource.h"
+#include "SyrinxHardwareIndexBuffer.h"
+#include "SyrinxVertexDataDescription.h"
+#include "SyrinxVertexAttributeDescription.h"
 
 namespace Syrinx {
 
-class VertexInputState : public HardwareResource {
+class VertexBufferLayoutDesc {
 public:
-    using VertexAttributeDescriptionMap = std::map<VertexAttributeBindingPoint, VertexAttributeDescription>;
-    using VertexDataDescriptionMap = std::map<VertexBufferBindingPoint, VertexDataDescription>;
+    VertexBufferLayoutDesc() = default;
+    VertexBufferLayoutDesc(VertexBufferLayoutDesc&& rhs) noexcept;
+    VertexBufferLayoutDesc& operator=(VertexBufferLayoutDesc&& rhs) noexcept;
 
+    void setBindingPoint(VertexBufferBindingPoint bindingPoint);
+    void addVertexAttributeDesc(const VertexAttributeDescription& vertexAttributeDesc);
+    VertexBufferBindingPoint getBindingPoint() const;
+    size_t getStride() const;
+    size_t getVertexAttributeCount() const;
+    const std::list<VertexAttributeDescription>& getVertexAttributeDescriptionList() const;
+
+private:
+    VertexBufferBindingPoint mBindingPoint = 0;
+    std::list<VertexAttributeDescription> mVertexAttributeDescList;
+};
+
+
+
+
+class VertexAttributeLayoutDesc {
+public:
+    VertexAttributeLayoutDesc() = default;
+    VertexAttributeLayoutDesc(VertexAttributeLayoutDesc&& rhs) noexcept;
+    VertexAttributeLayoutDesc& operator=(VertexAttributeLayoutDesc&& rhs) noexcept;
+    void addVertexAttributeDesc(const VertexAttributeDescription& vertexAttributeDescription);
+    const std::vector<VertexBufferLayoutDesc>& getVertexBufferLayoutDescList() const;
+    size_t getVertexAttributeCount() const;
+
+private:
+    std::vector<VertexBufferLayoutDesc> mVertexBufferLayoutDescList;
+};
+
+
+
+
+class VertexInputState : public HardwareResource {
 public:
     explicit VertexInputState(const std::string& name);
     ~VertexInputState() override;
 
-    void addVertexAttributeDescription(const VertexAttributeDescription& vertexAttributeDescription);
-    void addVertexDataDescription(const VertexDataDescription& vertexInputDataDescription);
-    void addIndexBuffer(const HardwareIndexBuffer *indexBuffer);
-    const HardwareIndexBuffer& getIndexBuffer() const;
-    const VertexDataDescriptionMap& getVertexDataDescriptionMap() const;
-    const VertexAttributeDescriptionMap& getVertexAttributeDescriptionMap() const;
-    const VertexDataDescriptionMap::const_iterator getVertexDataDescription(VertexBufferBindingPoint bindingPoint) const;
-    const VertexAttributeDescriptionMap::const_iterator getVertexAttributeDescription(VertexAttributeBindingPoint bindingPoint) const;
+    void setVertexAttributeLayoutDesc(VertexAttributeLayoutDesc&& vertexAttributeLayoutDesc);
+    void setVertexBuffer(const VertexBufferBindingPoint& bindingPoint, const HardwareVertexBuffer *vertexBuffer);
+    void setIndexBuffer(const HardwareIndexBuffer *indexBuffer);
+    const HardwareVertexBuffer *getVertexBuffer(const VertexBufferBindingPoint& bindingPoint) const;
+    const HardwareIndexBuffer *getIndexBuffer() const;
     bool create() override;
+    void setup();
 
 protected:
     bool isValidToCreate() const override;
 
 private:
-    VertexAttributeDescriptionMap mVertexAttributeDescriptionMap;
-    VertexDataDescriptionMap mVertexDataDescriptionMap;
-    const HardwareIndexBuffer *mHardwareIndexBuffer;
+    VertexAttributeLayoutDesc mVertexAttributeLayoutDesc;
+    std::vector<const HardwareVertexBuffer*> mVertexBufferList;
+    const HardwareIndexBuffer *mIndexBuffer;
+    std::vector<uint32_t> mBufferStrideList;
 };
 
 } // namespace Syrinx

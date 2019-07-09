@@ -31,10 +31,10 @@ BETTER_ENUM(TextureWrapMethod, uint8_t,
 );
 
 
-class TextureSamplingSetting {
+class SamplingSetting {
 public:
-    TextureSamplingSetting();
-    ~TextureSamplingSetting() = default;
+    SamplingSetting();
+    ~SamplingSetting() = default;
 
     void setMinFilterMethod(TextureMinFilterMethod method);
     void setMagFilterMethod(TextureMagFilterMethod method);
@@ -59,10 +59,11 @@ private:
 };
 
 
-class HardwareTextureSampler : public HardwareResource {
+class HardwareSampler : public HardwareResource {
 public:
-    explicit HardwareTextureSampler(const std::string& name);
-    ~HardwareTextureSampler() override = default;
+    explicit HardwareSampler(const std::string& name);
+    HardwareSampler(const std::string& name, const SamplingSetting& samplingSetting);
+    ~HardwareSampler() override = default;
 
     void setMinFilterMethod(TextureMinFilterMethod method);
     void setMagFilterMethod(TextureMagFilterMethod method);
@@ -82,7 +83,7 @@ private:
     bool isValidToCreate() const override;
 
 private:
-    TextureSamplingSetting mSamplingSetting;
+    SamplingSetting mSamplingSetting;
 };
 
 } // namespace Syrinx

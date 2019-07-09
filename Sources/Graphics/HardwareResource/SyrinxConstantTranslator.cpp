@@ -29,6 +29,14 @@ GLenum ConstantTranslator::getProgramStageTypeBitfield(ProgramStageType type) {
 
 std::pair<int, GLenum> ConstantTranslator::getOpenGLValueType(VertexAttributeDataType dataType) {
     switch (dataType) {
+        case VertexAttributeDataType::UBYTE1:
+            return {1, GL_UNSIGNED_BYTE};
+        case VertexAttributeDataType::UBYTE2:
+            return {2, GL_UNSIGNED_BYTE};
+        case VertexAttributeDataType::UBYTE3:
+            return {3, GL_UNSIGNED_BYTE};
+        case VertexAttributeDataType::UBYTE4:
+            return {4, GL_UNSIGNED_BYTE};
         case VertexAttributeDataType::SHORT1:
             return {1, GL_SHORT};
         case VertexAttributeDataType::SHORT2:

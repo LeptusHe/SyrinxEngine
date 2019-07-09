@@ -25,7 +25,8 @@ BETTER_ENUM(PixelFormat, uint8_t,
     DEPTH24,
     DEPTH32F,
     STENCIL_INDEX,
-    DEPTH_STENCIL
+    DEPTH_STENCIL,
+    UNKNOWN
 );
 
 } // namespace Syrinx

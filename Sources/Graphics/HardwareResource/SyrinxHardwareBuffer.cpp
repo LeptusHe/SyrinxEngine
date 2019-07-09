@@ -74,6 +74,23 @@ void HardwareBuffer::setUsage(BufferUsage usage)
 }
 
 
+void HardwareBuffer::uploadToGpu(size_t offset, size_t size)
+{
+    if (offset + size > mSizeInBytes) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+                                   "fail to upload data of buffer [{}] to GPU with [offset={}, size={}] because offset + size is greater than the buffer size [{}]",
+                                   getName(), offset, size, getSize());
+    }
+    glNamedBufferSubData(getHandle(), offset, size, &mData[offset]);
+}
+
+
+void HardwareBuffer::uploadToGpu()
+{
+    uploadToGpu(0, getSize());
+}
+
+
 size_t HardwareBuffer::getSize() const
 {
     return mSizeInBytes;

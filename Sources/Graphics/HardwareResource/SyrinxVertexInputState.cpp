@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "HardwareResource/SyrinxVertexInputState.h"
 #include <Common/SyrinxConfig.h>
 #include <Logging/SyrinxLogManager.h>
@@ -5,11 +6,151 @@
 
 namespace Syrinx {
 
+VertexBufferLayoutDesc::VertexBufferLayoutDesc(VertexBufferLayoutDesc&& rhs) noexcept
+    : mBindingPoint(rhs.mBindingPoint)
+    , mVertexAttributeDescList(std::move(rhs.mVertexAttributeDescList))
+{
+
+}
+
+
+VertexBufferLayoutDesc& VertexBufferLayoutDesc::operator=(VertexBufferLayoutDesc&& rhs) noexcept
+{
+    if (&rhs == this) {
+        return *this;
+    }
+
+    mBindingPoint = rhs.mBindingPoint;
+    mVertexAttributeDescList = std::move(rhs.mVertexAttributeDescList);
+    return *this;
+}
+
+
+void VertexBufferLayoutDesc::setBindingPoint(VertexBufferBindingPoint bindingPoint)
+{
+    mBindingPoint = bindingPoint;
+}
+
+
+void VertexBufferLayoutDesc::addVertexAttributeDesc(const VertexAttributeDescription& vertexAttributeDesc)
+{
+    if (vertexAttributeDesc.getBindingPoint() != mBindingPoint) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+            "fail to add vertex attribute description [semantic = {}]", vertexAttributeDesc.getSemantic()._to_string());
+    }
+
+    auto iter = mVertexAttributeDescList.begin();
+    size_t nextEndPos = 0;
+    while (iter != mVertexAttributeDescList.end()) {
+        auto dataType = iter->getDataType();
+        auto dataOffset = iter->getDataOffset();
+        auto dataSize = VertexAttributeDescription::getByteSizeForDataType(dataType);
+
+        nextEndPos = dataOffset + dataSize;
+        if (nextEndPos > vertexAttributeDesc.getDataOffset()) {
+            break;
+        }
+        iter++;
+    }
+    if (iter != mVertexAttributeDescList.end()) {
+        auto dataType = vertexAttributeDesc.getDataType();
+        auto dataOffset = vertexAttributeDesc.getDataOffset();
+        auto dataSize = VertexAttributeDescription::getByteSizeForDataType(dataType);
+        if (dataOffset + dataSize > iter->getDataOffset()) {
+            SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+                "fail to add vertex attribute [semantic = {}] into vertex buffer layout description", vertexAttributeDesc.getSemantic()._to_string());
+        }
+    }
+    mVertexAttributeDescList.insert(iter, vertexAttributeDesc);
+    SYRINX_ENSURE(!mVertexAttributeDescList.empty());
+}
+
+
+VertexBufferBindingPoint VertexBufferLayoutDesc::getBindingPoint() const
+{
+    return mBindingPoint;
+}
+
+
+size_t VertexBufferLayoutDesc::getStride() const
+{
+    if (mVertexAttributeDescList.empty()) {
+        return 0;
+    }
+    auto iter = mVertexAttributeDescList.back();
+    auto dataOffset = iter.getDataOffset();
+    auto dataType = iter.getDataType();
+    auto dataSize = VertexAttributeDescription::getByteSizeForDataType(dataType);
+    return dataOffset + dataSize;
+}
+
+
+size_t VertexBufferLayoutDesc::getVertexAttributeCount() const
+{
+    return mVertexAttributeDescList.size();
+}
+
+
+const std::list<VertexAttributeDescription>& VertexBufferLayoutDesc::getVertexAttributeDescriptionList() const
+{
+    return mVertexAttributeDescList;
+}
+
+
+VertexAttributeLayoutDesc::VertexAttributeLayoutDesc(VertexAttributeLayoutDesc&& rhs) noexcept
+    : mVertexBufferLayoutDescList(std::move(rhs.mVertexBufferLayoutDescList))
+{
+
+}
+
+
+VertexAttributeLayoutDesc& VertexAttributeLayoutDesc::operator=(VertexAttributeLayoutDesc&& rhs) noexcept
+{
+    mVertexBufferLayoutDescList = std::move(rhs.mVertexBufferLayoutDescList);
+    return *this;
+}
+
+
+void VertexAttributeLayoutDesc::addVertexAttributeDesc(const VertexAttributeDescription& vertexAttributeDescription)
+{
+    auto bindingPoint = vertexAttributeDescription.getBindingPoint();
+    if (bindingPoint + 1 > mVertexBufferLayoutDescList.size()) {
+        auto oldSize = mVertexBufferLayoutDescList.size();
+        mVertexBufferLayoutDescList.resize(bindingPoint + 1);
+        for (int i = oldSize; i < mVertexBufferLayoutDescList.size(); ++i) {
+            mVertexBufferLayoutDescList[i].setBindingPoint(i);
+        }
+    }
+    mVertexBufferLayoutDescList[bindingPoint].addVertexAttributeDesc(vertexAttributeDescription);
+}
+
+
+const std::vector<VertexBufferLayoutDesc>& VertexAttributeLayoutDesc::getVertexBufferLayoutDescList() const
+{
+    return mVertexBufferLayoutDescList;
+}
+
+
+size_t VertexAttributeLayoutDesc::getVertexAttributeCount() const
+{
+    size_t count = 0;
+    for (const auto& vertexBufferLayout : mVertexBufferLayoutDescList) {
+        count += vertexBufferLayout.getVertexAttributeCount();
+    }
+    return count;
+}
+
+
+
+
 VertexInputState::VertexInputState(const std::string& name)
     : HardwareResource(name)
-    , mHardwareIndexBuffer()
+    , mVertexAttributeLayoutDesc()
+    , mVertexBufferList()
+    , mIndexBuffer()
+    , mBufferStrideList()
 {
-    SYRINX_ENSURE(!mHardwareIndexBuffer);
+    SYRINX_ENSURE(!mIndexBuffer);
 }
 
 
@@ -20,68 +161,42 @@ VertexInputState::~VertexInputState()
 }
 
 
-void VertexInputState::addVertexAttributeDescription(const VertexAttributeDescription& vertexAttributeDescription)
+void VertexInputState::setVertexAttributeLayoutDesc(VertexAttributeLayoutDesc&& vertexAttributeLayoutDesc)
 {
-    auto bindingPoint = vertexAttributeDescription.getBindingPoint();
-    if (mVertexAttributeDescriptionMap.find(bindingPoint) != std::end(mVertexAttributeDescriptionMap)) {
-        auto& preVertexAttributeDescription = mVertexAttributeDescriptionMap.find(bindingPoint)->second;
-        auto preSemantic = preVertexAttributeDescription.getSemantic()._to_string();
-        auto preDataType = preVertexAttributeDescription.getDataType()._to_string();
-        auto curSemantic = vertexAttributeDescription.getSemantic()._to_string();
-        auto curDataType = vertexAttributeDescription.getDataType()._to_string();
-        SYRINX_DEBUG_FMT("change vertex attribute binding point [{}], before=[{}, {}], after=[{}, {}]", bindingPoint, preSemantic, preDataType, curSemantic, curDataType);
-    }
-    mVertexAttributeDescriptionMap.insert({bindingPoint, vertexAttributeDescription});
+    mVertexAttributeLayoutDesc = std::move(vertexAttributeLayoutDesc);
 }
 
 
-void VertexInputState::addVertexDataDescription(const VertexDataDescription& vertexInputDataDescription)
+void VertexInputState::setVertexBuffer(const VertexBufferBindingPoint& bindingPoint, const HardwareVertexBuffer *vertexBuffer)
 {
-    auto bindingPoint = vertexInputDataDescription.getVertexBufferBindingPoint();
-    if (mVertexDataDescriptionMap.find(bindingPoint) != std::end(mVertexDataDescriptionMap)) {
-        SYRINX_DEBUG_FMT("change vertex buffer binding point [{}]", bindingPoint);
+    SYRINX_EXPECT(vertexBuffer);
+    if (bindingPoint >= mVertexBufferList.size()) {
+        mVertexBufferList.resize(bindingPoint + 1, nullptr);
     }
-    mVertexDataDescriptionMap.insert({bindingPoint, vertexInputDataDescription});
+    mVertexBufferList[bindingPoint] = vertexBuffer;
 }
 
 
-void VertexInputState::addIndexBuffer(const HardwareIndexBuffer *indexBuffer)
+void VertexInputState::setIndexBuffer(const HardwareIndexBuffer *indexBuffer)
 {
     SYRINX_EXPECT(indexBuffer);
-    mHardwareIndexBuffer = indexBuffer;
-    SYRINX_ENSURE(mHardwareIndexBuffer);
-    SYRINX_ENSURE(mHardwareIndexBuffer == indexBuffer);
+    mIndexBuffer = indexBuffer;
 }
 
 
-const HardwareIndexBuffer& VertexInputState::getIndexBuffer() const
+const HardwareVertexBuffer* VertexInputState::getVertexBuffer(const VertexBufferBindingPoint& bindingPoint) const
 {
-    SYRINX_EXPECT(mHardwareIndexBuffer);
-    return *mHardwareIndexBuffer;
+    if (bindingPoint >= mVertexBufferList.size()) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+            "fail to get vertex buffer in binding point [{}] in vertex input state [{}] because the binding point is invalid", getName(), bindingPoint);
+    }
+    return mVertexBufferList[bindingPoint];
 }
 
 
-const VertexInputState::VertexDataDescriptionMap& VertexInputState::getVertexDataDescriptionMap() const
+const HardwareIndexBuffer* VertexInputState::getIndexBuffer() const
 {
-    return mVertexDataDescriptionMap;
-}
-
-
-const VertexInputState::VertexAttributeDescriptionMap& VertexInputState::getVertexAttributeDescriptionMap() const
-{
-    return mVertexAttributeDescriptionMap;
-}
-
-
-const VertexInputState::VertexDataDescriptionMap::const_iterator VertexInputState::getVertexDataDescription(VertexBufferBindingPoint bindingPoint) const
-{
-    return mVertexDataDescriptionMap.find(bindingPoint);
-}
-
-
-const VertexInputState::VertexAttributeDescriptionMap::const_iterator VertexInputState::getVertexAttributeDescription(VertexAttributeBindingPoint bindingPoint) const
-{
-    return mVertexAttributeDescriptionMap.find(bindingPoint);
+    return mIndexBuffer;
 }
 
 
@@ -92,50 +207,77 @@ bool VertexInputState::create()
 
     GLuint handle = 0;
     glCreateVertexArrays(1, &handle);
-
-    for (const auto& [bindingPoint, vertexAttributeDescription] : mVertexAttributeDescriptionMap) {
-        const auto [valueNumber, valueType] = ConstantTranslator::getOpenGLValueType(vertexAttributeDescription.getDataType());
-        auto vertexDataDescription = getVertexDataDescription(bindingPoint)->second;
-        auto vertexBuffer = vertexDataDescription.getVertexBuffer();
-        GLuint bufferHandle = vertexBuffer->getHandle();
-        size_t offset = vertexDataDescription.getOffsetOfFirstElement();
-        size_t stride = vertexDataDescription.getStrideBetweenElements();
-        glEnableVertexArrayAttrib(handle, bindingPoint);
-        glVertexArrayAttribFormat(handle, bindingPoint, valueNumber, valueType, GL_FALSE, 0);
-        glVertexArrayVertexBuffer(handle, bindingPoint, bufferHandle, offset, stride);
-        glVertexArrayAttribBinding(handle, bindingPoint, bindingPoint);
-    }
-    glVertexArrayElementBuffer(handle, mHardwareIndexBuffer->getHandle());
     setHandle(handle);
     SYRINX_ENSURE(isCreated());
     return true;
 }
 
 
-bool VertexInputState::isValidToCreate() const
+void VertexInputState::setup()
 {
-    if (mVertexAttributeDescriptionMap.empty() || mVertexDataDescriptionMap.empty())
-        return false;
+    if (!mIndexBuffer) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState, "fail to set up vertex input state [{}] because there is no index buffer", getName());
+    }
 
-    if (!mHardwareIndexBuffer)
-        return false;
+    auto numVertex = mIndexBuffer->getNumIndexes();
 
-    bool isValid = true;
-    for (const auto& [bindingPoint, vertexAttribute] : mVertexAttributeDescriptionMap) {
-        auto vertexSemantic = vertexAttribute.getSemantic()._to_string();
-        const auto iter = mVertexDataDescriptionMap.find(bindingPoint);
-        if (iter == std::cend(mVertexDataDescriptionMap)) {
-            SYRINX_DEBUG_FMT("no data source for vertex attribute [binding point={}, semantic={}]", bindingPoint, vertexSemantic);
-            isValid = false;
+    const auto& vertexBufferLayoutDescList = mVertexAttributeLayoutDesc.getVertexBufferLayoutDescList();
+    for (const auto& vertexBufferLayoutDesc : vertexBufferLayoutDescList) {
+        auto bindingPoint = vertexBufferLayoutDesc.getBindingPoint();
+        auto vertexBuffer = mVertexBufferList[bindingPoint];
+
+        if (vertexBufferLayoutDesc.getVertexAttributeCount() == 0) {
+            if (vertexBuffer) {
+                SYRINX_WARN_FMT("vertex input state [{}] has vertex buffer bound to [{}] but there is no vertex attribute read data from it", getName(), bindingPoint);
+            }
         } else {
-            const auto vertexBuffer = iter->second.getVertexBuffer();
-            if (!vertexBuffer->isCreated()) {
-                SYRINX_DEBUG_FMT("the vertex buffer for vertex attribute [binding point={}, semantic={}] was not created", bindingPoint, vertexSemantic);
-                isValid = false;
+            if (!vertexBuffer) {
+                SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState,
+                    "vertex input state [{}] has vertex attribute bound to binding point [{}] but no vertex buffer bound to the binding point",
+                    getName(), bindingPoint);
+            }
+
+            if (vertexBufferLayoutDesc.getStride() != vertexBuffer->getVertexSizeInBytes()) {
+                SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState,
+                    "fail to set up vertex input state [{}] because the stride of vertex buffer layout description [{}] is not the same as the vertex size [{}] of vertex buffer [{}]",
+                    getName(), vertexBufferLayoutDesc.getStride(), vertexBuffer->getVertexSizeInBytes(), vertexBuffer->getBuffer().getName());
+            }
+
+            if (false && numVertex != vertexBuffer->getVertexNumber()) {
+                SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState,
+                    "fail to set up vertex input state [{}] because the vertex number of index buffer [{}] is not the same as vertex buffer [{}]",
+                    getName(), mIndexBuffer->getBuffer().getName(), vertexBuffer->getBuffer().getName());
             }
         }
     }
-    return isValid;
+
+    auto handle = getHandle();
+    for (const auto& vertexBufferLayoutDesc : vertexBufferLayoutDescList) {
+        auto bindingPoint = vertexBufferLayoutDesc.getBindingPoint();
+        auto vertexBuffer = mVertexBufferList[bindingPoint];
+        SYRINX_ASSERT(vertexBuffer);
+
+        for (const auto& vertexAttributeDesc : vertexBufferLayoutDesc.getVertexAttributeDescriptionList()) {
+            SYRINX_ASSERT(vertexAttributeDesc.getBindingPoint() == bindingPoint);
+            auto dataType = vertexAttributeDesc.getDataType();
+            auto dataOffset = vertexAttributeDesc.getDataOffset();
+            auto dataSize = VertexAttributeDescription::getByteSizeForDataType(dataType);
+            auto location = vertexAttributeDesc.getLocation();
+            const auto [numValue, valueType] = ConstantTranslator::getOpenGLValueType(dataType);
+
+            glEnableVertexArrayAttrib(handle, location);
+            glVertexArrayAttribFormat(handle, location, numValue, valueType, GL_FALSE, dataOffset);
+            glVertexArrayAttribBinding(handle, location, bindingPoint);
+        }
+        glVertexArrayVertexBuffer(handle, bindingPoint, vertexBuffer->getHandle(), 0, vertexBufferLayoutDesc.getStride());
+    }
+    glVertexArrayElementBuffer(handle, mIndexBuffer->getHandle());
+}
+
+
+bool VertexInputState::isValidToCreate() const
+{
+    return true;
 }
 
 } // namespace Syrinx

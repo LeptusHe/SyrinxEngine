@@ -7,12 +7,13 @@ HardwareTexture::HardwareTexture(const std::string& name)
     : HardwareResource(name)
     , mWidth(0)
     , mHeight(0)
-    , mDepth(0)
+    , mDepth(1)
+    , mLevelCount(0)
     , mType(TextureType::TEXTURE_2D)
     , mPixelFormat(PixelFormat::RGBA8)
     , mSampler(nullptr)
 {
-    SYRINX_ENSURE(mWidth == 0 && mHeight == 0 && mDepth == 0);
+    SYRINX_ENSURE(mWidth == 0 && mHeight == 0 && mDepth == 1);
     SYRINX_ENSURE(mType._value == TextureType::TEXTURE_2D);
     SYRINX_ENSURE(mPixelFormat._value == PixelFormat::RGBA8);
     SYRINX_ENSURE(!mSampler);
@@ -69,6 +70,12 @@ void HardwareTexture::setPixelFormat(PixelFormat format)
 }
 
 
+void HardwareTexture::enableMipmap(bool enable)
+{
+    mLevelCount = enable ? AutoGenerateMipmap : 1;
+}
+
+
 uint32_t HardwareTexture::getWidth() const
 {
     return mWidth;
@@ -99,7 +106,7 @@ PixelFormat HardwareTexture::getPixelFormat() const
 }
 
 
-void HardwareTexture::setSampler(const HardwareTextureSampler *sampler)
+void HardwareTexture::setSampler(const HardwareSampler *sampler)
 {
     SYRINX_EXPECT(sampler);
     mSampler = sampler;
@@ -108,19 +115,19 @@ void HardwareTexture::setSampler(const HardwareTextureSampler *sampler)
 }
 
 
-const HardwareTextureSampler* HardwareTexture::getSampler() const
+const HardwareSampler* HardwareTexture::getSampler() const
 {
     return mSampler;
 }
 
 
-void HardwareTexture::setSamplingSetting(const TextureSamplingSetting& samplingSetting)
+void HardwareTexture::setSamplingSetting(const SamplingSetting& samplingSetting)
 {
     mSamplingSetting = samplingSetting;
 }
 
 
-const TextureSamplingSetting& HardwareTexture::getSamplingSetting() const
+const SamplingSetting& HardwareTexture::getSamplingSetting() const
 {
     return mSamplingSetting;
 }
@@ -137,7 +144,9 @@ bool HardwareTexture::create()
     glTextureParameteri(handle, GL_TEXTURE_MAG_FILTER, ConstantTranslator::getTextureMagFilterMethod(mSamplingSetting.getMagFilterMethod()));
     glTextureParameteri(handle, GL_TEXTURE_WRAP_S, ConstantTranslator::getTextureWrapMethod(mSamplingSetting.getWrapSMethod()));
     glTextureParameteri(handle, GL_TEXTURE_WRAP_T, ConstantTranslator::getTextureWrapMethod(mSamplingSetting.getWrapTMethod()));
-    glTextureStorage2D(handle, getMaxMipMapLevel() + 1, ConstantTranslator::getPixelFormat(mPixelFormat), mWidth, mHeight);
+
+    const int mipmapLevelCount = (mLevelCount == AutoGenerateMipmap) ? getMaxMipMapLevel() + 1 : mLevelCount;
+    glTextureStorage2D(handle, mipmapLevelCount, ConstantTranslator::getPixelFormat(mPixelFormat), mWidth, mHeight);
     setHandle(handle);
 
     SYRINX_ENSURE(isCreated());
@@ -145,7 +154,7 @@ bool HardwareTexture::create()
 }
 
 
-void HardwareTexture::generateTextureMipMap()
+void HardwareTexture::generateMipMap()
 {
     SYRINX_EXPECT(isCreated());
     glGenerateTextureMipmap(getHandle());
@@ -194,7 +203,7 @@ bool HardwareTexture::isValidToCreate() const
     }
 
     if (mType._value == TextureType::TEXTURE_2D) {
-        return mDepth == 0;
+        return mDepth == 1;
     }
     if (mType._value == TextureType::TEXTURE_3D) {
         return mDepth != 0;

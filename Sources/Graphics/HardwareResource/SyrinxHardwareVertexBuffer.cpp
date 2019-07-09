@@ -43,6 +43,25 @@ void HardwareVertexBuffer::setVertexSizeInBytes(size_t vertexSizeInBytes)
 }
 
 
+void HardwareVertexBuffer::uploadToGpu(size_t offset, size_t size)
+{
+    mHardwareBuffer->uploadToGpu(offset, size);
+}
+
+
+void HardwareVertexBuffer::uploadToGpu()
+{
+    mHardwareBuffer->uploadToGpu();
+}
+
+
+size_t HardwareVertexBuffer::getSize() const
+{
+    SYRINX_EXPECT(isCreated());
+    return mHardwareBuffer->getSize();
+}
+
+
 size_t HardwareVertexBuffer::getVertexNumber() const
 {
     return mNumVertices;

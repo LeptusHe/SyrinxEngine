@@ -24,7 +24,7 @@ bool ProgramPipeline::create()
 }
 
 
-void ProgramPipeline::bindProgramStage(const ProgramStage *programStage)
+void ProgramPipeline::bindProgramStage(ProgramStage *programStage)
 {
     SYRINX_EXPECT(programStage && programStage->isCreated());
     SYRINX_EXPECT(isCreated());
@@ -46,9 +46,9 @@ void ProgramPipeline::bindProgramStage(const ProgramStage *programStage)
 }
 
 
-const ProgramStage * ProgramPipeline::getProgramStage(ProgramStageType type) const
+ProgramStage * ProgramPipeline::getProgramStage(ProgramStageType type)
 {
-    const auto iter = mProgramStageMap.find(type);
+    auto iter = mProgramStageMap.find(type);
     return (iter != std::end(mProgramStageMap)) ? iter->second : nullptr;
 }
 

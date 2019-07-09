@@ -51,6 +51,18 @@ void HardwareIndexBuffer::setIndexNumber(size_t numIndexes)
 }
 
 
+void HardwareIndexBuffer::uploadToGpu(size_t offset, size_t size)
+{
+    mHardwareBuffer->uploadToGpu(offset, size);
+}
+
+
+void HardwareIndexBuffer::uploadToGpu()
+{
+    mHardwareBuffer->uploadToGpu();
+}
+
+
 const HardwareBuffer& HardwareIndexBuffer::getBuffer() const
 {
     SYRINX_EXPECT(mHardwareBuffer);
@@ -62,6 +74,13 @@ HardwareResource::ResourceHandle HardwareIndexBuffer::getHandle() const
 {
     SYRINX_EXPECT(mHardwareBuffer);
     return mHardwareBuffer->getHandle();
+}
+
+
+size_t HardwareIndexBuffer::getSize() const
+{
+    SYRINX_EXPECT(isCreated());
+    return mHardwareBuffer->getSize();
 }
 
 

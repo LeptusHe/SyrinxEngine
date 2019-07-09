@@ -13,8 +13,14 @@ public:
     void create();
     void setVertexNumber(size_t numVertices);
     void setVertexSizeInBytes(size_t vertexSizeInBytes);
+    template <typename T> void initData(const T *sourceData);
+    template <typename T> void initData(const T *elemArray, size_t numElements);
     template <typename T> void setData(const T *data);
     template <typename T> void setData(const T *elemArray, size_t numElements);
+    template <typename T> void setData(size_t offset, const T* elemArray, size_t numElements);
+    void uploadToGpu(size_t offset, size_t size);
+    void uploadToGpu();
+    size_t getSize() const;
     size_t getVertexNumber() const;
     size_t getVertexSizeInBytes() const;
     HardwareResource::ResourceHandle getHandle() const;
@@ -29,6 +35,20 @@ private:
 
 
 template <typename T>
+void HardwareVertexBuffer::initData(const T *sourceData)
+{
+    mHardwareBuffer->initData(sourceData);
+}
+
+
+template <typename T>
+void HardwareVertexBuffer::initData(const T *elemArray, size_t numElements)
+{
+    mHardwareBuffer->initData(elemArray, numElements);
+}
+
+
+template <typename T>
 void HardwareVertexBuffer::setData(const T *data)
 {
     mHardwareBuffer->setData(data);
@@ -39,6 +59,13 @@ template <typename T>
 void HardwareVertexBuffer::setData(const T *elemArray, size_t numElements)
 {
     mHardwareBuffer->setData(elemArray, numElements);
+}
+
+
+template <typename T>
+void HardwareVertexBuffer::setData(size_t offset, const T *elemArray, size_t numElements)
+{
+    mHardwareBuffer->setData(offset, elemArray, numElements);
 }
 
 } // namespace Syrinx
