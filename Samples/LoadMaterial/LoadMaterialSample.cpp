@@ -7,10 +7,11 @@
 
 int main(int argc, char *argv[])
 {
-    Syrinx::LogManager *logManager = new Syrinx::LogManager();
+    auto logManager = std::make_unique<Syrinx::LogManager>();
+
     Syrinx::DisplayDevice displayDevice;
     displayDevice.setMajorVersionNumber(4);
-    displayDevice.setMinorVersionNumber(5);
+    displayDevice.setMinorVersionNumber(6);
     displayDevice.setDebugMessageHandler(Syrinx::DefaultDebugHandler);
 
     const int WINDOW_WIDTH = 800;
@@ -18,26 +19,32 @@ int main(int argc, char *argv[])
     auto renderWindow = displayDevice.createWindow("Load Material Sample", WINDOW_WIDTH, WINDOW_HEIGHT);
 
     Syrinx::FileManager fileManager;
-    Syrinx::HardwareResourceManager hardwareResourceManager(&fileManager);
+    Syrinx::HardwareResourceManager hardwareResourceManager;
     Syrinx::MeshManager meshManager(&fileManager, &hardwareResourceManager);
     Syrinx::ShaderManager shaderManager(&fileManager, &hardwareResourceManager);
     Syrinx::MaterialManager materialManager(&fileManager, &hardwareResourceManager, &shaderManager);
 
-    fileManager.addSearchPath("../../Medias/");
+    shaderManager.addShaderSearchPath("../../Medias/Library");
+
+    fileManager.addSearchPath(".");
+    fileManager.addSearchPath("../SampleMedias/");
     auto cubeMesh = meshManager.createOrRetrieve("cube.smesh");
-    auto cubeMaterial = materialManager.createOrRetrieve("display-red-color.smat");
+    auto cubeMaterial = materialManager.createOrRetrieve("blue-unlit-color.smat");
+    SYRINX_ASSERT(cubeMesh);
+    SYRINX_ASSERT(cubeMaterial);
 
-    auto displayColorShader = cubeMaterial->getShader();
-    auto lightingPass = displayColorShader->getShaderPass("lighting");
-    SYRINX_ASSERT(lightingPass);
-    auto vertexProgramForLightingPass = lightingPass->getProgramStage(Syrinx::ProgramStageType::VertexStage);
-    auto fragmentProgramForLightingPass = lightingPass->getProgramStage(Syrinx::ProgramStageType::FragmentStage);
-    auto lightingPassProgramPipeline = lightingPass->getProgramPipeline();
+    auto shaderVars = cubeMaterial->getShaderVars("constant-color.shader");
+    SYRINX_ASSERT(shaderVars);
+    auto& vertexVars = *(shaderVars->getProgramVars(Syrinx::ProgramStageType::VertexStage));
+    auto& programVars = *(shaderVars->getProgramVars(Syrinx::ProgramStageType::FragmentStage));
 
-    Syrinx::ShaderParameter* colorDisplayedParameter = displayColorShader->getShaderParameter("displayColor");
-    SYRINX_ASSERT(colorDisplayedParameter);
-    Syrinx::Color displayColor = std::get<Syrinx::Color>(colorDisplayedParameter->getValue());
-    fragmentProgramForLightingPass->updateParameter(colorDisplayedParameter->getName(), displayColor);
+    auto& shader = shaderVars->getShader();
+    auto programPipeline = shader.getProgramPipeline();
+    auto vertexProgram = shader.getShaderModule(Syrinx::ProgramStageType::VertexStage);
+    auto fragmentProgram = shader.getShaderModule(Syrinx::ProgramStageType::FragmentStage);
+
+    fragmentProgram->updateProgramVars(programVars);
+    fragmentProgram->uploadParametersToGpu();
 
     while (renderWindow->isOpen()) {
         float defaultValueForColorAttachment[] = {0.0, 0.0, 1.0, 1.0};
@@ -47,7 +54,7 @@ int main(int argc, char *argv[])
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
-        glBindProgramPipeline(lightingPassProgramPipeline->getHandle());
+        glBindProgramPipeline(programPipeline->getHandle());
 
         Syrinx::Matrix4x4 modelMatrix(1.0f);
         modelMatrix = glm::rotate(modelMatrix, glm::radians(45.0f), Syrinx::Vector3f(0.0f, 1.0f, 0.0f));
@@ -56,9 +63,15 @@ int main(int argc, char *argv[])
         Syrinx::Vector3f cameraFront = Syrinx::Vector3f(0.0f, 0.0f, -1.0f);
         Syrinx::Vector3f upVector = Syrinx::Vector3f(0.0f, 1.0f, 0.0f);
         Syrinx::Matrix4x4 viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, upVector);
-        vertexProgramForLightingPass->updateParameter("uModelMatrix", modelMatrix);
-        vertexProgramForLightingPass->updateParameter("uViewMatrix", viewMatrix);
-        vertexProgramForLightingPass->updateParameter("uProjectionMatrix", projectionMatrix);
+
+        vertexVars["SyrinxMatrixBuffer"]["SYRINX_MATRIX_PROJ"] = projectionMatrix;
+        vertexVars["SyrinxMatrixBuffer"]["SYRINX_MATRIX_VIEW"] = viewMatrix;
+        vertexVars["SyrinxMatrixBuffer"]["SYRINX_MATRIX_WORLD"] = modelMatrix;
+        vertexProgram->updateProgramVars(vertexVars);
+        vertexProgram->uploadParametersToGpu();
+        vertexProgram->bindResources();
+
+        fragmentProgram->bindResources();
 
         glBindVertexArray(cubeMesh->getVertexInputState().getHandle());
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(3 * cubeMesh->getNumTriangle()), GL_UNSIGNED_INT, nullptr);

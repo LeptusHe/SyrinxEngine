@@ -1,7 +1,8 @@
-#include <GL/glew.h>
 #include <Logging/SyrinxLogManager.h>
 #include <Pipeline/SyrinxDisplayDevice.h>
 #include <Pipeline/SyrinxEngineSetting.h>
+#include <Program/SyrinxProgramCompiler.h>
+#include <Manager/SyrinxHardwareResourceManager.h>
 #include <HardwareResource/SyrinxProgramStage.h>
 #include <HardwareResource/SyrinxProgramPipeline.h>
 #include <HardwareResource/SyrinxHardwareVertexBuffer.h>
@@ -11,16 +12,15 @@
 
 int main(int argc, char *argv[])
 {
-    Syrinx::LogManager *logManager = new Syrinx::LogManager();
+    auto logManager = std::make_unique<Syrinx::LogManager>();
     Syrinx::DisplayDevice displayDevice;
 
     displayDevice.setMajorVersionNumber(4);
-    displayDevice.setMinorVersionNumber(5);
+    displayDevice.setMinorVersionNumber(6);
     displayDevice.setDebugMessageHandler(Syrinx::DefaultDebugHandler);
     auto renderWindow = displayDevice.createWindow("Draw Triangle Sample", 800, 600);
 
     const std::string vertexProgramSource =
-        "#version 450 core\n"
         "layout(location = 0) in vec3 aPos;\n"
         "out gl_PerVertex {\n"
         "    vec4 gl_Position;\n"
@@ -30,60 +30,57 @@ int main(int argc, char *argv[])
         "}\n";
 
     const std::string fragmentProgramSource =
-        "#version 450 core\n"
-        "out vec4 FragColor;\n"
+        "layout(location = 0) out vec4 FragColor;\n"
         "void main()\n"
         "{\n"
         "   FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);\n"
         "}\n";
 
-    auto vertexProgram = std::make_unique<Syrinx::ProgramStage>("draw triangle vertex program");
-    vertexProgram->setType(Syrinx::ProgramStageType::VertexStage);
-    vertexProgram->setSource(vertexProgramSource);
-    vertexProgram->create();
+    Syrinx::ProgramCompiler compiler;
+    Syrinx::HardwareResourceManager hardwareResourceManager;
+    auto vertexProgramBinarySource = compiler.compile("vertex", vertexProgramSource, Syrinx::ProgramStageType::VertexStage);
+    auto vertexProgram = hardwareResourceManager.createProgramStage("model vertex program",
+                                                                    std::move(vertexProgramBinarySource),
+                                                                    Syrinx::ProgramStageType::VertexStage);
 
-    auto fragmentProgram = std::make_unique<Syrinx::ProgramStage>("draw triangle fragment program");
-    fragmentProgram->setType(Syrinx::ProgramStageType::FragmentStage);
-    fragmentProgram->setSource(fragmentProgramSource);
-    fragmentProgram->create();
+    auto fragmentProgramBinarySource = compiler.compile("fragment", fragmentProgramSource, Syrinx::ProgramStageType::FragmentStage);
+    auto fragmentProgram = hardwareResourceManager.createProgramStage("model fragment program",
+                                                                      std::move(fragmentProgramBinarySource),
+                                                                      Syrinx::ProgramStageType::FragmentStage);
 
-    Syrinx::ProgramPipeline programPipeline("draw triangle program pipeline");
-    programPipeline.create();
-    programPipeline.bindProgramStage(vertexProgram.get());
-    programPipeline.bindProgramStage(fragmentProgram.get());
+    auto programPipeline = hardwareResourceManager.createProgramPipeline("draw model program pipeline");
+    programPipeline->bindProgramStage(vertexProgram);
+    programPipeline->bindProgramStage(fragmentProgram);
+
 
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // left
-        0.5f, -0.5f, 0.0f,  // right
-        0.0f,  0.5f, 0.0f   // top
+        -0.5f, -0.5f, 0.0f,
+        0.5f, -0.5f, 0.0f,
+        0.0f,  0.5f, 0.0f
     };
 
     uint16_t indices[] = {
         0, 1, 2
     };
 
-    auto vertexBuffer = std::make_unique<Syrinx::HardwareBuffer>("triangle vertex buffer");
-    Syrinx::HardwareVertexBuffer hardwareVertexBuffer(std::move(vertexBuffer));
-    hardwareVertexBuffer.setVertexNumber(3);
-    hardwareVertexBuffer.setVertexSizeInBytes(3 * sizeof(float));
-    hardwareVertexBuffer.setData(vertices);
-    hardwareVertexBuffer.create();
+    auto hardwareVertexBuffer = hardwareResourceManager.createVertexBuffer("triangle vertex buffer", 3, 3 * sizeof(float), vertices);
+    auto hardwareIndexBuffer = hardwareResourceManager.createIndexBuffer("triangle index buffer", 3, Syrinx::IndexType::UINT16, indices);
+    auto vertexInputState = hardwareResourceManager.createVertexInputState("triangle vertex input state");
 
-    auto indexBuffer = std::make_unique<Syrinx::HardwareBuffer>("triangle index buffer");
-    Syrinx::HardwareIndexBuffer hardwareIndexBuffer(std::move(indexBuffer));
-    hardwareIndexBuffer.setIndexType(Syrinx::IndexType::UINT16);
-    hardwareIndexBuffer.setIndexNumber(3);
-    hardwareIndexBuffer.setData(indices);
-    hardwareIndexBuffer.create();
+    Syrinx::VertexAttributeDescription positionAttributeDesc;
+    positionAttributeDesc.setSemantic(Syrinx::VertexAttributeSemantic::Position)
+                         .setLocation(0)
+                         .setBindingPoint(0)
+                         .setDataOffset(0)
+                         .setDataType(Syrinx::VertexAttributeDataType::FLOAT3);
 
-    Syrinx::VertexAttributeDescription vertexAttributeDescription(0, Syrinx::VertexAttributeSemantic::Position, Syrinx::VertexAttributeDataType::FLOAT3);
-    Syrinx::VertexDataDescription vertexDataDescription(&hardwareVertexBuffer, 0, 0, 3 * sizeof(float));
+    Syrinx::VertexAttributeLayoutDesc vertexAttributeLayoutDesc;
+    vertexAttributeLayoutDesc.addVertexAttributeDesc(positionAttributeDesc);
 
-    Syrinx::VertexInputState vertexInputState("triangle vertex input state");
-    vertexInputState.addVertexAttributeDescription(vertexAttributeDescription);
-    vertexInputState.addVertexDataDescription(vertexDataDescription);
-    vertexInputState.addIndexBuffer(&hardwareIndexBuffer);
-    vertexInputState.create();
+    vertexInputState->setVertexAttributeLayoutDesc(std::move(vertexAttributeLayoutDesc));
+    vertexInputState->setVertexBuffer(0, hardwareVertexBuffer);
+    vertexInputState->setIndexBuffer(hardwareIndexBuffer);
+    vertexInputState->setup();
 
     while (renderWindow->isOpen()) {
         float defaultValueForColorAttachment[] = {0.5, 0.0, 0.5, 1.0};
@@ -91,8 +88,8 @@ int main(int argc, char *argv[])
         float defaultDepthValue = 1.0;
         glClearNamedFramebufferfv(0, GL_DEPTH, 0, &defaultDepthValue);
 
-        glBindVertexArray(vertexInputState.getHandle());
-        glBindProgramPipeline(programPipeline.getHandle());
+        glBindVertexArray(vertexInputState->getHandle());
+        glBindProgramPipeline(programPipeline->getHandle());
         glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, nullptr);
 
         renderWindow->swapBuffer();
