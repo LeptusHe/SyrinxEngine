@@ -1,35 +1,10 @@
 #pragma once
 #include <memory>
-#include <better-enums/enum.h>
 #include <Math/SyrinxMath.h>
+#include "SyrinxGraphicsEnums.h"
 #include "HardwareResource/SyrinxHardwareResource.h"
 
 namespace Syrinx {
-
-BETTER_ENUM(TextureMinFilterMethod, uint8_t,
-    NEAREST,
-    LINEAR,
-    NEAREST_MIPMAP_NEAREST,
-    LINEAR_MIPMAP_NEAREST,
-    NEAREST_MIPMAP_LINEAR,
-    LINEAR_MIPMAP_LINEAR
-);
-
-
-BETTER_ENUM(TextureMagFilterMethod, uint8_t,
-    NEAREST,
-    LINEAR
-);
-
-
-BETTER_ENUM(TextureWrapMethod, uint8_t,
-    CLAMP_TO_BORDER,
-    CLAMP_TO_EDGE,
-    MIRROR_CLAMP_TO_EDGE,
-    REPEAT,
-    MIRRORED_REPEAT
-);
-
 
 class SamplingSetting {
 public:

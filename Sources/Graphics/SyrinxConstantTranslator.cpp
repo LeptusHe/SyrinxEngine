@@ -1,4 +1,4 @@
-#include "HardwareResource/SyrinxConstantTranslator.h"
+#include "SyrinxConstantTranslator.h"
 #include <Common/SyrinxAssert.h>
 
 namespace Syrinx {
@@ -169,6 +169,43 @@ GLint ConstantTranslator::getTextureWrapMethod(TextureWrapMethod textureWrapMeth
         case TextureWrapMethod::REPEAT: return GL_REPEAT;
         case TextureWrapMethod::MIRRORED_REPEAT: return GL_MIRRORED_REPEAT;
         default: SYRINX_ASSERT(false && "undefined texture wrap method");
+    }
+    return GL_INVALID_ENUM;
+}
+
+
+GLenum ConstantTranslator::getBlendFactor(const BlendFactor& blendFactor)
+{
+    switch (blendFactor) {
+        case BlendFactor::Zero: return GL_ZERO;
+        case BlendFactor::One:  return GL_ONE;
+        case BlendFactor::SrcColor: return GL_SRC_COLOR;
+        case BlendFactor::DstColor: return GL_DST_COLOR;
+        case BlendFactor::SrcAlpha: return GL_SRC_ALPHA;
+        case BlendFactor::DstAlpha: return GL_DST_ALPHA;
+        case BlendFactor::OneMinusSrcColor: return GL_ONE_MINUS_SRC_COLOR;
+        case BlendFactor::OneMinusDstColor: return GL_ONE_MINUS_DST_COLOR;
+        case BlendFactor::OneMinusSrcAlpha: return GL_ONE_MINUS_SRC_ALPHA;
+        case BlendFactor::OneMinusDstAlpha: return GL_ONE_MINUS_DST_ALPHA;
+        case BlendFactor::ConstantColor: return GL_CONSTANT_COLOR;
+        case BlendFactor::OneMinusConstantColor: return GL_ONE_MINUS_CONSTANT_COLOR;
+        case BlendFactor::ConstantAlpha: return GL_CONSTANT_ALPHA;
+        case BlendFactor::OneMinusConstantAlpha: return GL_ONE_MINUS_CONSTANT_ALPHA;
+        default: SYRINX_ASSERT(false && "undefined blend factor");
+    }
+    return GL_INVALID_ENUM;
+}
+
+
+GLenum ConstantTranslator::getBlendOp(const BlendOp& blendOp)
+{
+    switch (blendOp) {
+        case BlendOp::Add: return GL_FUNC_ADD;
+        case BlendOp::Subtract: return GL_FUNC_SUBTRACT;
+        case BlendOp::ReverseSubtract: return GL_FUNC_REVERSE_SUBTRACT;
+        case BlendOp::Min: return GL_MIN;
+        case BlendOp::Max: return GL_MAX;
+        default: SYRINX_ASSERT(false && "undefined blend operator");
     }
     return GL_INVALID_ENUM;
 }

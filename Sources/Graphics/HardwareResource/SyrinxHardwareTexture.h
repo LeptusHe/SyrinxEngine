@@ -1,22 +1,13 @@
 #pragma once
 #include <cstdint>
 #include <memory>
-#include <better-enums/enum.h>
 #include <Common/SyrinxAssert.h>
-#include "HardwareResource/SyrinxPixelFormat.h"
+#include "SyrinxGraphicsEnums.h"
+#include "SyrinxPixelFormat.h"
 #include "HardwareResource/SyrinxHardwareResource.h"
 #include "HardwareResource/SyrinxHardwareSampler.h"
 
 namespace Syrinx {
-
-BETTER_ENUM(TextureType, uint8_t,
-    TEXTURE_2D,
-    TEXTURE_3D,
-    TEXTURE_CUBEMAP,
-    TEXTURE_2D_ARRAY,
-    UNDEFINED
-);
-
 
 class HardwareTexture : public HardwareResource {
 private:

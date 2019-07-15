@@ -2,7 +2,7 @@
 #include "HardwareResource/SyrinxVertexInputState.h"
 #include <Common/SyrinxConfig.h>
 #include <Logging/SyrinxLogManager.h>
-#include "HardwareResource/SyrinxConstantTranslator.h"
+#include "SyrinxConstantTranslator.h"
 
 namespace Syrinx {
 

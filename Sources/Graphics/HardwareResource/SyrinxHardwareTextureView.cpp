@@ -1,4 +1,5 @@
 #include "SyrinxHardwareTextureView.h"
+#include <Logging/SyrinxLogManager.h>
 #include "SyrinxConstantTranslator.h"
 
 namespace Syrinx {

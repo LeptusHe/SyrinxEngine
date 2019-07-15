@@ -35,7 +35,7 @@ ColorBlendState& ColorBlendState::setAlphaBlendFunc(uint32_t attachmentIndex, co
 }
 
 
-const ColorBlendState::AttachmentBlendState& ColorBlendState::getAttachmentBlendState(uint32_t attachmentIndex)
+const ColorBlendState::AttachmentBlendState& ColorBlendState::getAttachmentBlendState(uint32_t attachmentIndex) const
 {
     if (attachmentIndex >= mAttachmentBlendStateList.size()) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
@@ -45,7 +45,7 @@ const ColorBlendState::AttachmentBlendState& ColorBlendState::getAttachmentBlend
 }
 
 
-const std::vector<AttachmentBlendState>& ColorBlendState::getAttachmentBlendStateList() const
+const std::vector<ColorBlendState::AttachmentBlendState>& ColorBlendState::getAttachmentBlendStateList() const
 {
     return mAttachmentBlendStateList;
 }

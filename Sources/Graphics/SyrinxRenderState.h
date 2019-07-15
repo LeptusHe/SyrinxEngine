@@ -1,20 +1,11 @@
 #pragma once
 #include <vector>
-#include <better-enums/enum.h>
 #include <Math/SyrinxGeometry.h>
 #include "HardwareResource/SyrinxVertexInputState.h"
 #include "HardwareResource/SyrinxProgramPipeline.h"
 #include "HardwareResource/SyrinxRenderTarget.h"
 
 namespace Syrinx {
-
-BETTER_ENUM(PrimitiveTopology, uint8_t, Point, Line, LineStrip, Triangle, TriangleStrip, TriangleFan);
-BETTER_ENUM(PolygonMode, uint8_t, Point, Line, Fill);
-BETTER_ENUM(CullMode, uint8_t, None, Front, Back, FrontAndBack);
-BETTER_ENUM(BlendFactor, uint8_t, Zero, One, SrcColor, DstColor, SrcAlpha, DstAlpha, OneMinusSrcColor, OneMinusDstColor, OneMinusSrcAlpha, OneMinusDstAlpha, ConstantColor, OneMinusConstantColor, ConstantAlpha, OneMinusConstantAlpha);
-BETTER_ENUM(BlendOp, uint8_t, Add, Subtract, ReverseSubtract, Min, Max);
-
-
 
 struct InputAssemblyState {
     PrimitiveTopology topology = PrimitiveTopology::Triangle;
@@ -55,7 +46,7 @@ public:
     ColorBlendState& setBlendEnable(uint32_t attachmentIndex, bool enable);
     ColorBlendState& setColorBlendFunc(uint32_t attachmentIndex, const BlendFactor& srcBlendFactor, const BlendOp& blendOp, const BlendFactor& dstBlendFactor);
     ColorBlendState& setAlphaBlendFunc(uint32_t attachmentIndex, const BlendFactor& srcBlendFactor, const BlendOp& blendOp, const BlendFactor& dstBlendFactor);
-    const AttachmentBlendState& getAttachmentBlendState(uint32_t attachmentIndex);
+    const AttachmentBlendState& getAttachmentBlendState(uint32_t attachmentIndex) const;
     const std::vector<AttachmentBlendState>& getAttachmentBlendStateList() const;
 
 private:

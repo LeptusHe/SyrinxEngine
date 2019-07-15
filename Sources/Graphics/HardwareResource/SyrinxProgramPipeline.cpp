@@ -1,7 +1,7 @@
 #include "HardwareResource/SyrinxProgramPipeline.h"
 #include <Common/SyrinxAssert.h>
 #include <Logging/SyrinxLogManager.h>
-#include "HardwareResource/SyrinxConstantTranslator.h"
+#include "SyrinxConstantTranslator.h"
 
 namespace Syrinx {
 

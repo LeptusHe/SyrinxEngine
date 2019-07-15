@@ -1,9 +1,8 @@
 #pragma once
 #include <utility>
 #include <GL/glew.h>
-#include "HardwareResource/SyrinxProgramStage.h"
-#include "HardwareResource/SyrinxHardwareTexture.h"
-#include "HardwareResource/SyrinxVertexAttributeDescription.h"
+#include "SyrinxGraphicsEnums.h"
+#include "SyrinxPixelFormat.h"
 
 namespace Syrinx {
 
@@ -19,6 +18,8 @@ public:
     static GLint getTextureMinFilterMethod(TextureMinFilterMethod textureMinFilterMethod);
     static GLint getTextureMagFilterMethod(TextureMagFilterMethod textureMagFilterMethod);
     static GLint getTextureWrapMethod(TextureWrapMethod textureWrapMethod);
+    static GLenum getBlendFactor(const BlendFactor& blendFactor);
+    static GLenum getBlendOp(const BlendOp& blendOp);
 };
 
 } // namespace Syrinx

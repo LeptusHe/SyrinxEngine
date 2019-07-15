@@ -6,23 +6,13 @@
 #include <better-enums/enum.h>
 #include <Math/SyrinxMath.h>
 #include <Logging/SyrinxLogManager.h>
+#include "SyrinxGraphicsEnums.h"
 #include "HardwareResource/SyrinxHardwareResource.h"
 #include "HardwareResource/SyrinxHardwareUniformBuffer.h"
 #include "Program/SyrinxProgramVariables.h"
 #include "Program/SyrinxProgramReflector.h"
 
 namespace Syrinx {
-
-BETTER_ENUM(ProgramStageType, std::uint8_t,
-    UndefinedStage,
-    VertexStage,
-    TessellationControlStage,
-    TessellationEvaluationStage,
-    GeometryStage,
-    FragmentStage,
-    ComputeStage
-);
-
 
 class HardwareResourceManager;
 
