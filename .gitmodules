@@ -12,7 +12,7 @@
 	url = https://github.com/glfw/glfw.git
 [submodule "ThirdParty/glew"]
 	path = ThirdParty/glew
-	url = git@git.dev.tencent.com:Leptus/glew.git
+	url = git@github.com:nigels-com/glew.git
     ignore = untracked
 [submodule "ThirdParty/stb"]
 	path = ThirdParty/stb
