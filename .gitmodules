@@ -25,7 +25,7 @@
 	url = https://github.com/zeux/pugixml.git
 [submodule "ThirdParty/entityx"]
 	path = ThirdParty/entityx
-	url = https://github.com/alecthomas/entityx.git
+	url = git@github.com:alecthomas/entityx.git
 [submodule "ThirdParty/assimp"]
 	path = ThirdParty/assimp
 	url = git@git.dev.tencent.com:Leptus/assimp.git
