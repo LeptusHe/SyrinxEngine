@@ -10,10 +10,6 @@
 [submodule "ThirdParty/glfw"]
 	path = ThirdParty/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "ThirdParty/glew"]
-	path = ThirdParty/glew
-	url = git@github.com:nigels-com/glew.git
-    ignore = untracked
 [submodule "ThirdParty/stb"]
 	path = ThirdParty/stb
 	url = https://github.com/nothings/stb.git
