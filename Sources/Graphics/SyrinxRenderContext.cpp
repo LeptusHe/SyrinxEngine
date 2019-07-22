@@ -31,7 +31,17 @@ void RenderContext::clearRenderTarget(RenderTarget *renderTarget, const Color& c
 }
 
 
-void RenderContext::setRenderState(const RenderState *renderState)
+void RenderContext::clearDepth(RenderTarget *renderTarget, float depth)
+{
+    HardwareResource::ResourceHandle fboId = 0;
+    if (renderTarget) {
+        fboId = renderTarget->getHandle();
+    }
+    glClearNamedFramebufferfv(fboId, GL_DEPTH, 0, &depth);
+}
+
+
+void RenderContext::setRenderState(RenderState *renderState)
 {
     mRenderState = renderState;
 }
@@ -61,6 +71,12 @@ void RenderContext::drawIndexed(uint32_t indexCount, uint32_t indexOffset)
         glIndexType = GL_UNSIGNED_SHORT;
     }
     glDrawElements(GL_TRIANGLES, indexCount, glIndexType, reinterpret_cast<const void*>(indexOffset));
+}
+
+
+RenderState* RenderContext::getRenderState()
+{
+    return mRenderState;
 }
 
 
