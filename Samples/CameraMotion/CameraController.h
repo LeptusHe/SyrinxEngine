@@ -16,8 +16,8 @@ public:
         }
 
         auto orientation = transform.getRotateMatrix();
-        auto invOrientation = glm::inverse(orientation);
-        Syrinx::Vector3f forwardDir = -invOrientation * Syrinx::Vector4f(0.0, 0.0, 1.0, 0.0);
+        auto invOrientation = orientation; //glm::inverse(orientation);
+        Syrinx::Vector3f forwardDir = invOrientation * Syrinx::Vector4f(0.0, 0.0, -1.0, 0.0);
         Syrinx::Vector3f rightDir = invOrientation * Syrinx::Vector4f(1.0, 0.0, 0.0, 0.0);
         Syrinx::Vector3f upDir = invOrientation * Syrinx::Vector4f(0.0, 1.0, 0.0, 0.0);
 
@@ -36,8 +36,8 @@ public:
         }
 
         auto eulerAngle = transform.getEulerAngle();
-        eulerAngle.x += cursorPosition.y * 0.05;
-        eulerAngle.y += cursorPosition.x * 0.05;
+        eulerAngle.x -= cursorPosition.y * 0.2;
+        eulerAngle.y -= cursorPosition.x * 0.2;
         transform.setEulerAngle(eulerAngle);
     }
 
