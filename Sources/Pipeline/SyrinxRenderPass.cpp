@@ -1,3 +1,4 @@
+#include <Scene/Component/SyrinxRenderer.h>
 #include "SyrinxRenderPass.h"
 
 namespace Syrinx {
@@ -14,6 +15,16 @@ RenderPass::RenderPass(const std::string& name)
     SYRINX_ENSURE(!mCamera);
     SYRINX_ENSURE(mEntityList.empty());
     SYRINX_ENSURE(!mRenderState);
+}
+
+
+void RenderPass::onInit(Scene& scene)
+{
+    for (auto entity : scene.getEntityList()) {
+        if (entity->hasComponent<Renderer>()) {
+            addEntity(entity);
+        }
+    }
 }
 
 

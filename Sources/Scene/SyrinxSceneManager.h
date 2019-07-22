@@ -5,7 +5,6 @@
 #include <entityx/entityx.h>
 #include <ResourceManager/SyrinxModelManager.h>
 #include <ResourceManager/SyrinxMaterialManager.h>
-#include "System/SyrinxControllerSystem.h"
 #include "Scene/SyrinxScene.h"
 #include "Scene/SyrinxEntity.h"
 

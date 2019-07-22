@@ -2,6 +2,7 @@
 #include <entityx/entityx.h>
 #include <Common/SyrinxAssert.h>
 #include "Component/SyrinxController.h"
+#include "Component/SyrinxCamera.h"
 
 namespace Syrinx {
 
@@ -20,7 +21,9 @@ public:
     template <typename T> T& getComponent();
     template <typename T> bool hasComponent() const;
     void addController(Controller *controller);
+    void addCamera(const Camera& camera);
     Controller* getController() const;
+    Camera& getCamera() const;
 
 private:
     std::string mName;

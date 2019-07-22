@@ -6,6 +6,7 @@
 #include <Logging/SyrinxLogManager.h>
 #include <Time/SyrinxTimer.h>
 #include <FileSystem/SyrinxFileManager.h>
+#include <Graphics/SyrinxRenderContext.h>
 #include <Manager/SyrinxHardwareResourceManager.h>
 #include <ResourceManager/SyrinxMeshManager.h>
 #include <ResourceManager/SyrinxModelManager.h>
@@ -14,13 +15,13 @@
 #include <Scene/SyrinxSceneManager.h>
 #include "SyrinxDisplayDevice.h"
 #include "SyrinxEngineSetting.h"
-#include "SyrinxRenderPipeline.h"
+#include "SyrinxScriptableRenderPipeline.h"
 
 namespace Syrinx {
 
 class Engine : public Singleton<Engine> {
 public:
-    using RenderPipelineList = std::vector<RenderPipeline*>;
+    using ScriptableRenderPipelineList = std::vector<IScriptableRenderPipeline*>;
 
 public:
     Engine();
@@ -29,9 +30,9 @@ public:
     void setEngineSetting(const EngineSetting& setting);
     void init();
     RenderWindow* createWindow(const std::string& title, unsigned int width, unsigned int height);
-    void addRenderPipeline(RenderPipeline* renderPipeline);
-    RenderPipeline* getRenderPipeline(const std::string& name) const;
-    void setActiveRenderPipeline(RenderPipeline* renderPipeline);
+    void addRenderPipeline(IScriptableRenderPipeline* renderPipeline);
+    IScriptableRenderPipeline* getRenderPipeline(const std::string& name) const;
+    void setActiveRenderPipeline(IScriptableRenderPipeline* renderPipeline);
     void setActiveScene(Scene *scene);
     void update(float timeDelta);
     void run();
@@ -53,6 +54,7 @@ private:
     EngineSetting mSetting;
     std::unique_ptr<Timer> mTimer;
     std::unique_ptr<Input> mInput;
+    std::unique_ptr<RenderContext> mRenderContext;
     std::unique_ptr<DisplayDevice> mDisplayDevice;
     std::unique_ptr<LogManager> mLogManager;
     std::unique_ptr<FileManager> mFileManager;
@@ -63,8 +65,8 @@ private:
     std::unique_ptr<ModelManager> mModelManager;
     std::unique_ptr<SceneManager> mSceneManager;
     Scene *mActiveScene;
-    RenderPipelineList mRenderPipelineList;
-    RenderPipeline *mActiveRenderPipeline;
+    ScriptableRenderPipelineList mRenderPipelineList;
+    IScriptableRenderPipeline *mActiveRenderPipeline;
 };
 
 } // namespace Syrinx

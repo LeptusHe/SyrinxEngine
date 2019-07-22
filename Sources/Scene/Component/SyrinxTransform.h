@@ -10,8 +10,10 @@ BETTER_ENUM(Space, uint8_t, LocalSpace, WorldSpace);
 class Transform {
 public:
     Transform();
+    Transform(const Transform& rhs);
     explicit Transform(Transform *parent);
     ~Transform() = default;
+    Transform& operator=(const Transform& rhs);
 
     void translate(const Vector3f& translation, Space space = Space::LocalSpace);
     void setScale(const Vector3f& scale);
@@ -33,6 +35,7 @@ private:
     Vector3f mScale;
     Vector3f mEulerAngle;
     mutable Matrix4x4 mLocalMatrix;
+    mutable Matrix4x4 mParentWorldMatrix;
     Matrix4x4 mWorldMatrix;
     bool mNeedUpdate;
     Transform *mParent;

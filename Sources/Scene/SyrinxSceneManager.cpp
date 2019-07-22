@@ -2,6 +2,7 @@
 #include <Exception/SyrinxException.h>
 #include "Scene/SyrinxSceneImporter.h"
 #include "Component/SyrinxTransform.h"
+#include "System/SyrinxControllerSystem.h"
 
 namespace Syrinx {
 

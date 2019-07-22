@@ -45,6 +45,7 @@ void Engine::setEngineSetting(const EngineSetting& setting)
 
 void Engine::init()
 {
+    mRenderContext = std::make_unique<RenderContext>();
     mDisplayDevice = std::make_unique<DisplayDevice>();
     mLogManager = std::make_unique<LogManager>();
     mFileManager = std::make_unique<FileManager>();
@@ -77,14 +78,14 @@ void Engine::initInputDevice(RenderWindow *renderWindow)
 }
 
 
-void Engine::addRenderPipeline(RenderPipeline* renderPipeline)
+void Engine::addRenderPipeline(IScriptableRenderPipeline* renderPipeline)
 {
     SYRINX_EXPECT(renderPipeline);
     mRenderPipelineList.push_back(renderPipeline);
 }
 
 
-RenderPipeline* Engine::getRenderPipeline(const std::string& name) const
+IScriptableRenderPipeline* Engine::getRenderPipeline(const std::string& name) const
 {
     SYRINX_EXPECT(!name.empty());
     for (const auto& renderPipeline : mRenderPipelineList) {
@@ -96,11 +97,18 @@ RenderPipeline* Engine::getRenderPipeline(const std::string& name) const
 }
 
 
-void Engine::setActiveRenderPipeline(RenderPipeline *renderPipeline)
+void Engine::setActiveRenderPipeline(IScriptableRenderPipeline *renderPipeline)
 {
     SYRINX_EXPECT(renderPipeline);
     SYRINX_EXPECT(getRenderPipeline(renderPipeline->getName()));
     mActiveRenderPipeline = renderPipeline;
+
+    if (!mActiveScene) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
+            "fail to set active render pipeline [{}] because there is no active scene", renderPipeline->getName());
+    }
+    mActiveRenderPipeline->onInit(*mActiveScene);
+
     SYRINX_ENSURE(mActiveRenderPipeline == renderPipeline);
 }
 
@@ -124,11 +132,10 @@ void Engine::run()
 {
     SYRINX_EXPECT(isValidToRun());
     auto renderWindow = mDisplayDevice->getRenderWindow();
-    CommandSubmitter commandSubmitter(mShaderManager.get());
     while (!shouldStop()) {
         SYRINX_ASSERT(mActiveRenderPipeline);
         update(mTimer->end());
-        commandSubmitter.submit(*mActiveRenderPipeline);
+        mActiveRenderPipeline->onFrameRender(*mRenderContext);
         renderWindow->swapBuffer();
         mTimer->start();
     }

@@ -1,6 +1,9 @@
 #pragma once
 #include <vector>
 #include <Graphics/SyrinxRenderState.h>
+#include <Graphics/SyrinxRenderContext.h>
+#include <Scene/SyrinxScene.h>
+#include <Graphics/SyrinxRenderContext.h>
 #include <Scene/SyrinxEntity.h>
 #include <Scene/Component/SyrinxCamera.h>
 
@@ -14,6 +17,8 @@ public:
     explicit RenderPass(const std::string& name);
     ~RenderPass() = default;
 
+    virtual void onInit(Scene& scene);
+    virtual void onFrameRender(RenderContext& renderContext) = 0;
     void setShaderName(const std::string& name);
     void setCamera(Entity *camera);
     void addEntity(Entity *entity);

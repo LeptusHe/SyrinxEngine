@@ -22,6 +22,36 @@ Transform::Transform(Transform *parent)
 }
 
 
+Transform::Transform(const Transform& rhs)
+    : mLocalPosition(rhs.mLocalPosition)
+    , mScale(rhs.mScale)
+    , mEulerAngle(rhs.mEulerAngle)
+    , mLocalMatrix(rhs.mLocalMatrix)
+    , mParentWorldMatrix(rhs.mParentWorldMatrix)
+    , mWorldMatrix(rhs.mWorldMatrix)
+    , mNeedUpdate(rhs.mNeedUpdate)
+    , mParent(rhs.mParent)
+{
+
+}
+
+
+Transform& Transform::operator=(const Transform& rhs)
+{
+    if (this != &rhs) {
+        mLocalPosition = rhs.mLocalPosition;
+        mScale = rhs.mScale;
+        mEulerAngle = rhs.mEulerAngle;
+        mLocalMatrix = rhs.mLocalMatrix;
+        mParentWorldMatrix = rhs.mParentWorldMatrix;
+        mWorldMatrix = rhs.mWorldMatrix;
+        mNeedUpdate = rhs.mNeedUpdate;
+        mParent = rhs.mParent;
+    }
+    return *this;
+}
+
+
 void Transform::translate(const Vector3f& translation, Space space)
 {
     mLocalPosition += translation;
@@ -39,6 +69,7 @@ void Transform::setScale(const Vector3f& scale)
 void Transform::setEulerAngle(const Vector3f& eulerAngle)
 {
     mEulerAngle = eulerAngle;
+    mNeedUpdate = true;
 }
 
 
@@ -50,6 +81,7 @@ void Transform::setWorldMatrix(const Matrix4x4& worldMatrix)
 
 void Transform::combineParentWorldMatrix(const Matrix4x4& parentWorldMatrix)
 {
+    mParentWorldMatrix = parentWorldMatrix;
     mWorldMatrix = parentWorldMatrix * getLocalMatrix();
 }
 

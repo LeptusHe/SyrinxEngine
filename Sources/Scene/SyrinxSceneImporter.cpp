@@ -58,7 +58,8 @@ SceneNode* SceneImporter::processSceneNode(const pugi::xml_node& nodeElement, Sc
     auto entity = mSceneManager->createEntity(entityName);
 
     Transform transform = processTransform(nodeElement);
-    entity->addComponent<Transform>(transform);
+    auto& transformComponent = entity->getComponent<Transform>();
+    transformComponent = transform;
 
     std::string entityType = getAttribute(entityElement, "type").as_string();
     if (entityType == "model") {
@@ -88,6 +89,7 @@ Transform SceneImporter::processTransform(const pugi::xml_node& nodeElement)
     float yScale = getAttribute(scaleElement, "y").as_float();
     float zScale = getAttribute(scaleElement, "z").as_float();
     transform.setScale({xScale, yScale, zScale});
+
     return transform;
 }
 
@@ -101,7 +103,9 @@ void SceneImporter::processModelEntity(const pugi::xml_node& entityElement, Scen
     for (const auto [mesh, material] : model->getMeshMaterialPairList()) {
         auto meshNode = scene->createSceneNode(mesh->getName());
         auto meshEntity = mSceneManager->createEntity(mesh->getName());
-        meshEntity->addComponent<Transform>(transform);
+
+        auto& transformComponent = meshEntity->getComponent<Transform>();
+        transformComponent = transform;
         meshEntity->addComponent<Renderer>();
         auto& meshRenderer = meshEntity->getComponent<Renderer>();
         meshRenderer.setMesh(mesh);
