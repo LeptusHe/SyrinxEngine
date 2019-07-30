@@ -125,8 +125,10 @@ void Gui::createRenderState()
 
     mRenderState.viewportState.enableScissor = true;
     mRenderState.depthStencilState.enableDepthTest = false;
+    mRenderState.rasterizationState.cullMode = CullMode::None;
     mRenderState.colorBlendState.setBlendEnable(0, true)
-        .setColorBlendFunc(0, BlendFactor::SrcAlpha, BlendOp::Add, BlendFactor::OneMinusSrcAlpha);
+        .setColorBlendFunc(0, BlendFactor::SrcAlpha, BlendOp::Add, BlendFactor::OneMinusSrcAlpha)
+        .setAlphaBlendFunc(0, BlendFactor::SrcAlpha, BlendOp::Add, BlendFactor::OneMinusSrcAlpha);
 
     mRenderState.setVertexInputState(mVertexInputState);
     mRenderState.setProgramPipeline(mShader->getProgramPipeline());
@@ -142,7 +144,8 @@ void Gui::buildFontTexture()
     SYRINX_ASSERT(pixels);
 
     if (mFontTexture) {
-        mHardwareResourceManager->destroyHardwareTexture(mFontTexture->getName());
+        std::string fontTextureName = mFontTexture->getName();
+        mHardwareResourceManager->destroyHardwareTexture(fontTextureName);
     }
 
     if (mSampledFontTexture) {

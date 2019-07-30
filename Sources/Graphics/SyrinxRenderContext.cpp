@@ -146,6 +146,8 @@ void RenderContext::setColorBlendState() const
                     "fail to set blend state because there is no color attachment [binding point = {}] in render target [{}]",
                     i, renderTarget->getName());
             }
+        } else {
+            if (i > 0) break;
         }
 
         auto colorBlendOp = ConstantTranslator::getBlendOp(attachmentBlendState.colorBlendOp);
