@@ -6,20 +6,16 @@
 
 namespace Syrinx {
 
-ShaderImporter::ShaderImporter(FileManager *fileManager,
-                               HardwareResourceManager *hardwareResourceManager,
-                               ProgramCompiler *compiler)
+ShaderImporter::ShaderImporter(FileManager *fileManager, HardwareResourceManager *hardwareResourceManager)
     : mFileManager(fileManager)
     , mHardwareResourceManager(hardwareResourceManager)
-    , mCompiler(compiler)
 {
     SYRINX_ENSURE(mFileManager);
     SYRINX_ENSURE(mHardwareResourceManager);
-    SYRINX_ENSURE(mCompiler);
 }
 
 
-std::unique_ptr<Shader> ShaderImporter::import(const std::string& fileName)
+std::unique_ptr<Shader> ShaderImporter::import(const std::string& fileName, const std::vector<std::string>& includePathList)
 {
     auto [fileExist, filePath] = mFileManager->findFile(fileName);
     if (!fileExist) {
@@ -36,7 +32,11 @@ std::unique_ptr<Shader> ShaderImporter::import(const std::string& fileName)
 
     const std::string& shaderName = fileName;
     auto programPipeline = mHardwareResourceManager->createProgramPipeline(shaderName);
-    auto vertexProgramStage = compileProgram(vertexProgramFileName, ProgramStageType::VertexStage);
+
+    auto vertexProgramCompileOption = getCompileOption(shaderDesc["vertex_program"]);
+    auto fragmentProgramCompileOption = getCompileOption(shaderDesc["fragment_program"]);
+
+    auto vertexProgramStage = compileProgram(vertexProgramFileName, ProgramStageType::VertexStage, vertexProgramCompileOption);
     auto fragmentProgramStage = compileProgram(fragmentProgramFileName, ProgramStageType::FragmentStage);
 
     programPipeline->bindProgramStage(vertexProgramStage);
@@ -49,7 +49,25 @@ std::unique_ptr<Shader> ShaderImporter::import(const std::string& fileName)
 }
 
 
-ProgramStage* ShaderImporter::compileProgram(const std::string& fileName, const ProgramStageType& type)
+ProgramCompiler::CompileOptions ShaderImporter::getCompileOption(const sol::table& programDesc)
+{
+    SYRINX_EXPECT(programDesc);
+    sol::table predefinedMacros = programDesc["predefined_macros"];
+
+    ProgramCompiler::CompileOptions compileOptions;
+    if (predefinedMacros) {
+        for (const auto& kvPair : predefinedMacros) {
+            sol::table macro = kvPair.second;
+            std::string macroName = macro["name"];
+            std::string macroValue = macro["value"];
+            compileOptions.AddMacroDefinition(macroName, macroValue);
+        }
+    }
+    return compileOptions;
+}
+
+
+ProgramStage* ShaderImporter::compileProgram(const std::string& fileName, const ProgramStageType& type, ProgramCompiler::CompileOptions&& compileOptions)
 {
     auto [fileExist, filePath] = mFileManager->findFile(fileName);
     if (!fileExist) {

@@ -1,5 +1,4 @@
 #include "SyrinxDisplayDevice.h"
-#include <iostream>
 #include <Logging/SyrinxLogManager.h>
 
 namespace Syrinx {
@@ -173,7 +172,7 @@ bool DisplayDevice::initDebugMessageHandler()
         return false;
     }
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-    glDebugMessageCallback(mDebugMessageHandler, nullptr);
+    glDebugMessageCallback(reinterpret_cast<GLDEBUGPROC>(mDebugMessageHandler), nullptr);
     GLuint unusedIds = 0;
     glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, &unusedIds, GL_TRUE);
 

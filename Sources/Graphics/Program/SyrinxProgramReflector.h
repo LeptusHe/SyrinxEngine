@@ -66,7 +66,7 @@ struct InterfaceInfo : VariableInfo {
 };
 
 
-class UniformBufferInfo;
+struct UniformBufferInfo;
 
 
 struct StructMemberInfo : public VariableInfo {

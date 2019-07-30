@@ -135,7 +135,7 @@ void RenderContext::setColorBlendState() const
     }
 
     GLuint attachmentIndex = 0;
-    for (int i = 0; i < attachmentBlendStateList.size(); ++ i) {
+    for (size_t i = 0; i < attachmentBlendStateList.size(); ++ i) {
         auto& attachmentBlendState = attachmentBlendStateList[i];
 
         if (renderTarget) {

@@ -7,7 +7,6 @@ namespace Syrinx {
 ShaderManager::ShaderManager(FileManager *fileManager, HardwareResourceManager *hardwareResourceManager)
     : mFileManager(fileManager)
     , mHardwareResourceManager(hardwareResourceManager)
-    , mCompiler()
     , mSearchPathList()
 {
     SYRINX_ENSURE(mFileManager);
@@ -34,10 +33,9 @@ std::unique_ptr<Shader> ShaderManager::create(const std::string& name)
     SYRINX_EXPECT(!name.empty());
     SYRINX_EXPECT(!find(name));
 
-    auto shaderIncludeHandler = std::make_unique<ShaderFileIncluder>(mSearchPathList);
-    mCompiler.setIncluder(std::move(shaderIncludeHandler));
-    ShaderImporter shaderImporter(mFileManager, mHardwareResourceManager, &mCompiler);
-    return shaderImporter.import(name);
+
+    ShaderImporter shaderImporter(mFileManager, mHardwareResourceManager);
+    return shaderImporter.import(name, mSearchPathList);
 }
 
 

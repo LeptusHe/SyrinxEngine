@@ -2,7 +2,7 @@ set(root_dir ${CMAKE_CURRENT_SOURCE_DIR})
 
 # build third party libraries
 # build assimp
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "build static library")
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "build shared library")
 set(ASSIMP_BUILD_ASSIMP_TOOLS FALSE CACHE BOOL "disable build assimp tools")
 set(ASSIMP_BUILD_TESTS FALSE CACHE BOOL "disable build tests")
 set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT FALSE CACHE BOOL "disable build all importer")
@@ -73,7 +73,7 @@ set(SPIRV_CROSS_ENABLE_MSL OFF CACHE BOOL "Enable MSL target support.")
 set(SPIRV_CROSS_ENABLE_CPP OFF CACHE BOOL "Enable C++ target support.")
 set(SPIRV_CROSS_ENABLE_C_API ON CACHE BOOL "Enable C API wrapper support in static library.")
 set(RE2_BUILD_TESTING OFF CACHE BOOL "enable testing for RE2")
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries")
 set(USE_CCACHE ON CACHE BOOL "Use cache")
 add_subdirectory(shaderc)
 

@@ -36,8 +36,8 @@ public:
         }
 
         auto eulerAngle = transform.getEulerAngle();
-        eulerAngle.x -= cursorPosition.y * 0.2;
-        eulerAngle.y -= cursorPosition.x * 0.2;
+        eulerAngle.x -= cursorPosition.y * 0.2f;
+        eulerAngle.y -= cursorPosition.x * 0.2f;
         transform.setEulerAngle(eulerAngle);
     }
 

@@ -1,7 +1,6 @@
 #pragma once
 #include <FileSystem/SyrinxFileManager.h>
 #include <Manager/SyrinxHardwareResourceManager.h>
-#include <Program/SyrinxProgramCompiler.h>
 #include "RenderResource/SyrinxShader.h"
 #include "SyrinxResourceManager.h"
 #include "SyrinxShaderFileIncluder.h"
@@ -20,7 +19,6 @@ public:
 private:
     FileManager *mFileManager;
     HardwareResourceManager *mHardwareResourceManager;
-    ProgramCompiler mCompiler;
     std::vector<std::string> mSearchPathList;
 };
 

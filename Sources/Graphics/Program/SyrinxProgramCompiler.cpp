@@ -4,30 +4,42 @@
 
 namespace Syrinx {
 
-ProgramCompiler::ProgramCompiler() : mCompiler(), mCompileOptions()
+ProgramCompiler::ProgramCompiler() : mCompiler()
 {
-    mCompileOptions.SetForcedVersionProfile(450, shaderc_profile_core);
-    mCompileOptions.SetTargetEnvironment(shaderc_target_env_opengl, 0);
-    mCompileOptions.SetSourceLanguage(shaderc_source_language_glsl);
-    mCompileOptions.SetWarningsAsErrors();
+
 }
 
 
 void ProgramCompiler::setIncluder(std::unique_ptr<ProgramCompiler::IncludeHandler>&& includeHandler)
 {
     SYRINX_EXPECT(includeHandler);
-    mCompileOptions.SetIncluder(std::move(includeHandler));
+    mIncludeHandler = std::move(includeHandler);
 }
 
 
-std::vector<uint32_t> ProgramCompiler::compile(const std::string& programName, const std::string& source, const ProgramStageType& stageType)
+std::vector<uint32_t> ProgramCompiler::compile(const std::string& programName, const std::string& source, const ProgramStageType& stageType, CompileOptions&& compileOptions)
 {
     shaderc_shader_kind shaderKind = getShaderKindFromProgramType(stageType);
-    auto module = mCompiler.CompileGlslToSpv(source, shaderKind, programName.c_str(), mCompileOptions);
+    auto options = buildOptions(std::move(compileOptions));
+    auto module = mCompiler.CompileGlslToSpv(source, shaderKind, programName.c_str(), options);
     if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams, "fail to compile program [{}] - {}", programName, module.GetErrorMessage());
     }
     return {module.begin(), module.end()};
+}
+
+
+ProgramCompiler::CompileOptions ProgramCompiler::buildOptions(CompileOptions&& compileOptions)
+{
+    if (mIncludeHandler) {
+        compileOptions.SetIncluder()
+    }
+
+    compileOptions.SetForcedVersionProfile(450, shaderc_profile_core);
+    compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, 0);
+    compileOptions.SetSourceLanguage(shaderc_source_language_glsl);
+    compileOptions.SetWarningsAsErrors();
+    return compileOptions;
 }
 
 

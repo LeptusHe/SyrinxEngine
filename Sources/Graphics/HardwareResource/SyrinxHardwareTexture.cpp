@@ -1,5 +1,6 @@
 #include "HardwareResource/SyrinxHardwareTexture.h"
 #include "SyrinxConstantTranslator.h"
+#include <algorithm>
 
 namespace Syrinx {
 
