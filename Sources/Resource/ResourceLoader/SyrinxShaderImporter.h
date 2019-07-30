@@ -11,15 +11,17 @@ namespace Syrinx {
 
 class ShaderImporter {
 public:
-    ShaderImporter(FileManager *fileManager,
-                   HardwareResourceManager *hardwareResourceManager);
+    ShaderImporter(FileManager *fileManager, HardwareResourceManager *hardwareResourceManager);
     ~ShaderImporter() = default;
 
     std::unique_ptr<Shader> import(const std::string& fileName, const std::vector<std::string>& includePathList);
 
 private:
     ProgramCompiler::CompileOptions getCompileOption(const sol::table& table);
-    ProgramStage* compileProgram(const std::string& fileName, const ProgramStageType& type, ProgramCompiler::CompileOptions&& compileOptions);
+    ProgramStage* compileProgram(const std::string& fileName,
+                                 const ProgramStageType& type,
+                                 ProgramCompiler::CompileOptions&& compileOptions,
+                                 const std::vector<std::string>& includePathList);
 
 private:
     FileManager *mFileManager;

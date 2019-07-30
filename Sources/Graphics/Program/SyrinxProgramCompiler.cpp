@@ -21,6 +21,11 @@ std::vector<uint32_t> ProgramCompiler::compile(const std::string& programName, c
 {
     shaderc_shader_kind shaderKind = getShaderKindFromProgramType(stageType);
     auto options = buildOptions(std::move(compileOptions));
+
+    if (mIncludeHandler) {
+        options.SetIncluder(std::move(mIncludeHandler));
+    }
+
     auto module = mCompiler.CompileGlslToSpv(source, shaderKind, programName.c_str(), options);
     if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams, "fail to compile program [{}] - {}", programName, module.GetErrorMessage());
@@ -31,9 +36,6 @@ std::vector<uint32_t> ProgramCompiler::compile(const std::string& programName, c
 
 ProgramCompiler::CompileOptions ProgramCompiler::buildOptions(CompileOptions&& compileOptions)
 {
-    if (mIncludeHandler) {
-        compileOptions.SetIncluder()
-    }
 
     compileOptions.SetForcedVersionProfile(450, shaderc_profile_core);
     compileOptions.SetTargetEnvironment(shaderc_target_env_opengl, 0);

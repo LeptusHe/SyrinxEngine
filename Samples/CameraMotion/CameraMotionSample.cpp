@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     renderState.viewportState.viewport.extent = {800, 800};
 
     auto lightingPass = std::make_unique<LightingPass>("lighting");
-    lightingPass->setShaderName("display-normal.shader");
+    lightingPass->setShaderName("display-world-normal.shader");
     lightingPass->setCamera(cameraEntity);
     lightingPass->setRenderState(&renderState);
 

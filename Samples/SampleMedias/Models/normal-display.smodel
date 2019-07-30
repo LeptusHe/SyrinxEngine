@@ -1,3 +1,0 @@
-<model>
-    <mesh-material-pair mesh-file="cube.smesh" material-file="normal-display.smat"/>
-</model>

@@ -3,6 +3,7 @@
 #include <Exception/SyrinxException.h>
 #include <Script/SyrinxLuaScript.h>
 #include <Program/SyrinxProgramCompiler.h>
+#include <ResourceManager/SyrinxShaderFileIncluder.h>
 
 namespace Syrinx {
 
@@ -36,8 +37,8 @@ std::unique_ptr<Shader> ShaderImporter::import(const std::string& fileName, cons
     auto vertexProgramCompileOption = getCompileOption(shaderDesc["vertex_program"]);
     auto fragmentProgramCompileOption = getCompileOption(shaderDesc["fragment_program"]);
 
-    auto vertexProgramStage = compileProgram(vertexProgramFileName, ProgramStageType::VertexStage, vertexProgramCompileOption);
-    auto fragmentProgramStage = compileProgram(fragmentProgramFileName, ProgramStageType::FragmentStage);
+    auto vertexProgramStage = compileProgram(vertexProgramFileName, ProgramStageType::VertexStage, std::move(vertexProgramCompileOption), includePathList);
+    auto fragmentProgramStage = compileProgram(fragmentProgramFileName, ProgramStageType::FragmentStage, std::move(fragmentProgramCompileOption), includePathList);
 
     programPipeline->bindProgramStage(vertexProgramStage);
     programPipeline->bindProgramStage(fragmentProgramStage);
@@ -52,14 +53,13 @@ std::unique_ptr<Shader> ShaderImporter::import(const std::string& fileName, cons
 ProgramCompiler::CompileOptions ShaderImporter::getCompileOption(const sol::table& programDesc)
 {
     SYRINX_EXPECT(programDesc);
-    sol::table predefinedMacros = programDesc["predefined_macros"];
-
     ProgramCompiler::CompileOptions compileOptions;
-    if (predefinedMacros) {
-        for (const auto& kvPair : predefinedMacros) {
-            sol::table macro = kvPair.second;
-            std::string macroName = macro["name"];
-            std::string macroValue = macro["value"];
+
+    if (sol::optional<sol::table> predefinedMacros = programDesc["predefined_macros"]; predefinedMacros != sol::nullopt) {
+        for (const auto& kvPair : *predefinedMacros) {
+            sol::table macroDesc = kvPair.second;
+            std::string macroName = macroDesc["macro"];
+            std::string macroValue = macroDesc["value"];
             compileOptions.AddMacroDefinition(macroName, macroValue);
         }
     }
@@ -67,7 +67,10 @@ ProgramCompiler::CompileOptions ShaderImporter::getCompileOption(const sol::tabl
 }
 
 
-ProgramStage* ShaderImporter::compileProgram(const std::string& fileName, const ProgramStageType& type, ProgramCompiler::CompileOptions&& compileOptions)
+ProgramStage* ShaderImporter::compileProgram(const std::string& fileName,
+                                             const ProgramStageType& type,
+                                             ProgramCompiler::CompileOptions&& compileOptions,
+                                             const std::vector<std::string>& includePathList)
 {
     auto [fileExist, filePath] = mFileManager->findFile(fileName);
     if (!fileExist) {
@@ -82,7 +85,12 @@ ProgramStage* ShaderImporter::compileProgram(const std::string& fileName, const 
     if (!fileStream) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileSystemError, "fail to open file [{}]", filePath);
     }
-    auto binarySource = mCompiler->compile(fileName, fileStream->getAsString(), type);
+
+    ProgramCompiler programCompiler;
+
+    std::unique_ptr<ShaderFileIncluder> shaderFileIncluder = std::make_unique<ShaderFileIncluder>(includePathList);
+    programCompiler.setIncluder(std::move(shaderFileIncluder));
+    auto binarySource = programCompiler.compile(fileName, fileStream->getAsString(), type, std::move(compileOptions));
     return mHardwareResourceManager->createProgramStage(filePath, std::move(binarySource), type);
 }
 

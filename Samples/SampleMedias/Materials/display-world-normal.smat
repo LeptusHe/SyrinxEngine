@@ -1,5 +1,5 @@
 material = {
     constant_shader_parameters = {
-        file_name = "display-normal.shader"
+        file_name = "display-world-normal.shader"
     }
 }
