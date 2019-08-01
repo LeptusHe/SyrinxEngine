@@ -10,7 +10,7 @@ RenderPipeline::RenderPipeline(const std::string& name)
 }
 
 
-void RenderPipeline::onInit(Scene& scene)
+void RenderPipeline::onInit(Scene *scene)
 {
     for (auto pass : mRenderPassList) {
         pass->onInit(scene);
@@ -22,6 +22,14 @@ void RenderPipeline::onFrameRender(RenderContext& renderContext)
 {
     for (auto pass : mRenderPassList) {
         pass->onFrameRender(renderContext);
+    }
+}
+
+
+void RenderPipeline::onGuiRender(Gui& gui)
+{
+    for (auto pass : mRenderPassList) {
+        pass->onGuiRender(gui);
     }
 }
 

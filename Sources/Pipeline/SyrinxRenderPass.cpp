@@ -18,13 +18,29 @@ RenderPass::RenderPass(const std::string& name)
 }
 
 
-void RenderPass::onInit(Scene& scene)
+void RenderPass::onInit(Scene *scene)
 {
-    for (auto entity : scene.getEntityList()) {
+    if (!scene) {
+        return;
+    }
+
+    for (auto entity : scene->getEntityList()) {
         if (entity->hasComponent<Renderer>()) {
             addEntity(entity);
         }
     }
+}
+
+
+void RenderPass::onFrameRender(RenderContext& renderContext)
+{
+
+}
+
+
+void RenderPass::onGuiRender(Gui& gui)
+{
+
 }
 
 

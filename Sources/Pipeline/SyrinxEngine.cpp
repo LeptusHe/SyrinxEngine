@@ -61,12 +61,20 @@ void Engine::init()
 RenderWindow* Engine::createWindow(const std::string& title, unsigned int width, unsigned int height)
 {
     SYRINX_EXPECT(mDisplayDevice);
+    SYRINX_EXPECT(getFileManager() && getShaderManager() && getHardwareResourceManager());
+
     mDisplayDevice->setMajorVersionNumber(mSetting.getMajorVersionNumber());
     mDisplayDevice->setMinorVersionNumber(mSetting.getMinorVersionNumber());
     mDisplayDevice->setDebugMessageHandler(mSetting.getDebugMessageHandler());
     auto renderWindow = mDisplayDevice->createWindow(title, width, height);
     SYRINX_ASSERT(renderWindow);
     initInputDevice(renderWindow);
+
+    mGui = std::make_unique<Gui>(getFileManager(), getShaderManager(), getHardwareResourceManager());
+    mGui->init();
+    mGui->onWindowResize(renderWindow->getWidth(), renderWindow->getHeight());
+
+    SYRINX_ENSURE(mGui);
     return renderWindow;
 }
 
@@ -99,15 +107,16 @@ IScriptableRenderPipeline* Engine::getRenderPipeline(const std::string& name) co
 
 void Engine::setActiveRenderPipeline(IScriptableRenderPipeline *renderPipeline)
 {
-    SYRINX_EXPECT(renderPipeline);
-    SYRINX_EXPECT(getRenderPipeline(renderPipeline->getName()));
-    mActiveRenderPipeline = renderPipeline;
-
-    if (!mActiveScene) {
+    if (renderPipeline && (getRenderPipeline(renderPipeline->getName()) != renderPipeline)) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
-            "fail to set active render pipeline [{}] because there is no active scene", renderPipeline->getName());
+                                   "fail to set active render pipeline [{}] because the render pipeline [{}] does not exist",
+                                   renderPipeline->getName());
     }
-    mActiveRenderPipeline->onInit(*mActiveScene);
+
+    mActiveRenderPipeline = renderPipeline;
+    if (mActiveRenderPipeline) {
+        mActiveRenderPipeline->onInit(mActiveScene);
+    }
 
     SYRINX_ENSURE(mActiveRenderPipeline == renderPipeline);
 }
@@ -123,19 +132,25 @@ void Engine::setActiveScene(Scene *scene)
 void Engine::update(float timeDelta)
 {
     dispatchEvents();
+    mGui->onInputEvents(mInput.get());
     mSceneManager->updateController(timeDelta);
-    mSceneManager->updateScene(mActiveScene);
+    if (mActiveScene) {
+        mSceneManager->updateScene(mActiveScene);
+    }
 }
 
 
 void Engine::run()
 {
-    SYRINX_EXPECT(isValidToRun());
     auto renderWindow = mDisplayDevice->getRenderWindow();
     while (!shouldStop()) {
-        SYRINX_ASSERT(mActiveRenderPipeline);
         update(mTimer->end());
-        mActiveRenderPipeline->onFrameRender(*mRenderContext);
+        mGui->beginFrame();
+        if (mActiveRenderPipeline) {
+            mActiveRenderPipeline->onFrameRender(*mRenderContext);
+            mActiveRenderPipeline->onGuiRender(*mGui);
+        }
+        mGui->render(mRenderContext.get());
         renderWindow->swapBuffer();
         mTimer->start();
     }

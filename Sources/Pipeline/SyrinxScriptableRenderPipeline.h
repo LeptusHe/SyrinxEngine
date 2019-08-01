@@ -8,8 +8,9 @@ class IScriptableRenderPipeline {
 public:
     explicit IScriptableRenderPipeline(const std::string& name) : mName(name) {}
 
-    virtual void onInit(Scene& scene) = 0;
-    virtual void onFrameRender(RenderContext& renderContext) = 0;
+    virtual void onInit(Scene *scene) { };
+    virtual void onFrameRender(RenderContext& renderContext) { };
+    virtual void onGuiRender(Gui& gui) { };
     const std::string& getName() const { return mName; }
 
 private:

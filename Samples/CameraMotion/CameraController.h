@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <Component/SyrinxController.h>
 #include <Common/SyrinxAssert.h>
 #include <Math/SyrinxMath.h>
@@ -16,7 +17,7 @@ public:
         }
 
         auto orientation = transform.getRotateMatrix();
-        auto invOrientation = orientation; //glm::inverse(orientation);
+        auto invOrientation = orientation;
         Syrinx::Vector3f forwardDir = invOrientation * Syrinx::Vector4f(0.0, 0.0, -1.0, 0.0);
         Syrinx::Vector3f rightDir = invOrientation * Syrinx::Vector4f(1.0, 0.0, 0.0, 0.0);
         Syrinx::Vector3f upDir = invOrientation * Syrinx::Vector4f(0.0, 1.0, 0.0, 0.0);
@@ -38,6 +39,12 @@ public:
         auto eulerAngle = transform.getEulerAngle();
         eulerAngle.x -= cursorPosition.y * 0.2f;
         eulerAngle.y -= cursorPosition.x * 0.2f;
+        
+        eulerAngle.x = std::max(-90.0f, eulerAngle.x);
+        eulerAngle.x = std::min(90.0f, eulerAngle.x);
+        eulerAngle.y = std::max(-90.0f, eulerAngle.y);
+        eulerAngle.y = std::min(90.0f, eulerAngle.y);
+        
         transform.setEulerAngle(eulerAngle);
     }
 

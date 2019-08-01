@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
 {
     Syrinx::Engine engine;
     engine.init();
-    engine.createWindow("Camera Motion Sample", 800, 800);
 
     auto fileManager = engine.getFileManager();
     fileManager->addSearchPath("../SampleMedias/");
@@ -49,6 +48,8 @@ int main(int argc, char *argv[])
     auto shaderManager = engine.getShaderManager();
     shaderManager->addShaderSearchPath("../../Medias/Library/");
     shaderManager->addShaderSearchPath("../../Medias/Library/Shader/Unlit");
+
+    engine.createWindow("Camera Motion Sample", 800, 800);
 
     Syrinx::Scene *scene = nullptr;
     Syrinx::SceneManager *sceneManager = engine.getSceneManager();

@@ -6,6 +6,7 @@
 #include <Logging/SyrinxLogManager.h>
 #include <Time/SyrinxTimer.h>
 #include <FileSystem/SyrinxFileManager.h>
+#include <GUI/SyrinxGui.h>
 #include <Graphics/SyrinxRenderContext.h>
 #include <Manager/SyrinxHardwareResourceManager.h>
 #include <ResourceManager/SyrinxMeshManager.h>
@@ -54,6 +55,7 @@ private:
     EngineSetting mSetting;
     std::unique_ptr<Timer> mTimer;
     std::unique_ptr<Input> mInput;
+    std::unique_ptr<Gui> mGui;
     std::unique_ptr<RenderContext> mRenderContext;
     std::unique_ptr<DisplayDevice> mDisplayDevice;
     std::unique_ptr<LogManager> mLogManager;
