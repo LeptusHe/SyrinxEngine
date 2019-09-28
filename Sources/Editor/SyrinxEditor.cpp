@@ -9,7 +9,7 @@ void Editor::init(int width, int height)
 
     if (width <= 0 || height <= 0) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams,
-            "fail to initilize editor because the width or height is invalid", width, height);
+            "fail to initialize editor because the width or height is invalid", width, height);
     }
 
     mEngine = std::make_unique<Engine>();
