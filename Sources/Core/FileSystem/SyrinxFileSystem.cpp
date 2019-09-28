@@ -56,7 +56,7 @@ std::pair<bool, std::string> FileSystem::findFileRecursivelyInDirectory(const st
         }
 
         for (auto& path : fs::recursive_directory_iterator(directoryPath)) {
-            filePath = path / fileName;
+            filePath = fs::path(path) / fileName;
             if (fileExist(filePath.string())) {
                 return {true, weaklyCanonical(filePath.string())};
             }
@@ -171,6 +171,29 @@ FileSystem::FileTime FileSystem::getLastWriteTime(const std::string& path)
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileNotFound ,"file [{}] doesn't exists", path);
     }
     return fs::last_write_time(path);
+}
+
+
+std::vector<std::string> FileSystem::getEntryListInDirectory(const std::string& path)
+{
+    SYRINX_EXPECT(!path.empty());
+    if (!directoryExist(path)) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams, "[{}] is not a valid directory", path);
+    }
+
+    std::vector<std::string> entryList;
+    for (const auto& entry : fs::directory_iterator(path)) {
+        if (entry.is_regular_file()) {
+            auto entryName = entry.path().filename().string();
+            entryList.push_back(entryName);
+        }
+
+        if (entry.is_directory()) {
+            auto entryName  = (--entry.path().end())->string();
+            entryList.push_back(entryName);
+        }
+    }
+    return entryList;
 }
 
 } // namespace Syrinx

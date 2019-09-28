@@ -9,6 +9,7 @@ namespace Syrinx {
 class FileSystem {
 public:
 	using FileTime = std::filesystem::file_time_type;
+	using Path = std::filesystem::path;
 
 public:
 	FileSystem() = default;
@@ -28,6 +29,7 @@ public:
 	virtual std::string getParentPath(const std::string& path) noexcept(false);
 	virtual std::string getFileName(const std::string& path) noexcept(false);
 	virtual FileTime getLastWriteTime(const std::string& path) noexcept(false);
+	virtual std::vector<std::string> getEntryListInDirectory(const std::string& path) noexcept(false);
 };
 
 } // namespace Syrinx

@@ -83,7 +83,9 @@ bool FileWatcher::isModified()
 #ifdef SYRINX_OS_WINDOWS
         SYRINX_INFO_FMT("file [{}] is modified", getFilePath());
 #else
-        std::time_t time = std::chrono::system_clock::to_time_t(mLastWriteTime);
+        constexpr std::chrono::seconds EpochDiff{6437664000};
+        std::chrono::system_clock::time_point lastWriteTimePoint(mLastWriteTime.time_since_epoch() + EpochDiff);
+        std::time_t time = std::chrono::system_clock::to_time_t(lastWriteTimePoint);
         SYRINX_INFO_FMT("file [{}] is modified in time [{}]", getFilePath(), std::ctime(&time));
 #endif
     }
