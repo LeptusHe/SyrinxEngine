@@ -17,6 +17,7 @@ public:
     virtual ~FileManager() = default;
 
     void addSearchPath(const std::string& path) noexcept(false);
+    void removeSearchPath(const std::string& path) noexcept(false);
     virtual std::pair<bool, std::string> findFile(const std::string& fileName) const;
     virtual std::pair<bool, std::string> findDirectory(const std::string& path) const;
     virtual std::unique_ptr<DataStream> openFile(const std::string& fileName, FileAccessMode accessMode) const;

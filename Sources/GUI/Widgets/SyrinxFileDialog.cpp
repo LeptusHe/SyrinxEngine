@@ -12,12 +12,15 @@ FileDialog& FileDialog::getInstance()
 }
 
 
-bool FileDialog::open(const std::string& title, const std::string& directory)
+std::pair<bool, std::string> FileDialog::open(const std::string& title, float width, float height, const std::string& directory)
 {
     SYRINX_EXPECT(!title.empty());
-    setDirectory(directory);
+    SYRINX_EXPECT(width > 0 && height > 0);
+    std::pair<bool, std::string> result;
 
-    ImGui::Begin(title.c_str());
+    setDirectory(directory);
+    bool isOpen = true;
+    ImGui::Begin(title.c_str(), &isOpen, ImVec2(width, height));
     auto fileNames = splitDirectory(mDirectory);
     for (size_t i = 0; i < fileNames.size(); ++ i) {
         if (i != 0) {
@@ -29,24 +32,48 @@ bool FileDialog::open(const std::string& title, const std::string& directory)
     }
 
     auto entryList = mFileSystem.getEntryListInDirectory(mDirectory);
+    bool isFileSelected = false;
 
-    ImGui::BeginChild("FileList");
+    auto contentRegion = ImGui::GetWindowContentRegionMax();
+    auto displayRegionSize = ImVec2(contentRegion.x, contentRegion.y - 80.0f);
+    ImGui::BeginChild("##FileDialog_FileList", displayRegionSize);
     for (const auto& entry : entryList) {
+        std::string displayedName;
 
-        if (ImGui::Selectable(entry.c_str(), entry == mSelectedEntry)) {
+        auto entryPath = mFileSystem.combine(mDirectory, entry);
+        if (mFileSystem.directoryExist(entryPath)) {
+            displayedName = "[Dir]   ";
+        } else {
+            isFileSelected = true;
+            displayedName = "[File]  ";
+        }
+        displayedName += entry;
+
+        if (ImGui::Selectable(displayedName.c_str(), entry == mSelectedEntry)) {
             mSelectedEntry = entry;
-
-            auto entryPath = mFileSystem.combine(mDirectory, entry);
             if (mFileSystem.directoryExist(entryPath)) {
                 mDirectory = entryPath;
             }
         }
     }
-    ImGui::Text("%s", mDirectory.c_str());
+    ImGui::EndChild();
+
+    ImGui::BeginChild("##FileDialog_Display");
+    ImGui::Text("File Name : ");
+    ImGui::SameLine();
+    if (isFileSelected) {
+        ImGui::Text("%s", mSelectedEntry.c_str());
+    } else {
+        ImGui::Text("%s", "");
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Ok")) {
+        result = {true, mFileSystem.combine(mDirectory, mSelectedEntry)};
+    }
     ImGui::EndChild();
 
     ImGui::End();
-    return false;
+    return result;
 }
 
 

@@ -1,9 +1,7 @@
 #include "Scene/SyrinxSceneImporter.h"
 #include <pugixml.hpp>
 #include <Common/SyrinxAssert.h>
-#include <Component/SyrinxTransform.h>
 #include <Component/SyrinxRenderer.h>
-#include <Component/SyrinxCamera.h>
 #include <Exception/SyrinxException.h>
 #include <ResourceLoader/SyrinxXmlParser.h>
 #include "Scene/SyrinxSceneManager.h"
@@ -78,17 +76,22 @@ SceneNode* SceneImporter::processSceneNode(const pugi::xml_node& nodeElement, Sc
 Transform SceneImporter::processTransform(const pugi::xml_node& nodeElement)
 {
     Transform transform;
-    auto positionElement = getChild(nodeElement, "position");
-    float xPos = getAttribute(positionElement, "x").as_float();
-    float yPos = getAttribute(positionElement, "y").as_float();
-    float zPos = getAttribute(positionElement, "z").as_float();
-    transform.translate({xPos, yPos, zPos});
 
-    auto scaleElement = getChild(nodeElement, "scale");
-    float xScale = getAttribute(scaleElement, "x").as_float();
-    float yScale = getAttribute(scaleElement, "y").as_float();
-    float zScale = getAttribute(scaleElement, "z").as_float();
-    transform.setScale({xScale, yScale, zScale});
+    auto positionElement = nodeElement.child("position");
+    if (!positionElement.empty()) {
+        float xPos = getAttribute(positionElement, "x").as_float();
+        float yPos = getAttribute(positionElement, "y").as_float();
+        float zPos = getAttribute(positionElement, "z").as_float();
+        transform.translate({xPos, yPos, zPos});
+    }
+
+    auto scaleElement = nodeElement.child("scale");
+    if (!scaleElement.empty()) {
+        float xScale = getAttribute(scaleElement, "x").as_float();
+        float yScale = getAttribute(scaleElement, "y").as_float();
+        float zScale = getAttribute(scaleElement, "z").as_float();
+        transform.setScale({xScale, yScale, zScale});
+    }
 
     return transform;
 }

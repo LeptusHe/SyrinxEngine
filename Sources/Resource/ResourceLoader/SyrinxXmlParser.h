@@ -5,6 +5,13 @@
 
 namespace Syrinx {
 
+inline bool hasChild(const pugi::xml_node& node, const std::string& childName)
+{
+    auto childNode = node.child(childName.c_str());
+    return childNode.empty();
+}
+
+
 inline pugi::xml_node getChild(const pugi::xml_node& node, const std::string& childName)
 {
     auto childNode = node.child(childName.c_str());

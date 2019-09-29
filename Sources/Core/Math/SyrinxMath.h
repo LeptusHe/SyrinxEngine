@@ -7,6 +7,8 @@
 namespace Syrinx {
 
 using Float = float;
+using Vector2u = glm::uvec2;
+using Vector2i = glm::ivec2;
 using Vector2f = glm::vec2;
 using Vector3f = glm::vec3;
 using Vector4f = glm::vec4;

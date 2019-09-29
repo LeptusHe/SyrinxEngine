@@ -6,7 +6,7 @@ namespace Syrinx {
 class FileDialog {
 public:
     static FileDialog& getInstance();
-    bool open(const std::string& title, const std::string& directory = "");
+    std::pair<bool, std::string> open(const std::string& title, float width, float height, const std::string& directory = "");
 
 private:
     FileDialog() = default;

@@ -23,6 +23,7 @@ public:
     const SceneNode* getRoot() const;
     SceneNode* findSceneNode(const std::string& name);
     std::vector<Entity*> getEntityList() const;
+    template <typename T> std::vector<Entity*> getEntitiesWithComponent() const;
     size_t getNumSceneNode() const;
 
 private:
@@ -33,5 +34,21 @@ private:
     SceneNodeMap mSceneNodeMap;
     SceneNodeList mSceneNodeList;
 };
+
+
+
+
+template <typename T>
+std::vector<Entity*> Scene::getEntitiesWithComponent() const
+{
+    std::vector<Entity*> entityList;
+    for (auto sceneNode : mSceneNodeList) {
+        auto entity = sceneNode->getEntity();
+        if (entity && entity->hasComponent<T>()) {
+            entityList.push_back(entity);
+        }
+    }
+    return entityList;
+}
 
 } // namespace Syrinx

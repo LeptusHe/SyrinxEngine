@@ -1,8 +1,12 @@
 #pragma once
 #include <Graphics/SyrinxRenderContext.h>
 #include <Scene/SyrinxScene.h>
+#include <GUI/SyrinxGui.h>
 
 namespace Syrinx {
+
+class Engine;
+
 
 class IScriptableRenderPipeline {
 public:
@@ -12,8 +16,14 @@ public:
     virtual void onFrameRender(RenderContext& renderContext) { };
     virtual void onGuiRender(Gui& gui) { };
     const std::string& getName() const { return mName; }
+    void setEngine(Engine *engine);
+    Vector2i getWindowSize() const;
+
+protected:
+    Engine* getEngine() const;
 
 private:
+    Engine *mEngine = nullptr;
     std::string mName;
 };
 

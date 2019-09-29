@@ -26,6 +26,15 @@ void FileManager::addSearchPath(const std::string& path)
 }
 
 
+void FileManager::removeSearchPath(const std::string& path)
+{
+    auto iter = std::find(std::begin(mSearchPathList), std::end(mSearchPathList), path);
+    if (iter != std::end(mSearchPathList)) {
+        mSearchPathList.erase(iter);
+    }
+}
+
+
 std::pair<bool, std::string> FileManager::findFile(const std::string& fileName) const
 {
     if (mFileSystem->fileExist(fileName)) {

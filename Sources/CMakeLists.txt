@@ -1,4 +1,5 @@
-option(BUILD_SHARED_LIBRARY "build shared library for syrinx engine" OFF)
+option(BUILD_SHARED_LIBRARY "build shared library for syrinx engine" ON)
+
 
 add_subdirectory(Core)
 add_subdirectory(Editor)

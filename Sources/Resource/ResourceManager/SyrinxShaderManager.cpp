@@ -33,7 +33,6 @@ std::unique_ptr<Shader> ShaderManager::create(const std::string& name)
     SYRINX_EXPECT(!name.empty());
     SYRINX_EXPECT(!find(name));
 
-
     ShaderImporter shaderImporter(mFileManager, mHardwareResourceManager);
     return shaderImporter.import(name, mSearchPathList);
 }

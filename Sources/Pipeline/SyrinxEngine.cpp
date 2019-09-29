@@ -79,6 +79,12 @@ RenderWindow* Engine::createWindow(const std::string& title, unsigned int width,
 }
 
 
+RenderWindow* Engine::getWindow()
+{
+    return mDisplayDevice->fetchRenderWindow();
+}
+
+
 void Engine::initInputDevice(RenderWindow *renderWindow)
 {
     SYRINX_EXPECT(renderWindow);
@@ -89,6 +95,7 @@ void Engine::initInputDevice(RenderWindow *renderWindow)
 void Engine::addRenderPipeline(IScriptableRenderPipeline* renderPipeline)
 {
     SYRINX_EXPECT(renderPipeline);
+    renderPipeline->setEngine(this);
     mRenderPipelineList.push_back(renderPipeline);
 }
 

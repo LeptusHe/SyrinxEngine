@@ -1,9 +1,10 @@
 #include "SyrinxEditor.h"
 #include <Exception/SyrinxException.h>
+#include "SyrinxLightingPass.h"
 
 namespace Syrinx {
 
-void Editor::init(int width, int height)
+void Editor::init(unsigned int width, unsigned int height)
 {
     SYRINX_EXPECT(!mEngine);
 
@@ -16,6 +17,8 @@ void Editor::init(int width, int height)
     mEngine->init();
 
     auto fileManager = mEngine->getFileManager();
+    auto fileSystem = fileManager->getFileSystem();
+    fileManager->addSearchPath(fileSystem->getWorkingDirectory());
     fileManager->addSearchPath("Medias/Library/");
 
     auto shaderManager = mEngine->getShaderManager();
@@ -27,6 +30,18 @@ void Editor::init(int width, int height)
     mRenderPipeline = std::make_unique<EditorPipeline>();
     mEngine->addRenderPipeline(mRenderPipeline.get());
     mEngine->setActiveRenderPipeline(mRenderPipeline.get());
+
+    mCamera = std::make_unique<Camera>("main camera");
+    mCamera->setViewportRect({0, 0, width, height});
+
+    mRenderPass = std::make_unique<LightingPass>("lighting");
+    mRenderPass->setShaderName("display-world-normal.shader");
+
+    mRenderState = std::make_unique<RenderState>();
+    mRenderState->viewportState.viewport.extent = {width, height};
+    mRenderPass->setRenderState(mRenderState.get());
+
+    mRenderPipeline->addRenderPass(mRenderPass.get());
 }
 
 

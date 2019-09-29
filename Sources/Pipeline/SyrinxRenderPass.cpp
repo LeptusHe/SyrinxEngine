@@ -68,7 +68,7 @@ void RenderPass::addEntity(Entity *entity)
 }
 
 
-void RenderPass::addEntityList(const std::vector<Entity *>& entityList)
+void RenderPass::addEntityList(const std::vector<Entity*>& entityList)
 {
     for (auto entity : entityList) {
         addEntity(entity);

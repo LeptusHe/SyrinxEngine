@@ -31,6 +31,7 @@ public:
     void setEngineSetting(const EngineSetting& setting);
     void init();
     RenderWindow* createWindow(const std::string& title, unsigned int width, unsigned int height);
+    RenderWindow* getWindow();
     void addRenderPipeline(IScriptableRenderPipeline* renderPipeline);
     IScriptableRenderPipeline* getRenderPipeline(const std::string& name) const;
     void setActiveRenderPipeline(IScriptableRenderPipeline* renderPipeline);

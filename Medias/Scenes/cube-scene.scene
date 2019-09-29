@@ -1,7 +1,11 @@
 <scene>
     <node name="cube-entity">
-        <position x="0.0" y="0.0" z="-50.0"/>
-        <scale x="10" y="10" z="10"/>
-        <entity name="cube" model-file="cube.smodel"/>
+        <entity name="cube" type="model" model-file="cube-display-world-normal.smodel"/>
+        <position x="0.0" y="0.0" z="-60.0"/>
+        <scale x="50" y="50" z="50"/>
+    </node>
+    <node name="main camera">
+        <entity name="fps-camera" type="camera"/>
+        <position x="0.0" y="0.0" z="0.0"/>
     </node>
 </scene>
