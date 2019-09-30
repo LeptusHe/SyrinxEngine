@@ -126,7 +126,7 @@ void SceneImporter::processCameraEntity(const pugi::xml_node& entityElement, Sce
     SYRINX_EXPECT(scene && sceneNode && entity);
     auto entityName = getAttribute(entityElement, "name").as_string();
     Camera camera(entityName);
-    entity->addComponent<Camera>(camera);
+    entity->addCamera(camera);
 }
 
 } // namespace Syrinx
