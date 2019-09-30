@@ -28,7 +28,8 @@ public:
     void setRenderState(RenderState *renderState);
     const std::string& getName() const;
     const std::string& getShaderName() const;
-    Entity* getCamera() const;
+    Entity* getCameraEntity() const;
+    Camera* getCamera() const;
     const EntityList& getEntityList() const;
     RenderState* getRenderState() const;
     bool isValid() const;
@@ -36,7 +37,7 @@ public:
 private:
     std::string mName;
     std::string mShaderName;
-    Entity *mCamera;
+    Entity *mCameraEntity;
     EntityList mEntityList;
     RenderState *mRenderState;
 };

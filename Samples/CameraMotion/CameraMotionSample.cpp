@@ -17,7 +17,7 @@ public:
         renderContext.clearDepth(nullptr, 1.0);
 
         Syrinx::EntityRenderer entityRenderer;
-        auto cameraEntity = getCamera();
+        auto cameraEntity = getCameraEntity();
         if (!cameraEntity->hasComponent<Syrinx::Camera>()) {
             return;
         }

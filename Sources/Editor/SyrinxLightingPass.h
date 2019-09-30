@@ -14,16 +14,15 @@ public:
         renderContext.clearDepth(nullptr, 1.0);
 
         EntityRenderer entityRenderer;
-        auto cameraEntity = getCamera();
-        if (!cameraEntity || (!cameraEntity->hasComponent<Camera>())) {
+        auto camera = getCamera();
+        if (!camera) {
             return;
         }
 
         renderContext.pushRenderState();
         renderContext.setRenderState(getRenderState());
-        auto& camera = cameraEntity->getComponent<Camera>();
         for (auto entity : getEntityList()) {
-            entityRenderer.render(camera, renderContext, *entity, getShaderName());
+            entityRenderer.render(*camera, renderContext, *entity, getShaderName());
         }
         renderContext.popRenderState();
     }

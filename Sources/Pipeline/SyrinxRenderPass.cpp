@@ -6,13 +6,13 @@ namespace Syrinx {
 RenderPass::RenderPass(const std::string& name)
     : mName(name)
     , mShaderName()
-    , mCamera(nullptr)
+    , mCameraEntity(nullptr)
     , mEntityList()
     , mRenderState(nullptr)
 {
     SYRINX_ENSURE(!mName.empty());
     SYRINX_ENSURE(mShaderName.empty());
-    SYRINX_ENSURE(!mCamera);
+    SYRINX_ENSURE(!mCameraEntity);
     SYRINX_ENSURE(mEntityList.empty());
     SYRINX_ENSURE(!mRenderState);
 }
@@ -56,8 +56,8 @@ void RenderPass::setCamera(Entity *camera)
     SYRINX_EXPECT(camera);
     SYRINX_EXPECT(camera->hasComponent<Transform>());
     SYRINX_EXPECT(camera->hasComponent<Camera>());
-    mCamera = camera;
-    SYRINX_ENSURE(mCamera);
+    mCameraEntity = camera;
+    SYRINX_ENSURE(mCameraEntity);
 }
 
 
@@ -94,9 +94,19 @@ const std::string& RenderPass::getShaderName() const
 }
 
 
-Entity* RenderPass::getCamera() const
+Entity* RenderPass::getCameraEntity() const
 {
-    return mCamera;
+    return mCameraEntity;
+}
+
+
+Camera* RenderPass::getCamera() const
+{
+    if (!mCameraEntity) {
+        return nullptr;
+    }
+    auto& camera = mCameraEntity->getComponent<Camera>();
+    return &camera;
 }
 
 
@@ -114,7 +124,7 @@ RenderState* RenderPass::getRenderState() const
 
 bool RenderPass::isValid() const
 {
-    return mRenderState && !mEntityList.empty() && mCamera;
+    return mRenderState && !mEntityList.empty() && mCameraEntity;
 }
 
 } // namespace Syrinx

@@ -78,8 +78,8 @@ void CommandSubmitter::submitCommandsToSetMatrices(Entity& entity, ShaderVars *s
 {
     SYRINX_EXPECT(shaderVars);
     const auto& shader = shaderVars->getShader();
-    auto cameraEntity = mRenderPass->getCamera();
-    if (!mRenderPass->getCamera()) {
+    auto cameraEntity = mRenderPass->getCameraEntity();
+    if (!mRenderPass->getCameraEntity()) {
         return;
     }
 
