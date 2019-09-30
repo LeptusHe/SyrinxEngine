@@ -5,9 +5,11 @@
 
 namespace Syrinx {
 
-EditorPipeline::EditorPipeline() : IScriptableRenderPipeline("SyrinxEditorPipeline")
+EditorPipeline::EditorPipeline()
+    : IScriptableRenderPipeline("SyrinxEditorPipeline")
+    , mCameraController(nullptr)
 {
-
+    SYRINX_EXPECT(!mCameraController);
 }
 
 
@@ -26,25 +28,25 @@ void EditorPipeline::onGuiRender(Gui& gui)
 {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
-            if (ImGui::MenuItem("Load Scene")) {}
+            if (ImGui::MenuItem("Load Scene")) {
+                mOpenFileDialog = true;
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();
     }
 
     auto windowSize = getWindowSize();
-
+    float width = windowSize.x;
+    float height = windowSize.y;
+/*
     ImGuiWindowFlags windowFlags =
         ImGuiWindowFlags_NoMove |
         ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_MenuBar |
         ImGuiWindowFlags_NoCollapse;
-
     ImGui::Begin("Syrinx Editor", nullptr, windowFlags);
     ImGui::SetWindowPos(ImVec2(0, 0));
-
-    float width = windowSize.x;
-    float height = windowSize.y;
     ImGui::SetWindowSize(ImVec2(width, height));
 
     if (ImGui::BeginMenuBar()) {
@@ -56,11 +58,15 @@ void EditorPipeline::onGuiRender(Gui& gui)
         ImGui::EndMenuBar();
     }
     ImGui::End();
+*/
 
-    auto& fileDialog = FileDialog::getInstance();
-    auto [isSelected, path] = fileDialog.open("file dialog", width / 2, height / 2);
-    if (isSelected) {
-        importScene(path);
+    if (mOpenFileDialog) {
+        auto& fileDialog = FileDialog::getInstance();
+        auto[isSelected, path] = fileDialog.open("file dialog", width / 2, height / 2);
+        if (isSelected) {
+            importScene(path);
+            mOpenFileDialog = false;
+        }
     }
 
     for (auto renderPass : mRenderPassList) {
@@ -73,6 +79,12 @@ void EditorPipeline::addRenderPass(RenderPass *renderPass)
 {
     SYRINX_EXPECT(renderPass);
     mRenderPassList.push_back(renderPass);
+}
+
+
+void EditorPipeline::addCameraController(Controller *controller)
+{
+    mCameraController = controller;
 }
 
 
@@ -98,6 +110,10 @@ void EditorPipeline::importScene(const std::string& path)
     for (auto renderPass : mRenderPassList) {
         renderPass->setCamera(cameraEntity);
         renderPass->addEntityList(meshEntityList);
+    }
+
+    if (cameraEntity) {
+        cameraEntity->addController(mCameraController);
     }
 }
 

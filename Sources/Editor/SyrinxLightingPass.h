@@ -10,7 +10,7 @@ public:
 
     void onFrameRender(RenderContext& renderContext) override
     {
-        renderContext.clearRenderTarget(nullptr, Color(1.0, 0.0, 0.0, 1.0));
+        renderContext.clearRenderTarget(nullptr, Color(0.0, 0.0, 1.0, 1.0));
         renderContext.clearDepth(nullptr, 1.0);
 
         EntityRenderer entityRenderer;

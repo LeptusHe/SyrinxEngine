@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <Component/SyrinxCamera.h>
+#include <Component/SyrinxController.h>
 #include <Pipeline/SyrinxEngine.h>
 #include <Pipeline/SyrinxRenderPass.h>
 #include "SyrinxEditorPipeline.h"
@@ -18,6 +19,7 @@ private:
     std::unique_ptr<Camera> mCamera;
     std::unique_ptr<RenderPass> mRenderPass;
     std::unique_ptr<RenderState> mRenderState;
+    std::unique_ptr<Controller> mCameraController;
 };
 
 } // namespace Syrinx

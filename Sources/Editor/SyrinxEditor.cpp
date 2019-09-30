@@ -1,6 +1,7 @@
 #include "SyrinxEditor.h"
 #include <Exception/SyrinxException.h>
 #include "SyrinxLightingPass.h"
+#include "SyrinxCameraController.h"
 
 namespace Syrinx {
 
@@ -42,6 +43,9 @@ void Editor::init(unsigned int width, unsigned int height)
     mRenderPass->setRenderState(mRenderState.get());
 
     mRenderPipeline->addRenderPass(mRenderPass.get());
+
+    mCameraController = std::make_unique<CameraMotionController>();
+    mRenderPipeline->addCameraController(mCameraController.get());
 }
 
 
