@@ -1,5 +1,5 @@
 #pragma once
-#include <Script/SyrinxLuaScript.h>
+#include <Script/SyrinxLuaCommon.h>
 #include <Pipeline/SyrinxRenderPass.h>
 
 namespace Syrinx {

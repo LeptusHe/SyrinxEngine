@@ -12,6 +12,7 @@ void LuaScriptBinding::exportLibrary()
     mLibrary = mLuaVM["syrinx"].get_or_create<sol::table>();
 
     exportRenderContextClass();
+    exportEntityRendererClass();
 }
 
 

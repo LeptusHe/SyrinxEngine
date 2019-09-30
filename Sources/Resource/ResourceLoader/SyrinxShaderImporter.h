@@ -4,7 +4,7 @@
 #include <FileSystem/SyrinxFileManager.h>
 #include <Manager/SyrinxHardwareResourceManager.h>
 #include <Program/SyrinxProgramCompiler.h>
-#include <Script/SyrinxLuaScript.h>
+#include <Script/SyrinxLuaCommon.h>
 #include "RenderResource/SyrinxShader.h"
 
 namespace Syrinx {

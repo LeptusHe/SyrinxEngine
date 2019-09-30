@@ -1,7 +1,7 @@
 #include "ResourceLoader/SyrinxShaderImporter.h"
 #include <Container/SyrinxString.h>
 #include <Exception/SyrinxException.h>
-#include <Script/SyrinxLuaScript.h>
+#include <Script/SyrinxLuaCommon.h>
 #include <Program/SyrinxProgramCompiler.h>
 #include <ResourceManager/SyrinxShaderFileIncluder.h>
 

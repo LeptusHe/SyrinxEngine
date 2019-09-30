@@ -1,5 +1,5 @@
 #pragma once
-#include <Script/SyrinxLuaScript.h>
+#include <Script/SyrinxLuaCommon.h>
 #include <FileSystem/SyrinxFileManager.h>
 #include <Manager/SyrinxHardwareResourceManager.h>
 #include "RenderResource/SyrinxMaterial.h"

@@ -1,4 +1,4 @@
-#include <Script/SyrinxLuaScript.h>
+#include <Script/SyrinxLuaCommon.h>
 #include <Logging/SyrinxLogManager.h>
 #include <FileSystem/SyrinxFileManager.h>
 #include <Program/SyrinxProgramVariables.h>

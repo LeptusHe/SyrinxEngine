@@ -3,7 +3,7 @@
 #include <Common/SyrinxAssert.h>
 #include <Exception/SyrinxException.h>
 #include <FileSystem/SyrinxFileSystem.h>
-#include <Script/SyrinxLuaScript.h>
+#include <Script/SyrinxLuaCommon.h>
 
 namespace Syrinx {
 
