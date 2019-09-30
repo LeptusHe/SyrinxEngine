@@ -67,6 +67,9 @@ RenderWindow* Engine::createWindow(const std::string& title, unsigned int width,
     mDisplayDevice->setMinorVersionNumber(mSetting.getMinorVersionNumber());
     mDisplayDevice->setDebugMessageHandler(mSetting.getDebugMessageHandler());
     auto renderWindow = mDisplayDevice->createWindow(title, width, height);
+    if (!renderWindow) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState, "fail to create window");
+    }
     SYRINX_ASSERT(renderWindow);
     initInputDevice(renderWindow);
 
