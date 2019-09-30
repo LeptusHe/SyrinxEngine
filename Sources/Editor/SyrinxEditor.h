@@ -5,6 +5,7 @@
 #include <Pipeline/SyrinxEngine.h>
 #include <Pipeline/SyrinxRenderPass.h>
 #include "SyrinxEditorPipeline.h"
+#include "SyrinxLuaScriptBinding.h"
 
 namespace Syrinx {
 
@@ -20,6 +21,7 @@ private:
     std::unique_ptr<RenderPass> mRenderPass;
     std::unique_ptr<RenderState> mRenderState;
     std::unique_ptr<Controller> mCameraController;
+    std::unique_ptr<LuaScriptBinding> mScriptBinding;
 };
 
 } // namespace Syrinx
