@@ -17,7 +17,7 @@ vec3 SyrinxObjectToWorldNormal(vec3 normalObject)
 vec4 SyrinxObjectToClipPos(vec3 posObject)
 {
     vec4 pos = vec4(posObject, 1.0);
-    return SYRINX_MATRIX_PROJ * SYRINX_MATRIX_VIEW * SYRINX_MATRIX_VIEW * pos;
+    return SYRINX_MATRIX_PROJ * SYRINX_MATRIX_VIEW * SYRINX_MATRIX_WORLD * pos;
 }
 
 #endif // SYRINX_TRANSFORM_PROGRAM
