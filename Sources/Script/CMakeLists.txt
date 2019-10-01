@@ -5,7 +5,11 @@ list(APPEND include_dirs
         ${third_party_INCLUDE_DIRS}
         ${root_dir}
         ${PROJECT_SOURCE_DIR}/Sources
-        ${PROJECT_SOURCE_DIR}/Sources/Core)
+        ${PROJECT_SOURCE_DIR}/Sources/Core
+        ${PROJECT_SOURCE_DIR}/Sources/Pipeline
+        ${PROJECT_SOURCE_DIR}/Sources/Graphics
+        ${PROJECT_SOURCE_DIR}/Sources/Resource
+        ${PROJECT_SOURCE_DIR}/Sources/Scene)
 
 
 # add source files into sources

@@ -19,6 +19,7 @@ private:
     static void bindRenderState(sol::table& library)
     {
         library.new_usertype<RenderState>("RenderState",
+            sol::default_constructor,
             "inputAssemblyState", &RenderState::inputAssemblyState,
             "viewportState", &RenderState::viewportState,
             "rasterizationState", &RenderState::rasterizationState,

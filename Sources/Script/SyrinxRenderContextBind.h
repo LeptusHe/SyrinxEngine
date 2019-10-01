@@ -1,6 +1,7 @@
 #pragma once
 #include <Script/SyrinxLuaCommon.h>
 #include <Common/SyrinxAssert.h>
+#include <Graphics/SyrinxRenderContext.h>
 
 namespace Syrinx {
 
@@ -18,16 +19,15 @@ private:
     static void bindRenderContext(sol::table& library)
     {
         library.new_usertype<RenderContext>("RenderContext",
-                                            "pushRenderState", &RenderContext::pushRenderState,
-                                            "popRenderState", &RenderContext::popRenderState,
-                                            "clearRenderTarget", &RenderContext::clearRenderTarget,
-                                            "clearDepth", &RenderContext::clearDepth,
-                                            "setRenderState", &RenderContext::setRenderState,
-                                            "setColorBlendState", &RenderContext::setColorBlendState,
-                                            "setCullState", &RenderContext::setCullState,
-                                            "setDepthState", &RenderContext::setDepthState,
-                                            "getRenderState", &RenderContext::getRenderState);
-
+                "pushRenderState", &RenderContext::pushRenderState,
+                "popRenderState", &RenderContext::popRenderState,
+                "clearRenderTarget", &RenderContext::clearRenderTarget,
+                "clearDepth", &RenderContext::clearDepth,
+                "setRenderState", &RenderContext::setRenderState,
+                "setColorBlendState", &RenderContext::setColorBlendState,
+                "setCullState", &RenderContext::setCullState,
+                "setDepthState", &RenderContext::setDepthState,
+                "getRenderState", &RenderContext::getRenderState);
     }
 };
 

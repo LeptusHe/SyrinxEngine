@@ -15,11 +15,13 @@ private:
     static void bindColor(sol::table& library)
     {
         library.new_usertype<Color>("Color",
-            sol::constructors<Color(float, float, float)>(),
+            sol::constructors<Color(float, float, float, float)>(),
             "red", &Color::red,
             "green", &Color::green,
             "blue", &Color::blue,
-            "alpha", &Color::alpha);
+            "alpha", &Color::alpha,
+            sol::meta_function::to_string, &Color::toString
+        );
     }
 };
 
