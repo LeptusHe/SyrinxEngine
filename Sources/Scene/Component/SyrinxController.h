@@ -1,5 +1,5 @@
 #pragma once
-#include <Component/SyrinxTransform.h>
+#include "SyrinxTransform.h"
 #include <Input/SyrinxInput.h>
 #include <entityx/entityx.h>
 

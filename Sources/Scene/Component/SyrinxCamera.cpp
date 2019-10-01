@@ -30,6 +30,12 @@ Camera& Camera::operator=(const Camera& rhs)
 }
 
 
+std::string Camera::getName() const
+{
+    return mName;
+}
+
+
 void Camera::setTransform(const Transform *transform)
 {
     SYRINX_EXPECT(transform);

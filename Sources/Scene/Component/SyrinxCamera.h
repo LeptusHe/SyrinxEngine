@@ -13,6 +13,7 @@ public:
     Camera(const Camera& rhs);
     Camera& operator=(const Camera& rhs);
 
+    std::string getName() const;
     void setTransform(const Transform* transform);
     void setViewportRect(const ViewportRect& viewportRect);
     Matrix4x4 getViewMatrix() const;

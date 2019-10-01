@@ -22,8 +22,6 @@ public:
     template <typename T> bool hasComponent() const;
     void addController(Controller *controller);
     void addCamera(const Camera& camera);
-    Controller* getController() const;
-    Camera& getCamera() const;
 
 private:
     std::string mName;
