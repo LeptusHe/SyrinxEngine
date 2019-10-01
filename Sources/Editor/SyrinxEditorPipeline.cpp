@@ -1,7 +1,7 @@
 #include "SyrinxEditorPipeline.h"
 #include <Widgets/SyrinxFileDialog.h>
 #include <Pipeline/SyrinxEngine.h>
-#include "SyrinxLightingPass.h"
+#include <Script/SyrinxLuaBinder.h>
 
 namespace Syrinx {
 
@@ -18,8 +18,15 @@ void EditorPipeline::onFrameRender(RenderContext& renderContext)
     renderContext.clearRenderTarget(nullptr, Color(0.0, 0.0, 0.0, 1.0));
     renderContext.clearDepth(nullptr, 1.0);
 
-    for (auto renderPass : mRenderPassList) {
-        renderPass->onFrameRender(renderContext);
+    auto frameRender = mScriptRunner.get<sol::function>("render");
+    if (frameRender) {
+        try {
+            auto cameraList = getCameraList();
+            frameRender(renderContext, cameraList, getActiveScene());
+        } catch (std::exception& e) {
+            mScriptRunner.set("render", nullptr);
+            SYRINX_ERROR_FMT("fail to call function [render] in script file: error [{}]", e.what());
+        }
     }
 }
 
@@ -29,7 +36,10 @@ void EditorPipeline::onGuiRender(Gui& gui)
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Load Scene")) {
-                mOpenFileDialog = true;
+                mLoadScene = true;
+            }
+            if (ImGui::MenuItem("Load Script")) {
+                mLoadScript = true;
             }
             ImGui::EndMenu();
         }
@@ -60,25 +70,23 @@ void EditorPipeline::onGuiRender(Gui& gui)
     ImGui::End();
 */
 
-    if (mOpenFileDialog) {
+    if (mLoadScene) {
         auto& fileDialog = FileDialog::getInstance();
         auto[isSelected, path] = fileDialog.open("file dialog", width / 2, height / 2);
         if (isSelected) {
             importScene(path);
-            mOpenFileDialog = false;
+            mLoadScene = false;
         }
     }
 
-    for (auto renderPass : mRenderPassList) {
-        renderPass->onGuiRender(gui);
+    if (mLoadScript) {
+        auto& fileDialog = FileDialog::getInstance();
+        auto [isSelected, path] = fileDialog.open("file dialog", width / 2, height / 2);
+        if (isSelected) {
+            importScript(path);
+            mLoadScript = false;
+        }
     }
-}
-
-
-void EditorPipeline::addRenderPass(RenderPass *renderPass)
-{
-    SYRINX_EXPECT(renderPass);
-    mRenderPassList.push_back(renderPass);
 }
 
 
@@ -97,24 +105,31 @@ void EditorPipeline::importScene(const std::string& path)
     auto scene =sceneManager->importScene(path);
     engine->setActiveScene(scene);
 
-    Entity* cameraEntity = nullptr;
-    const auto& entityList = scene->getEntityList();
-    for (const auto& entity : entityList) {
-        if (entity->hasComponent<Camera>()) {
-            cameraEntity = entity;
-            break;
-        }
-    }
-
-    const auto& meshEntityList = scene->getEntitiesWithComponent<Renderer>();
-    for (auto renderPass : mRenderPassList) {
-        renderPass->setCamera(cameraEntity);
-        renderPass->addEntityList(meshEntityList);
-    }
-
-    if (cameraEntity) {
+    const auto& cameraEntityList = scene->getEntitiesWithComponent<Camera>();
+    for (auto cameraEntity : cameraEntityList) {
         cameraEntity->addController(mCameraController);
     }
+}
+
+
+void EditorPipeline::importScript(const std::string& path)
+{
+    auto engine = getEngine();
+    SYRINX_ASSERT(engine);
+    auto fileManager = engine->getFileManager();
+    SYRINX_ASSERT(fileManager);
+
+    auto [fileExist, filePath] = fileManager->findFile(path);
+    if (!fileExist) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileNotFound, "fail to load script file [{}]", path);
+    }
+
+    auto fileStream = fileManager->openFile(filePath, FileAccessMode::READ);
+    if (!fileStream) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileSystemError, "fail to open file [{}]", filePath);
+    }
+    auto source = fileStream->getAsString();
+    mScriptRunner.run(source);
 }
 
 } // namespace Syrinx

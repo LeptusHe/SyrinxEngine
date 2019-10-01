@@ -139,6 +139,18 @@ void Engine::setActiveScene(Scene *scene)
 }
 
 
+IScriptableRenderPipeline* Engine::getActiveRenderPipeline() const
+{
+    return mActiveRenderPipeline;
+}
+
+
+Scene* Engine::getActiveScene() const
+{
+    return mActiveScene;
+}
+
+
 void Engine::update(float timeDelta)
 {
     dispatchEvents();

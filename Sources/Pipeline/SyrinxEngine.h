@@ -36,8 +36,8 @@ public:
     IScriptableRenderPipeline* getRenderPipeline(const std::string& name) const;
     void setActiveRenderPipeline(IScriptableRenderPipeline* renderPipeline);
     void setActiveScene(Scene *scene);
-    void update(float timeDelta);
-    void run();
+    IScriptableRenderPipeline* getActiveRenderPipeline() const;
+    Scene* getActiveScene() const;
     FileManager* getFileManager() const;
     HardwareResourceManager* getHardwareResourceManager() const;
     MeshManager* getMeshManager() const;
@@ -45,6 +45,8 @@ public:
     MaterialManager* getMaterialManager() const;
     ModelManager* getModelManager() const;
     SceneManager* getSceneManager() const;
+    void update(float timeDelta);
+    void run();
 
 private:
     void initInputDevice(RenderWindow *renderWindow);

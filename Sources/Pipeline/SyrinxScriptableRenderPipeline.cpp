@@ -22,6 +22,32 @@ Vector2i IScriptableRenderPipeline::getWindowSize() const
 }
 
 
+Scene* IScriptableRenderPipeline::getActiveScene() const
+{
+    auto engine = getEngine();
+    SYRINX_ASSERT(engine);
+    return engine->getActiveScene();
+}
+
+
+std::vector<Camera*> IScriptableRenderPipeline::getCameraList() const
+{
+    auto scene = getActiveScene();
+    if (!scene) {
+        return {};
+    }
+
+    std::vector<Camera*> cameraList;
+    auto cameraEntityList = scene->getEntitiesWithComponent<Camera>();
+    for (auto cameraEntity : cameraEntityList) {
+        SYRINX_ASSERT(cameraEntity->hasComponent<Camera>());
+        auto& camera = cameraEntity->getComponent<Camera>();
+        cameraList.push_back(&camera);
+    }
+    return cameraList;
+}
+
+
 Engine* IScriptableRenderPipeline::getEngine() const
 {
     return mEngine;

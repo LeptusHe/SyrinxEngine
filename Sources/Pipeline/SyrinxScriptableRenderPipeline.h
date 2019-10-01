@@ -18,6 +18,8 @@ public:
     const std::string& getName() const { return mName; }
     void setEngine(Engine *engine);
     Vector2i getWindowSize() const;
+    Scene* getActiveScene() const;
+    std::vector<Camera*> getCameraList() const;
 
 protected:
     Engine* getEngine() const;

@@ -23,4 +23,4 @@ endforeach()
 include_directories(${include_dirs})
 
 add_executable(SyrinxEditor ${sources})
-target_link_libraries(SyrinxEditor GUI RenderPipeline)
+target_link_libraries(SyrinxEditor GUI RenderPipeline Script)
