@@ -1,6 +1,7 @@
 #include "Math/SyrinxColor.h"
 #include <glm/gtc/type_ptr.hpp>
 #include "Common/SyrinxAssert.h"
+#include "Container/SyrinxString.h"
 
 namespace Syrinx {
 
@@ -75,6 +76,11 @@ float Color::blue() const
 float Color::alpha() const
 {
     return mData[3];
+}
+
+std::string Color::toString() const
+{
+    return SYRINX_STRING_FMT("[r={}, g={}, b={}, a={}]", mData.r, mData.g, mData.b, mData.a);
 }
 
 } // namespace Syrinx

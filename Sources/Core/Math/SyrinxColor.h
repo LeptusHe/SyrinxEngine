@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <glm/glm.hpp>
 
 namespace Syrinx {
@@ -18,6 +19,7 @@ public:
     float green() const;
     float blue() const;
     float alpha() const;
+    std::string toString() const;
 
 private:
     glm::vec4 mData{1.0, 0.0, 0.0, 1.0};

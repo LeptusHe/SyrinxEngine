@@ -3,6 +3,7 @@
 #include <vector>
 #include <iterator>
 #include <algorithm>
+#include <fmt/format.h>
 
 namespace Syrinx {
 
@@ -23,5 +24,7 @@ inline std::string ToLower(const std::string& text)
 
 std::vector<float> ParseFloatArray(const std::string& text);
 std::vector<std::string> SplitStringBySpace(const std::string& text);
+
+#define SYRINX_STRING_FMT(fmtStr, ...) fmt::format(fmtStr, __VA_ARGS__)
 
 } // namespace Syrinx
