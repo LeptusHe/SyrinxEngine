@@ -1,6 +1,6 @@
 #include "SyrinxCudaBuffer.h"
 #include <Common/SyrinxAssert.h>
-#include "SyrinxCudaAssert.h"
+#include "SyrinxRadianceAssert.h"
 
 namespace Syrinx {
 

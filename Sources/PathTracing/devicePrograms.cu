@@ -3,7 +3,6 @@
 
 #include "LaunchParams.h"
 #include "gdt/random/random.h"
-#include "../../../../ProgramFiles/NVIDIACorporation/ComputingToolkit/CUDA/V10.1/include/crt/host_defines.h"
 
 using namespace osc;
 
