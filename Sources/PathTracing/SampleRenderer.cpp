@@ -16,6 +16,7 @@
 
 #include "SampleRenderer.h"
 #include "LaunchParams.h"
+#include "Camera.h"
 // this include may only appear in a single source file:
 #include <optix_function_table_definition.h>
 
@@ -602,6 +603,10 @@ namespace osc {
   }
 
 
+	inline vec3f Convert(const glm::vec3& value)
+  {
+		return vec3f(value.x, value.y, value.z);
+  }
 
   /*! render one frame */
   void SampleRenderer::render(bool resetCount)
@@ -610,10 +615,16 @@ namespace osc {
     // already done:
     if (launchParams.frame.size.x == 0) return;
 
-  	if (resetCount)
+  	if (resetCount || lastCamera->isModified)
   	{
 		launchParams.frame.accumID = 0;
+		lastCamera->isModified = false;
   	}
+
+	launchParams.camera.position = Convert(lastCamera->Position);
+	launchParams.camera.direction = Convert(lastCamera->Front);
+	launchParams.camera.horizontal = Convert(lastCamera->Right);
+	launchParams.camera.vertical = Convert(lastCamera->Up);
       
     launchParamsBuffer.upload(&launchParams,1);
     launchParams.frame.accumID++;

@@ -19,21 +19,84 @@
 // our helper library for window handling
 #include "GLFWindow.h"
 #include <GL/glew.h>
+#include "Camera.h"
+#include <functional>
 
 /*! \namespace osc - Optix Siggraph Course */
 namespace osc {
 
+	bool firstMouse = true;
+	float deltaTime = 1.0f / 60.0f;
+	const unsigned int SCR_WIDTH = 1200;
+	const unsigned int SCR_HEIGHT = 800;
+	float lastX = SCR_WIDTH / 2.0f;
+	float lastY = SCR_HEIGHT / 2.0f;
+	
+	void processInput(GLFWwindow* window)
+	{
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, true);
+
+		auto& CAMERA = SCamera::getInstance();
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			CAMERA.ProcessKeyboard(FORWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+			CAMERA.ProcessKeyboard(BACKWARD, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			CAMERA.ProcessKeyboard(LEFT, deltaTime);
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+			CAMERA.ProcessKeyboard(RIGHT, deltaTime);
+	}
+
+	void ProcessMouseMove(GLFWwindow* window, double xpos, double ypos)
+	{
+		if (firstMouse) {
+			lastX = xpos;
+			lastY = ypos;
+		}
+		GLfloat x_offset = xpos - SCR_WIDTH / 2;
+		GLfloat y_offset = SCR_HEIGHT / 2 - ypos;
+		glfwSetCursorPos(window, SCR_WIDTH / 2, SCR_HEIGHT / 2);
+		auto& CAMERA = SCamera::getInstance();
+		CAMERA.ProcessMouseMovement(x_offset, y_offset);
+	}
+
+	/*
+	void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+	{
+		if (firstMouse)
+		{
+			lastX = xpos;
+			lastY = ypos;
+			firstMouse = false;
+		}
+
+		float xoffset = xpos - lastX;
+		float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+		lastX = xpos;
+		lastY = ypos;
+
+		auto& CAMERA = SCamera::getInstance();
+		CAMERA.ProcessMouseMovement(xoffset, yoffset);
+	}
+*/
+	
   struct SampleWindow : public GLFCameraWindow
   {
     SampleWindow(const std::string &title,
                  const Model *model,
+		         SCamera *sCamera,
                  const Camera &camera,
                  const QuadLight &light,
                  const float worldScale)
-      : GLFCameraWindow(title,camera.from,camera.at,camera.up,worldScale),
-        sample(model,light)
+      : GLFCameraWindow(title,camera.from,camera.at,camera.up,worldScale)
+	  , sample(model,light)
+	  , mCamera(sCamera)
+		
     {
       sample.setCamera(camera);
+	  sample.setCamera(sCamera);
     }
     
     virtual void render() override
@@ -110,6 +173,7 @@ namespace osc {
     GLuint                fbTexture {0};
     SampleRenderer        sample;
     std::vector<float> pixels;
+	SCamera *mCamera;
   };
   
   
@@ -144,8 +208,15 @@ namespace osc {
       // camera knows how much to move for any given user interaction:
       const float worldScale = length(model->bounds.span());
 
+		auto& CAMERA = SCamera::getInstance();
       SampleWindow *window = new SampleWindow("Optix 7 Course Example",
-                                              model,camera,light,worldScale);
+                                              model, &CAMERA, camera,light,worldScale);
+
+	  auto handle = window->handle;
+	  window->mInputProcessor = processInput;
+      //glfwSetKeyCallback(handle, processInput);
+      glfwSetCursorPosCallback(handle, ProcessMouseMove);
+
       window->run();
       
     } catch (std::runtime_error& e) {

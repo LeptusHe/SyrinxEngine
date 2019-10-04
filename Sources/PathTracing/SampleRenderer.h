@@ -21,6 +21,8 @@
 #include "LaunchParams.h"
 #include "Model.h"
 
+class SCamera;
+
 /*! \namespace osc - Optix Siggraph Course */
 namespace osc {
 
@@ -59,6 +61,7 @@ namespace osc {
 
     /*! set camera to render with */
     void setCamera(const Camera &camera);
+	void setCamera(SCamera* camera) { lastCamera = camera; }
   protected:
     // ------------------------------------------------------------------
     // internal helper functions
@@ -138,6 +141,7 @@ namespace osc {
 
     /*! the camera we are to render with. */
     Camera lastSetCamera;
+	SCamera* lastCamera;
     
     /*! the model we are going to trace rays against */
     const Model *model;

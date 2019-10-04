@@ -50,7 +50,8 @@ namespace osc {
       glfwTerminate();
       exit(EXIT_FAILURE);
     }
-      
+
+	glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetWindowUserPointer(handle, this);
     glfwMakeContextCurrent(handle);
     glfwSwapInterval( 1 );
@@ -101,15 +102,21 @@ namespace osc {
     resize(vec2i(width,height));
 
     // glfwSetWindowUserPointer(window, GLFWindow::current);
-    glfwSetFramebufferSizeCallback(handle, glfwindow_reshape_cb);
-    glfwSetMouseButtonCallback(handle, glfwindow_mouseButton_cb);
-    glfwSetKeyCallback(handle, glfwindow_key_cb);
-    glfwSetCursorPosCallback(handle, glfwindow_mouseMotion_cb);
+
+   // glfwSetFramebufferSizeCallback(handle, glfwindow_reshape_cb);
+    //glfwSetMouseButtonCallback(handle, glfwindow_mouseButton_cb);
+    //glfwSetKeyCallback(handle, glfwindow_key_cb);
+    //glfwSetCursorPosCallback(handle, glfwindow_mouseMotion_cb);
     
     while (!glfwWindowShouldClose(handle)) {
       render();
       draw();
-        
+
+    	if (mInputProcessor)
+    	{
+			mInputProcessor(handle);
+    	}
+    	
       glfwSwapBuffers(handle);
       glfwPollEvents();
     }

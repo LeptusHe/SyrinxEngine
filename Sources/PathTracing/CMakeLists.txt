@@ -13,6 +13,7 @@ list(APPEND include_dirs
     ${CMAKE_CURRENT_SOURCE_DIR}
 	${Optix_INCLUDE}
 	${third_party_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/Sources/Core
 )
 
 include_directories(${include_dirs})

@@ -21,6 +21,7 @@
 // glfw framework
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+#include <functional>
 
 /*! \namespace osc - Optix Siggraph Course */
 namespace osc {
@@ -71,6 +72,8 @@ namespace osc {
 
     /*! the glfw window handle */
     GLFWwindow *handle { nullptr };
+  public:
+	std::function<void(GLFWwindow*)> mInputProcessor;
   };
 
 
