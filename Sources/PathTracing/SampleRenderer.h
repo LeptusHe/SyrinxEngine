@@ -17,7 +17,8 @@
 #pragma once
 
 // our own classes, partly shared between host and device
-#include "CUDABuffer.h"
+//#include "CUDABuffer.h"
+#include "SyrinxCudaBuffer.h"
 #include "LaunchParams.h"
 #include "Model.h"
 
@@ -25,6 +26,8 @@ class SCamera;
 
 /*! \namespace osc - Optix Siggraph Course */
 namespace osc {
+
+using Syrinx::CudaBuffer;
 
   struct Camera {
     /*! camera position - *from* where we are looking */
@@ -124,20 +127,20 @@ namespace osc {
     /*! vector of all our program(group)s, and the SBT built around
         them */
     std::vector<OptixProgramGroup> raygenPGs;
-    CUDABuffer raygenRecordsBuffer;
+    CudaBuffer raygenRecordsBuffer;
     std::vector<OptixProgramGroup> missPGs;
-    CUDABuffer missRecordsBuffer;
+    CudaBuffer missRecordsBuffer;
     std::vector<OptixProgramGroup> hitgroupPGs;
-    CUDABuffer hitgroupRecordsBuffer;
+    CudaBuffer hitgroupRecordsBuffer;
     OptixShaderBindingTable sbt = {};
 
     /*! @{ our launch parameters, on the host, and the buffer to store
         them on the device */
     LaunchParams launchParams;
-    CUDABuffer   launchParamsBuffer;
+    CudaBuffer   launchParamsBuffer;
     /*! @} */
 
-    CUDABuffer colorBuffer;
+    CudaBuffer colorBuffer;
 
     /*! the camera we are to render with. */
     Camera lastSetCamera;
@@ -147,14 +150,14 @@ namespace osc {
     const Model *model;
     
     /*! @{ one buffer per input mesh */
-    std::vector<CUDABuffer> vertexBuffer;
-    std::vector<CUDABuffer> normalBuffer;
-    std::vector<CUDABuffer> texcoordBuffer;
-    std::vector<CUDABuffer> indexBuffer;
+    std::vector<CudaBuffer> vertexBuffer;
+    std::vector<CudaBuffer> normalBuffer;
+    std::vector<CudaBuffer> texcoordBuffer;
+    std::vector<CudaBuffer> indexBuffer;
     /*! @} */
     
     //! buffer that keeps the (final, compacted) accel structure
-    CUDABuffer asBuffer;
+    CudaBuffer asBuffer;
 
     /*! @{ one texture object and pixel array per used texture */
     std::vector<cudaArray_t>         textureArrays;

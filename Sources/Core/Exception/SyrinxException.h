@@ -81,6 +81,12 @@ public:
 };
 
 
+class CUDAException : public Exception {
+public:
+    CUDAException(const std::string& description, const std::string& file, const std::string& source, long line)
+            : Exception(__FUNCTION__, description, file, source, line) {}
+};
+
 BETTER_ENUM(ExceptionCode, uint8_t,
     FileNotFound,
     FileSystemError,
@@ -89,7 +95,8 @@ BETTER_ENUM(ExceptionCode, uint8_t,
     DeserializationError,
     RuntimeAssertFailure,
     InvalidState,
-    InvalidParams
+    InvalidParams,
+    CUDAError
 );
 
 

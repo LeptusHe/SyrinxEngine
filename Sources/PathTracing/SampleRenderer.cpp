@@ -87,7 +87,7 @@ namespace osc {
     std::cout << "#osc: building SBT ..." << std::endl;
     buildSBT();
 
-    launchParamsBuffer.alloc(sizeof(launchParams));
+    launchParamsBuffer.allocate(sizeof(launchParams));
     std::cout << "#osc: context, module, pipeline, etc, all set up ..." << std::endl;
 
     std::cout << GDT_TERMINAL_GREEN;
@@ -169,12 +169,12 @@ namespace osc {
     for (int meshID=0;meshID<numMeshes;meshID++) {
       // upload the model to the device: the builder
       TriangleMesh &mesh = *model->meshes[meshID];
-      vertexBuffer[meshID].alloc_and_upload(mesh.vertex);
-      indexBuffer[meshID].alloc_and_upload(mesh.index);
+      vertexBuffer[meshID].allocateAndUpload(mesh.vertex);
+      indexBuffer[meshID].allocateAndUpload(mesh.index);
       if (!mesh.normal.empty())
-        normalBuffer[meshID].alloc_and_upload(mesh.normal);
+        normalBuffer[meshID].allocateAndUpload(mesh.normal);
       if (!mesh.texcoord.empty())
-        texcoordBuffer[meshID].alloc_and_upload(mesh.texcoord);
+        texcoordBuffer[meshID].allocateAndUpload(mesh.texcoord);
 
       triangleInput[meshID] = {};
       triangleInput[meshID].type
@@ -182,8 +182,8 @@ namespace osc {
 
       // create local variables, because we need a *pointer* to the
       // device pointers
-      d_vertices[meshID] = vertexBuffer[meshID].d_pointer();
-      d_indices[meshID]  = indexBuffer[meshID].d_pointer();
+      d_vertices[meshID] = vertexBuffer[meshID].getDevicePtr();
+      d_indices[meshID]  = indexBuffer[meshID].getDevicePtr();
       
       triangleInput[meshID].triangleArray.vertexFormat        = OPTIX_VERTEX_FORMAT_FLOAT3;
       triangleInput[meshID].triangleArray.vertexStrideInBytes = sizeof(vec3f);
@@ -229,33 +229,33 @@ namespace osc {
     // prepare compaction
     // ==================================================================
     
-    CUDABuffer compactedSizeBuffer;
-    compactedSizeBuffer.alloc(sizeof(uint64_t));
+    CudaBuffer compactedSizeBuffer;
+    compactedSizeBuffer.allocate(sizeof(uint64_t));
     
     OptixAccelEmitDesc emitDesc;
     emitDesc.type   = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
-    emitDesc.result = compactedSizeBuffer.d_pointer();
+    emitDesc.result = compactedSizeBuffer.getDevicePtr();
     
     // ==================================================================
     // execute build (main stage)
     // ==================================================================
     
-    CUDABuffer tempBuffer;
-    tempBuffer.alloc(blasBufferSizes.tempSizeInBytes);
+    CudaBuffer tempBuffer;
+    tempBuffer.allocate(blasBufferSizes.tempSizeInBytes);
     
-    CUDABuffer outputBuffer;
-    outputBuffer.alloc(blasBufferSizes.outputSizeInBytes);
+    CudaBuffer outputBuffer;
+    outputBuffer.allocate(blasBufferSizes.outputSizeInBytes);
       
     OPTIX_CHECK(optixAccelBuild(optixContext,
                                 /* stream */0,
                                 &accelOptions,
                                 triangleInput.data(),
                                 (int)numMeshes,
-                                tempBuffer.d_pointer(),
-                                tempBuffer.sizeInBytes,
+                                tempBuffer.getDevicePtr(),
+                                tempBuffer.getSize(),
                                 
-                                outputBuffer.d_pointer(),
-                                outputBuffer.sizeInBytes,
+                                outputBuffer.getDevicePtr(),
+                                outputBuffer.getSize(),
                                 
                                 &asHandle,
                                 
@@ -269,21 +269,21 @@ namespace osc {
     uint64_t compactedSize;
     compactedSizeBuffer.download(&compactedSize,1);
     
-    asBuffer.alloc(compactedSize);
+    asBuffer.allocate(compactedSize);
     OPTIX_CHECK(optixAccelCompact(optixContext,
                                   /*stream:*/0,
                                   asHandle,
-                                  asBuffer.d_pointer(),
-                                  asBuffer.sizeInBytes,
+                                  asBuffer.getDevicePtr(),
+                                  asBuffer.getSize(),
                                   &asHandle));
     CUDA_SYNC_CHECK();
     
     // ==================================================================
     // aaaaaand .... clean up
     // ==================================================================
-    outputBuffer.free(); // << the UNcompacted, temporary output buffer
-    tempBuffer.free();
-    compactedSizeBuffer.free();
+    //outputBuffer.free(); // << the UNcompacted, temporary output buffer
+    //tempBuffer.free();
+    //compactedSizeBuffer.free();
     
     return asHandle;
   }
@@ -553,8 +553,8 @@ namespace osc {
       rec.data = nullptr; /* for now ... */
       raygenRecords.push_back(rec);
     }
-    raygenRecordsBuffer.alloc_and_upload(raygenRecords);
-    sbt.raygenRecord = raygenRecordsBuffer.d_pointer();
+    raygenRecordsBuffer.allocateAndUpload(raygenRecords);
+    sbt.raygenRecord = raygenRecordsBuffer.getDevicePtr();
 
     // ------------------------------------------------------------------
     // build miss records
@@ -566,8 +566,8 @@ namespace osc {
       rec.data = nullptr; /* for now ... */
       missRecords.push_back(rec);
     }
-    missRecordsBuffer.alloc_and_upload(missRecords);
-    sbt.missRecordBase          = missRecordsBuffer.d_pointer();
+    missRecordsBuffer.allocateAndUpload(missRecords);
+    sbt.missRecordBase          = missRecordsBuffer.getDevicePtr();
     sbt.missRecordStrideInBytes = sizeof(MissRecord);
     sbt.missRecordCount         = (int)missRecords.size();
 
@@ -589,15 +589,15 @@ namespace osc {
         } else {
           rec.data.hasTexture = false;
         }
-        rec.data.index    = (vec3i*)indexBuffer[meshID].d_pointer();
-        rec.data.vertex   = (vec3f*)vertexBuffer[meshID].d_pointer();
-        rec.data.normal   = (vec3f*)normalBuffer[meshID].d_pointer();
-        rec.data.texcoord = (vec2f*)texcoordBuffer[meshID].d_pointer();
+        rec.data.index    = (vec3i*)indexBuffer[meshID].getDevicePtr();
+        rec.data.vertex   = (vec3f*)vertexBuffer[meshID].getDevicePtr();
+        rec.data.normal   = (vec3f*)normalBuffer[meshID].getDevicePtr();
+        rec.data.texcoord = (vec2f*)texcoordBuffer[meshID].getDevicePtr();
         hitgroupRecords.push_back(rec);
       }
     }
-    hitgroupRecordsBuffer.alloc_and_upload(hitgroupRecords);
-    sbt.hitgroupRecordBase          = hitgroupRecordsBuffer.d_pointer();
+    hitgroupRecordsBuffer.allocateAndUpload(hitgroupRecords);
+    sbt.hitgroupRecordBase          = hitgroupRecordsBuffer.getDevicePtr();
     sbt.hitgroupRecordStrideInBytes = sizeof(HitgroupRecord);
     sbt.hitgroupRecordCount         = (int)hitgroupRecords.size();
   }
@@ -625,15 +625,15 @@ namespace osc {
 	launchParams.camera.direction = Convert(lastCamera->Front);
 	launchParams.camera.horizontal = Convert(lastCamera->Right);
 	launchParams.camera.vertical = Convert(lastCamera->Up);
-      
+
     launchParamsBuffer.upload(&launchParams,1);
     launchParams.frame.accumID++;
     
     OPTIX_CHECK(optixLaunch(/*! pipeline we're launching launch: */
                             pipeline,stream,
                             /*! parameters and SBT */
-                            launchParamsBuffer.d_pointer(),
-                            launchParamsBuffer.sizeInBytes,
+                            launchParamsBuffer.getDevicePtr(),
+                            launchParamsBuffer.getSize(),
                             &sbt,
                             /*! dimensions of the launch: */
                             launchParams.frame.size.x,
@@ -673,7 +673,7 @@ namespace osc {
     // update the launch parameters that we'll pass to the optix
     // launch:
     launchParams.frame.size  = newSize;
-    launchParams.frame.colorBuffer = (float*)colorBuffer.d_pointer();
+    launchParams.frame.colorBuffer = (float*)colorBuffer.getDevicePtr();
 
     // and re-set the camera, since aspect may have changed
     setCamera(lastSetCamera);

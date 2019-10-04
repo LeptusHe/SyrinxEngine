@@ -1,24 +1,9 @@
-// ======================================================================== //
-// Copyright 2018-2019 Ingo Wald                                            //
-//                                                                          //
-// Licensed under the Apache License, Version 2.0 (the "License");          //
-// you may not use this file except in compliance with the License.         //
-// You may obtain a copy of the License at                                  //
-//                                                                          //
-//     http://www.apache.org/licenses/LICENSE-2.0                           //
-//                                                                          //
-// Unless required by applicable law or agreed to in writing, software      //
-// distributed under the License is distributed on an "AS IS" BASIS,        //
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. //
-// See the License for the specific language governing permissions and      //
-// limitations under the License.                                           //
-// ======================================================================== //
-
 #include <optix_device.h>
 #include <cuda_runtime.h>
 
 #include "LaunchParams.h"
 #include "gdt/random/random.h"
+#include "../../../../ProgramFiles/NVIDIACorporation/ComputingToolkit/CUDA/V10.1/include/crt/host_defines.h"
 
 using namespace osc;
 
@@ -225,48 +210,43 @@ namespace osc {
   //------------------------------------------------------------------------------
   extern "C" __global__ void __raygen__renderFrame()
   {
-    // compute a test pattern based on pixel ID
     const int ix = optixGetLaunchIndex().x;
     const int iy = optixGetLaunchIndex().y;
+
     const int accumID  = optixLaunchParams.frame.accumID;
     const auto &camera = optixLaunchParams.camera;
     
     PRD prd;
-    prd.random.init(ix+accumID*optixLaunchParams.frame.size.x,
-                 iy+accumID*optixLaunchParams.frame.size.y);
+    prd.random.init(ix + accumID * optixLaunchParams.frame.size.x,
+                    iy + accumID * optixLaunchParams.frame.size.y);
     prd.pixelColor = vec3f(0.f);
 
-    // the values we store the PRD pointer in:
     uint32_t u0, u1;
     packPointer( &prd, u0, u1 );
 
-    int numPixelSamples = NUM_PIXEL_SAMPLES;
-
-    vec3f pixelColor = 0.f;
-    for (int sampleID=0;sampleID<numPixelSamples;sampleID++) {
       // normalized screen plane position, in [0,1]^2
-      const vec2f screen(vec2f(ix+prd.random(),iy+prd.random())
+    const vec2f screen(vec2f(ix+prd.random(),iy+prd.random())
                          / vec2f(optixLaunchParams.frame.size));
     
       // generate ray direction
-      vec3f rayDir = normalize(camera.direction
+    vec3f rayDir = normalize(camera.direction
                                + (screen.x - 0.5f) * camera.horizontal
                                + (screen.y - 0.5f) * camera.vertical);
 
-      optixTrace(optixLaunchParams.traversable,
-                 camera.position,
-                 rayDir,
-                 0.f,    // tmin
-                 1e20f,  // tmax
-                 0.0f,   // rayTime
-                 OptixVisibilityMask( 255 ),
-                 OPTIX_RAY_FLAG_DISABLE_ANYHIT,//OPTIX_RAY_FLAG_NONE,
-                 RADIANCE_RAY_TYPE,            // SBT offset
-                 RAY_TYPE_COUNT,               // SBT stride
-                 RADIANCE_RAY_TYPE,            // missSBTIndex 
-                 u0, u1 );
-      pixelColor += prd.pixelColor;
-    }
+    optixTrace(optixLaunchParams.traversable,
+               camera.position,
+               rayDir,
+               0.f,    // tmin
+               1e20f,  // tmax
+               0.0f,   // rayTime
+               OptixVisibilityMask( 255 ),
+               OPTIX_RAY_FLAG_DISABLE_ANYHIT,//OPTIX_RAY_FLAG_NONE,
+               RADIANCE_RAY_TYPE,            // SBT offset
+               RAY_TYPE_COUNT,               // SBT stride
+               RADIANCE_RAY_TYPE,            // missSBTIndex 
+               u0, u1);
+  	
+    vec3f pixelColor = prd.pixelColor;
 
 	const int index = (ix + iy * optixLaunchParams.frame.size.x) * 4;
 	const int sampleCount = optixLaunchParams.frame.accumID;

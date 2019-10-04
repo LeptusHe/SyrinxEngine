@@ -71,6 +71,7 @@ void ExceptionFactory::throwException(Syrinx::ExceptionCode code,
         case ExceptionCode::RuntimeAssertFailure: throw RuntimeAssertionException(description, file, source, line);
         case ExceptionCode::InvalidState: throw InvalidStateException(description, file, source, line);
         case ExceptionCode::InvalidParams: throw InvalidParamsException(description, file, source, line);
+        case ExceptionCode::CUDAError: throw CUDAException(description, file, source, line);
         default: assert(false && "undefined exception code");
     }
 }

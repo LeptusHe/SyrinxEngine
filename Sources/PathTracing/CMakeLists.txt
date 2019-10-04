@@ -11,19 +11,24 @@ endforeach()
 
 list(APPEND include_dirs
     ${CMAKE_CURRENT_SOURCE_DIR}
-	${Optix_INCLUDE}
-	${third_party_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/Sources
 	${PROJECT_SOURCE_DIR}/Sources/Core
-)
-
+	${PROJECT_SOURCE_DIR}/Sources/Graphics
+	${PROJECT_SOURCE_DIR}/Sources/Pipeline
+	${PROJECT_SOURCE_DIR}/Sources/Resource
+	${PROJECT_SOURCE_DIR}/Sources/Scene
+	${OptiX_INCLUDE}
+	$ENV{CUDA_PATH}/include/
+	${third_party_INCLUDE_DIRS})
 include_directories(${include_dirs})
 cuda_compile_and_embed(embedded_ptx_code devicePrograms.cu)
 
 
-add_executable(SyrinxRadiance ${sources} ${embedded_ptx_code})
+add_executable(SyrinxRadiance ${sources} devicePrograms.cu ${embedded_ptx_code})
 target_include_directories(SyrinxRadiance PRIVATE ${include_dirs})
 target_link_libraries(SyrinxRadiance
     Core
+	Scene
     ${OPENGL_gl_LIBRARY}
     ${CUDA_LIBRARIES}
     ${CUDA_CUDA_LIBRARY})
