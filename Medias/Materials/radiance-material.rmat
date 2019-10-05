@@ -1,0 +1,6 @@
+material = {
+    type = "matte",
+    parameters = {
+        diffuseTex = "diffuse.png"
+    }
+}

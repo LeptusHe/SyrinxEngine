@@ -4,11 +4,6 @@
         <position x="0.0" y="0.0" z="-2.0"/>
         <scale x="1" y="1" z="1"/>
     </node>
-    <node name="sponza-entity">
-        <entity name="sponza" type="model" model-file="sponza-vertex-normal.smodel"/>
-        <position x="0.0" y="0.0" z="0.0"/>
-        <scale x="1" y="1" z="1"/>
-    </node>
     <node name="main camera">
         <entity name="fps-camera" type="camera"/>
         <position x="0.0" y="0.0" z="0.0"/>
