@@ -102,7 +102,7 @@ void EditorPipeline::importScene(const std::string& path)
     SYRINX_ASSERT(engine);
 
     auto sceneManager = engine->getSceneManager();
-    auto scene =sceneManager->importScene(path);
+    auto scene = sceneManager->importScene(path);
     engine->setActiveScene(scene);
 
     const auto& cameraEntityList = scene->getEntitiesWithComponent<Camera>();

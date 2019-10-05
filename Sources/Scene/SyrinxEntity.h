@@ -8,15 +8,16 @@ namespace Syrinx {
 
 class Entity {
 public:
-    using EntityHandle = entityx::Entity;
+    using Handle = entityx::Entity;
     template <typename T> using ComponentHandle = entityx::ComponentHandle<T>;
 
 public:
-    Entity(const std::string& name, EntityHandle handle);
-    ~Entity() = default;
+    Entity(const std::string& name, Handle handle);
+    ~Entity();
 
     template <typename T, typename ... Args> void addComponent(Args&& ... args);
     const std::string& getName() const;
+    Handle getHandle() const;
     template <typename T> const T& getComponent() const;
     template <typename T> T& getComponent();
     template <typename T> bool hasComponent() const;
@@ -25,7 +26,7 @@ public:
 
 private:
     std::string mName;
-    EntityHandle mHandle;
+    Handle mHandle;
 };
 
 

@@ -5,7 +5,7 @@
 
 namespace Syrinx {
 
-Entity::Entity(const std::string& name, EntityHandle handle)
+Entity::Entity(const std::string& name, Handle handle)
     : mName(name)
     , mHandle(handle)
 {
@@ -15,9 +15,21 @@ Entity::Entity(const std::string& name, EntityHandle handle)
 }
 
 
+Entity::~Entity()
+{
+
+}
+
+
 const std::string& Entity::getName() const
 {
     return mName;
+}
+
+
+Entity::Handle Entity::getHandle() const
+{
+    return mHandle;
 }
 
 

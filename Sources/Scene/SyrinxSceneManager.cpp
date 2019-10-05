@@ -27,6 +27,11 @@ Scene* SceneManager::importScene(const std::string& fileName)
     if (!fileExist) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileNotFound, "can not find scene file [{}]", fileName);
     }
+
+    if (auto oldScene = findScene(filePath); oldScene) {
+        destroy(oldScene);
+    }
+
     auto dataStream = mFileManager->openFile(filePath, FileAccessMode::READ);
     if (!dataStream) {
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileSystemError, "fail to open scene file [{}]", filePath);
@@ -94,6 +99,23 @@ void SceneManager::addScene(Scene *scene)
 }
 
 
+void SceneManager::releaseScene(Scene *scene)
+{
+    SYRINX_EXPECT(scene);
+    auto sceneName = scene->getName();
+    auto result = std::end(mSceneList);
+    for (auto iter = std::begin(mSceneList); iter != std::end(mSceneList); ++ iter) {
+        if ((*iter)->getName() == scene->getName()) {
+            result = iter;
+            break;
+        }
+    }
+    mSceneList.erase(result);
+    mSceneMap.erase(sceneName);
+    SYRINX_ENSURE(!findScene(sceneName));
+}
+
+
 void SceneManager::addEntity(Entity *entity)
 {
     SYRINX_EXPECT(entity);
@@ -114,6 +136,22 @@ void SceneManager::updateScene(Scene *scene) const
 void SceneManager::updateController(float timeDelta)
 {
     mSystemManager.update<ControllerSystem>(timeDelta);
+}
+
+
+void SceneManager::destroy(Scene *scene)
+{
+    SYRINX_EXPECT(scene);
+    if (!findScene(scene->getName())) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidState,
+                "fail to destroy scene [{}] because it can not be found", scene->getName());
+    }
+
+    for (auto& entity : scene->getEntityList()) {
+        auto handle = entity->getHandle();
+        mEntityManager.destroy(handle.id());
+    }
+    releaseScene(scene);
 }
 
 
