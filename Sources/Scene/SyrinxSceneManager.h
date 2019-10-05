@@ -28,9 +28,11 @@ public:
     Entity* findEntity(const std::string& name) const;
     void updateScene(Scene *scene) const;
     void updateController(float timeDelta);
+    void destroy(Scene *scene);
 
 private:
     void addScene(Scene *scene);
+    void releaseScene(Scene *scene);
     void addEntity(Entity *entity);
     void updateSceneNode(SceneNode *sceneNode, bool parentNeedUpdate) const;
     bool containTransformComponent(SceneNode *sceneNode) const;
