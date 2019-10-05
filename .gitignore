@@ -1,6 +1,8 @@
 # Syrinx Renderer
 ThirdParty/glew/*
 Build/*
+out/*
+CMakeSettings.json
 
 # imgui config file
 *.ini
