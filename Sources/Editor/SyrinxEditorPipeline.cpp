@@ -101,14 +101,19 @@ void EditorPipeline::importScene(const std::string& path)
     auto engine = getEngine();
     SYRINX_ASSERT(engine);
 
-    auto sceneManager = engine->getSceneManager();
-    auto scene = sceneManager->importScene(path);
-    engine->setActiveScene(scene);
-
-    const auto& cameraEntityList = scene->getEntitiesWithComponent<Camera>();
-    for (auto cameraEntity : cameraEntityList) {
-        cameraEntity->addController(mCameraController);
+    try {
+        auto sceneManager = engine->getSceneManager();
+        auto scene = sceneManager->importScene(path);
+        engine->setActiveScene(scene);
+        const auto& cameraEntityList = scene->getEntitiesWithComponent<Camera>();
+        for (auto cameraEntity : cameraEntityList) {
+            cameraEntity->addController(mCameraController);
+        }
+    } catch (std::exception& e) {
+        SYRINX_ERROR_FMT("fail to import scene because [{}]", e.what());
+        return;
     }
+
 }
 
 
