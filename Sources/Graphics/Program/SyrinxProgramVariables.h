@@ -14,7 +14,7 @@ class HardwareResourceManager;
 class ProgramVars {
 public:
     using UniformBufferVariable = UniformBufferInfo*;
-    using TextureVariable = std::pair<const TextureInfo*, const SampledTexture*>;
+    using TextureVariable = std::pair<const TextureInfo*, SampledTexture>;
     using UniformBufferList = std::vector<UniformBufferVariable>;
     using SampledTextureList = std::vector<TextureVariable>;
 
@@ -31,7 +31,7 @@ public:
     const TextureInfo* getTextureInfo(const std::string& name);
     const UniformBufferList& getUniformBufferList() const;
     const SampledTextureList& getSampledTextureList() const;
-    void setTexture(const std::string& texName, const SampledTexture* sampledTexture);
+    void setTexture(const std::string& texName, const SampledTexture& sampledTexture);
     UniformBufferInfo& operator[](const std::string& name);
 
 private:

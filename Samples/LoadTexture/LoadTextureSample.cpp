@@ -118,8 +118,8 @@ int main(int argc, char *argv[])
     SYRINX_ASSERT(sampler);
 
     auto fragmentVars = fragmentProgram->getProgramVars();
-    Syrinx::SampledTexture sampledTexture(*hardwareTextureView, *sampler);
-    fragmentVars->setTexture("uDiffuseTex", &sampledTexture);
+    Syrinx::SampledTexture sampledTexture(hardwareTextureView, sampler);
+    fragmentVars->setTexture("uDiffuseTex", sampledTexture);
     SYRINX_ASSERT(fragmentVars);
     while (renderWindow->isOpen()) {
         float defaultValueForColorAttachment[] = {1.0, 1.0, 0.0, 1.0};

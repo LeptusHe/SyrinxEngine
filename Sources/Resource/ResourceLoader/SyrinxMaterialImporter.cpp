@@ -135,9 +135,20 @@ void MaterialImporter::parseProgramParameters(const sol::table& programParameter
 }
 
 
-void MaterialImporter::parseTexture2D(const std::string& texName, const sol::table& value, ProgramVars *programVars)
+void MaterialImporter::parseTexture2D(const std::string& texName, const sol::table& texDesc, ProgramVars *programVars)
 {
     SYRINX_EXPECT(programVars && mMaterial);
+    auto fileName = texDesc["file"];
+
+    auto format = ImageFormat::RGB8;
+    sol::object formatDesc = texDesc["format"];
+    if (formatDesc) {
+        std::string formatStr = texDesc["format"];
+        format = ImageFormat::_from_string(formatStr.c_str());
+    }
+
+    auto sampledTexture = createSampledTexture(fileName, format);
+    programVars->setTexture(texName, sampledTexture);
 }
 
 
@@ -208,6 +219,33 @@ void MaterialImporter::parseVariable(const std::string& variableName, const sol:
     } else {
         SHOULD_NOT_GET_HERE();
     }
+}
+
+
+SampledTexture MaterialImporter::createSampledTexture(const std::string& fileName, ImageFormat format)
+{
+    SYRINX_EXPECT(!fileName.empty());
+    auto [fileExist, filePath] = mFileManager->findFile(fileName);
+    if (!fileExist) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::FileNotFound, "fail to load image [{}] because it can not be found", fileName);
+    }
+    auto hardwareTexture = mHardwareResourceManager->createTexture(filePath, format, true);
+
+    TextureViewDesc textureViewDesc;
+    textureViewDesc.type = TextureType::TEXTURE_2D;
+    textureViewDesc.levelCount = hardwareTexture->getMaxMipMapLevel();
+    auto textureView = mHardwareResourceManager->createTextureView(SYRINX_STRING_FMT("texture view [{}]", fileName), hardwareTexture, textureViewDesc);
+
+    SamplingSetting samplingSetting;
+    samplingSetting.setBorderColor(Color(1.0, 0.0, 1.0, 1.0));
+    samplingSetting.setMinFilterMethod(TextureMinFilterMethod::LINEAR_MIPMAP_LINEAR);
+    samplingSetting.setMagFilterMethod(TextureMagFilterMethod::LINEAR);
+    samplingSetting.setWrapSMethod(TextureWrapMethod::REPEAT);
+    samplingSetting.setWrapTMethod(TextureWrapMethod::REPEAT);
+    samplingSetting.setWrapRMethod(TextureWrapMethod::REPEAT);
+    auto sampler = mHardwareResourceManager->createSampler(SYRINX_STRING_FMT("sampler [{}]", fileName), samplingSetting);
+
+    return {textureView, sampler};
 }
 
 } // namespace Syrinx

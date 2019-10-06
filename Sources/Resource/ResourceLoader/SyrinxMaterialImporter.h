@@ -24,6 +24,7 @@ private:
     void parseUniformBuffer(const std::string& uniformBufferName, const sol::table& uniformBufferDesc, ProgramVars *programVars);
     void parseStructInfo(const std::string& structName, const sol::table& structDesc, StructBlockInfo* structBlockInfo);
     void parseVariable(const std::string& variableName, const sol::object& value, StructMemberInfo *variableInfo);
+    SampledTexture createSampledTexture(const std::string& fileName, ImageFormat format);
 
 private:
     FileManager *mFileManager;

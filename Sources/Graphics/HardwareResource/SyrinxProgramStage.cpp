@@ -165,9 +165,7 @@ void ProgramStage::updateProgramVars(const ProgramVars& programVars)
 
     for (const auto& sampledTexture : programVars.getSampledTextureList()) {
         const auto& texName = sampledTexture.first->name;
-        if (sampledTexture.second) {
-            mProgramVars->setTexture(texName, sampledTexture.second);
-        }
+        mProgramVars->setTexture(texName, sampledTexture.second);
     }
 
     for (const auto& uniformBufferInfo : programVars.getUniformBufferList()) {
@@ -212,8 +210,8 @@ void ProgramStage::bindResources()
 
         if (sampledTexture) {
             const auto bindingPoint = textureInfo->binding;
-            glBindTextureUnit(bindingPoint, sampledTexture->getTextureView().getHandle());
-            glBindSampler(bindingPoint, sampledTexture->getSampler().getHandle());
+            glBindTextureUnit(bindingPoint, sampledTexture.getTextureView().getHandle());
+            glBindSampler(bindingPoint, sampledTexture.getSampler().getHandle());
         }
     }
 

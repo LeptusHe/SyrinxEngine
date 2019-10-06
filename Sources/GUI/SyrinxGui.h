@@ -38,7 +38,7 @@ private:
     HardwareResourceManager *mHardwareResourceManager = nullptr;
     Shader *mShader = nullptr;
     HardwareTexture *mFontTexture = nullptr;
-    std::unique_ptr<SampledTexture> mSampledFontTexture = nullptr;
+    SampledTexture mSampledFontTexture;
     VertexInputState *mVertexInputState = nullptr;
     HardwareVertexBuffer *mVertexBuffer = nullptr;
     HardwareIndexBuffer *mIndexBuffer = nullptr;

@@ -149,8 +149,8 @@ void Gui::buildFontTexture()
     }
 
     if (mSampledFontTexture) {
-        auto textureView = mSampledFontTexture->getTextureView();
-        auto sampler = mSampledFontTexture->getSampler();
+        auto textureView = mSampledFontTexture.getTextureView();
+        auto sampler = mSampledFontTexture.getSampler();
         mHardwareResourceManager->destroyHardwareTextureView(textureView.getName());
         mHardwareResourceManager->destroyHardwareSampler(sampler.getName());
     }
@@ -173,7 +173,7 @@ void Gui::buildFontTexture()
     samplingSetting.setBorderColor(Color(0.0f, 0.0f, 0.0f, 1.0f));
 
     auto fontSampler = mHardwareResourceManager->createSampler("SyrinxGuiFontSampler", samplingSetting);
-    mSampledFontTexture = std::make_unique<SampledTexture>(*textureView, *fontSampler);
+    mSampledFontTexture = SampledTexture(textureView, fontSampler);
 }
 
 
@@ -211,7 +211,7 @@ void Gui::render(RenderContext *renderContext)
     vertexModule->uploadParametersToGpu();
     vertexModule->bindResources();
 
-    fragmentProgVars.setTexture("inTex", mSampledFontTexture.get());
+    fragmentProgVars.setTexture("inTex", mSampledFontTexture);
     fragmentModule->updateProgramVars(fragmentProgVars);
     fragmentModule->uploadParametersToGpu();
     fragmentModule->bindResources();

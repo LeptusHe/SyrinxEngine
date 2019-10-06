@@ -12,7 +12,7 @@ ProgramVars::ProgramVars(const ProgramReflector& programReflector)
     SYRINX_ENSURE(mSampledTextureList.empty());
 
     for (const auto& textureInfo : programReflector.getSampledTextureList()) {
-        mSampledTextureList.push_back({textureInfo, nullptr});
+        mSampledTextureList.push_back({textureInfo, SampledTexture()});
     }
 
     for (const auto& uniformBufferInfo : programReflector.getUniformBufferList()) {
@@ -44,7 +44,7 @@ std::string ProgramVars::getProgramName() const
 }
 
 
-void ProgramVars::setTexture(const std::string& texName, const SampledTexture *sampledTexture)
+void ProgramVars::setTexture(const std::string& texName, const SampledTexture& sampledTexture)
 {
     SYRINX_EXPECT(sampledTexture);
     for (auto& textureVariable : mSampledTextureList) {

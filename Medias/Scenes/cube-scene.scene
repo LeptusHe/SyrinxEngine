@@ -1,6 +1,6 @@
 <scene>
     <node name="cube-entity">
-        <entity name="cube" type="model" model-file="cube-display-world-normal.smodel"/>
+        <entity name="cube" type="model" model-file="textured-cube.smodel"/>
         <position x="0.0" y="0.0" z="-2.0"/>
         <scale x="1" y="1" z="1"/>
     </node>

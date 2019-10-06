@@ -6,13 +6,18 @@ namespace Syrinx {
 
 class SampledTexture {
 public:
-    SampledTexture(const HardwareTextureView& textureView, const HardwareSampler& textureSampler);
+    SampledTexture() = default;
+    SampledTexture(const HardwareTextureView *textureView, const HardwareSampler *textureSampler);
+    SampledTexture(const SampledTexture& rhs) = default;
+    ~SampledTexture() = default;
+
+    operator bool() const;
     const HardwareTextureView& getTextureView() const;
     const HardwareSampler& getSampler() const;
 
 private:
-    const HardwareTextureView& mTextureView;
-    const HardwareSampler& mTextureSampler;
+    const HardwareTextureView *mTextureView = nullptr;
+    const HardwareSampler *mTextureSampler = nullptr;
 };
 
 

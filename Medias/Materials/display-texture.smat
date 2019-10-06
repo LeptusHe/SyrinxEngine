@@ -1,0 +1,12 @@
+material = {
+    constant_shader_parameters = {
+        file_name = "display-texture.shader",
+        fragment_program_parameters = {
+            uTex = {
+                ---file = "checkerboard.png",
+                file = "mipmap-test.png",
+                format = "RGB8"
+            }
+        }
+    }
+}

@@ -2,24 +2,32 @@
 
 namespace Syrinx {
 
-SampledTexture::SampledTexture(const HardwareTextureView& textureView, const HardwareSampler& textureSampler)
+SampledTexture::SampledTexture(const HardwareTextureView *textureView, const HardwareSampler *textureSampler)
     : mTextureView(textureView)
     , mTextureSampler(textureSampler)
 {
+    SYRINX_ENSURE(mTextureView && mTextureSampler);
+}
 
+
+SampledTexture::operator bool() const
+{
+    return mTextureView && mTextureSampler;
 }
 
 
 const HardwareTextureView& SampledTexture::getTextureView() const
 {
-    return mTextureView;
+    SYRINX_EXPECT(mTextureView);
+    return *mTextureView;
 }
 
 
 
 const HardwareSampler& SampledTexture::getSampler() const
 {
-    return mTextureSampler;
+    SYRINX_EXPECT(mTextureSampler);
+    return *mTextureSampler;
 }
 
 } // namespace Syrinx
