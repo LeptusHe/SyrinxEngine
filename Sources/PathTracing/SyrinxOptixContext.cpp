@@ -131,11 +131,10 @@ AccelerateStructure OptixContext::buildAccelerateStructure(const std::vector<Ent
 
     OptixAccelBufferSizes accelerateStructBufferSizes;
     SYRINX_OPTIX_ASSERT(optixAccelComputeMemoryUsage(mOptixContext,
-                                                             &buildOptions,
-                                                             buildInputList.data(),
-                                                             buildInputList.size(),
-                                                             &accelerateStructBufferSizes));
-
+                                                     &buildOptions,
+                                                     buildInputList.data(),
+                                                     buildInputList.size(),
+                                                     &accelerateStructBufferSizes));
     CudaBuffer tempBuffer;
     tempBuffer.allocate(accelerateStructBufferSizes.tempSizeInBytes);
 
@@ -179,7 +178,7 @@ AccelerateStructure OptixContext::buildAccelerateStructure(const std::vector<Ent
     cudaDeviceSynchronize();
     SYRINX_CUDA_ASSERT(cudaGetLastError());
 
-
+    return AccelerateStructure(traversableHandle, std::move(accelerateStructBuffer));
 }
 
 
