@@ -19,6 +19,7 @@
 #include "Camera.h"
 // this include may only appear in a single source file:
 #include <optix_function_table_definition.h>
+#include <Core/FileSystem/SyrinxFileManager.h>
 
 /*! \namespace osc - Optix Siggraph Course */
 namespace osc {
@@ -362,8 +363,23 @@ namespace osc {
       
     pipelineLinkOptions.overrideUsesMotionBlur = false;
     pipelineLinkOptions.maxTraceDepth          = 2;
-      
-    const std::string ptxCode = embedded_ptx_code;
+
+    Syrinx::FileManager fileManager;
+    auto fileSystem = fileManager.getFileSystem();
+    fileManager.addSearchPath(fileSystem->getWorkingDirectory());
+
+    auto [fileExist, filePath] = fileManager.findFile("devicePrograms.ptx");
+    if (!fileExist) {
+        throw std::runtime_error("fail to find ptx file");
+    } else {
+        std::cout << "find file " << filePath << std::endl;
+    }
+
+    auto fileStream = fileManager.openFile(filePath, Syrinx::FileAccessMode::READ);
+    SYRINX_ASSERT(fileStream);
+
+    //const std::string ptxCode = embedded_ptx_code;
+    const std::string ptxCode = fileStream->getAsString();
       
     char log[2048];
     size_t sizeof_log = sizeof( log );
