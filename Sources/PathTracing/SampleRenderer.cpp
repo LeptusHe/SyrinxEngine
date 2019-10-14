@@ -51,36 +51,112 @@ namespace osc {
     TriangleMeshSBTData data;
   };
 
+  struct __align__ (OPTIX_SBT_RECORD_ALIGNMENT) CallableRecord {
+      __align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+      vec3f color;
+  };
+
 
   /*! constructor - performs all setup, including initializing
     optix, creates module, pipeline, programs, SBT, etc. */
   SampleRenderer::SampleRenderer(const Model *model, const QuadLight &light)
     : model(model)
   {
-    initOptix();
+    auto logger = new Syrinx::LogManager();
+    auto fileSystem = mFileManager.getFileSystem();
+    mFileManager.addSearchPath(fileSystem->getWorkingDirectory());
+
+    mOptixContext = new Syrinx::OptixContext();
+    mResourceManager = new Syrinx::OptixResourceManager(mOptixContext, &mFileManager);
+
+
 
     launchParams.light.origin = light.origin;
     launchParams.light.du     = light.du;
     launchParams.light.dv     = light.dv;
     launchParams.light.power  = light.power;
 
+    //--------------------------------------------------------------
+    mOptixContext->init();
+
+    cudaContext = mOptixContext->mCudaContext;
+    stream = mOptixContext->mCudaStream;
+    optixContext = mOptixContext->mOptixContext;
+
+    moduleCompileOptions.maxRegisterCount  = 100;
+    moduleCompileOptions.optLevel          = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
+    moduleCompileOptions.debugLevel        = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+
+    pipelineCompileOptions = {};
+    pipelineCompileOptions.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
+    pipelineCompileOptions.usesMotionBlur     = false;
+    pipelineCompileOptions.numPayloadValues   = 2;
+    pipelineCompileOptions.numAttributeValues = 2;
+    pipelineCompileOptions.exceptionFlags     = OPTIX_EXCEPTION_FLAG_DEBUG;
+    pipelineCompileOptions.pipelineLaunchParamsVariableName = "optixLaunchParams";
+
+    pipelineLinkOptions.overrideUsesMotionBlur = false;
+    pipelineLinkOptions.maxTraceDepth          = 2;
+    pipelineLinkOptions.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+
+    mResourceManager->moduleCompileOptions = moduleCompileOptions;
+    mResourceManager->pipelineCompileOptions = pipelineCompileOptions;
+    mResourceManager->pipelineLinkOptions = pipelineLinkOptions;
+
+    const std::string fileName = "devicePrograms.ptx";
+    auto rayGenProgramGroup = mResourceManager->createRayGenProgramGroup("raygen", {fileName, "__raygen__renderFrame"});
+    auto missRadianceProgramGroup = mResourceManager->createMissProgramGroup("missRadiance", {fileName, "__miss__radiance"});
+    auto missShadowProgramGroup = mResourceManager->createMissProgramGroup("missShadow", {fileName, "__miss__shadow"});
+    auto hitGroupRadiance = mResourceManager->createHitProgramGroup("radianceHitGroup",
+                                                                      {fileName, "__closesthit__radiance"},
+                                                                      {fileName, "__anyhit__radiance"},
+                                                                      {"", ""});
+    auto hitGroupShadow = mResourceManager->createHitProgramGroup("shadowHitGroup",
+                                                                  {fileName, "__closesthit__shadow"},
+                                                                  {fileName, "__anyhit__shadow"},
+                                                                  {"", ""});
+
+    auto callableGroup = mResourceManager->createCallableProgramGroup("colorDC", {fileName, "__direct_callable__getColor"}, {});
+
+
+
+    raygenPGs.push_back(rayGenProgramGroup);
+    missPGs.push_back(missRadianceProgramGroup);
+    missPGs.push_back(missShadowProgramGroup);
+    hitgroupPGs.push_back(hitGroupRadiance);
+    hitgroupPGs.push_back(hitGroupShadow);
+    callablePGs.push_back(callableGroup);
+
+    /*
+    initOptix();
     std::cout << "#osc: creating optix context ..." << std::endl;
     createContext();
-      
-    std::cout << "#osc: setting up module ..." << std::endl;
-    createModule();
+      */
 
-    std::cout << "#osc: creating raygen programs ..." << std::endl;
-    createRaygenPrograms();
-    std::cout << "#osc: creating miss programs ..." << std::endl;
-    createMissPrograms();
-    std::cout << "#osc: creating hitgroup programs ..." << std::endl;
-    createHitgroupPrograms();
+
+    //std::cout << "#osc: setting up module ..." << std::endl;
+    //createModule();
+
+    //std::cout << "#osc: creating raygen programs ..." << std::endl;
+    //createRaygenPrograms();
+    //std::cout << "#osc: creating miss programs ..." << std::endl;
+    //createMissPrograms();
+    //std::cout << "#osc: creating hitgroup programs ..." << std::endl;
+    //createHitgroupPrograms();
+    //std::cout << "#osc: creating callable programs ..." << std::endl;
+    //createCallablePrograms();
 
     launchParams.traversable = buildAccel();
     
-    std::cout << "#osc: setting up optix pipeline ..." << std::endl;
-    createPipeline();
+    //std::cout << "#osc: setting up optix pipeline ..." << std::endl;
+    //createPipeline();
+    std::vector<OptixProgramGroup> programGroupList;
+    std::copy(std::begin(raygenPGs), std::end(raygenPGs), std::back_inserter(programGroupList));
+    std::copy(std::begin(missPGs), std::end(missPGs), std::back_inserter(programGroupList));
+    std::copy(std::begin(hitgroupPGs), std::end(hitgroupPGs), std::back_inserter(programGroupList));
+    std::copy(std::begin(callablePGs), std::end(callablePGs), std::back_inserter(programGroupList));
+
+    pipeline = mResourceManager->createPipeline("pipeline", programGroupList);
 
     createTextures();
 
@@ -351,31 +427,28 @@ namespace osc {
   {
     moduleCompileOptions.maxRegisterCount  = 100;
     moduleCompileOptions.optLevel          = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
-    moduleCompileOptions.debugLevel        = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
+    moduleCompileOptions.debugLevel        = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 
     pipelineCompileOptions = {};
     pipelineCompileOptions.traversableGraphFlags = OPTIX_TRAVERSABLE_GRAPH_FLAG_ALLOW_ANY;
     pipelineCompileOptions.usesMotionBlur     = false;
     pipelineCompileOptions.numPayloadValues   = 2;
     pipelineCompileOptions.numAttributeValues = 2;
-    pipelineCompileOptions.exceptionFlags     = OPTIX_EXCEPTION_FLAG_NONE;
+    pipelineCompileOptions.exceptionFlags     = OPTIX_EXCEPTION_FLAG_DEBUG;
     pipelineCompileOptions.pipelineLaunchParamsVariableName = "optixLaunchParams";
-      
+
     pipelineLinkOptions.overrideUsesMotionBlur = false;
     pipelineLinkOptions.maxTraceDepth          = 2;
+    pipelineLinkOptions.debugLevel = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
 
-    Syrinx::FileManager fileManager;
-    auto fileSystem = fileManager.getFileSystem();
-    fileManager.addSearchPath(fileSystem->getWorkingDirectory());
-
-    auto [fileExist, filePath] = fileManager.findFile("devicePrograms.ptx");
+    auto [fileExist, filePath] = mFileManager.findFile("devicePrograms.ptx");
     if (!fileExist) {
         throw std::runtime_error("fail to find ptx file");
     } else {
         std::cout << "find file " << filePath << std::endl;
     }
 
-    auto fileStream = fileManager.openFile(filePath, Syrinx::FileAccessMode::READ);
+    auto fileStream = mFileManager.openFile(filePath, Syrinx::FileAccessMode::READ);
     SYRINX_ASSERT(fileStream);
 
     //const std::string ptxCode = embedded_ptx_code;
@@ -401,7 +474,7 @@ namespace osc {
   {
     // we do a single ray gen program in this example:
     raygenPGs.resize(1);
-      
+
     OptixProgramGroupOptions pgOptions = {};
     OptixProgramGroupDesc pgDesc    = {};
     pgDesc.kind                     = OPTIX_PROGRAM_GROUP_KIND_RAYGEN;
@@ -511,7 +584,31 @@ namespace osc {
                                         ));
     if (sizeof_log > 1) PRINT(log);
   }
-    
+
+  void SampleRenderer::createCallablePrograms()
+  {
+      OptixProgramGroupCallables colorCallable;
+      colorCallable.moduleDC = module;
+      colorCallable.entryFunctionNameDC = "__direct_callable__getColor";
+      colorCallable.moduleCC = nullptr;
+      colorCallable.entryFunctionNameCC = nullptr;
+
+      OptixProgramGroupDesc desc = {};
+      desc.kind = OPTIX_PROGRAM_GROUP_KIND_CALLABLES;
+      desc.callables = colorCallable;
+
+      char log[2048];
+      size_t sizeof_log = sizeof( log );
+
+      callablePGs.resize(1);
+      OptixProgramGroupOptions options = {};
+      OPTIX_CHECK(optixProgramGroupCreate(optixContext, &desc, 1, &options, log, &sizeof_log,  &callablePGs[0]));
+
+      if (sizeof_log > 1) {
+          PRINT(log);
+      }
+  }
+
 
   /*! assembles the full pipeline of all programs */
   void SampleRenderer::createPipeline()
@@ -523,6 +620,9 @@ namespace osc {
       programGroups.push_back(pg);
     for (auto pg : missPGs)
       programGroups.push_back(pg);
+    for (auto pg : callablePGs) {
+        programGroups.push_back(pg);
+    }
       
     char log[2048];
     size_t sizeof_log = sizeof( log );
@@ -616,6 +716,19 @@ namespace osc {
     sbt.hitgroupRecordBase          = hitgroupRecordsBuffer.getDevicePtr();
     sbt.hitgroupRecordStrideInBytes = sizeof(HitgroupRecord);
     sbt.hitgroupRecordCount         = (int)hitgroupRecords.size();
+
+
+    std::vector<CallableRecord> callableRecordList;
+    for (int i = 0; i < callablePGs.size(); ++ i) {
+        CallableRecord callableRecord;
+        optixSbtRecordPackHeader(callablePGs[i], &callableRecord);
+        callableRecord.color = vec3f(1.0, 1.0, 0.0);
+        callableRecordList.push_back(callableRecord);
+    }
+    callableRecordBuffer.allocateAndUpload(callableRecordList);
+    sbt.callablesRecordBase = callableRecordBuffer.getDevicePtr();
+    sbt.callablesRecordStrideInBytes = sizeof(callableRecordList);
+    sbt.callablesRecordCount = (int)(callableRecordList.size());
   }
 
 

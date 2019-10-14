@@ -1,6 +1,4 @@
 #include "SyrinxOptixContext.h"
-#include <cuda_runtime.h>
-#include <optix_stubs.h>
 #include <Exception/SyrinxException.h>
 #include <Logging/SyrinxLogManager.h>
 #include <Scene/SyrinxEntity.h>
@@ -23,6 +21,7 @@ void OptixLogCallback(unsigned int level, const char *tag, const char *message, 
 }
 
 
+char OptixContext::LogBuffer[LOG_BUFFER_MAX_SIZE];
 
 
 OptixContext::~OptixContext()
@@ -181,5 +180,72 @@ AccelerateStructure OptixContext::buildAccelerateStructure(const std::vector<Ent
     return AccelerateStructure(traversableHandle, std::move(accelerateStructBuffer));
 }
 
+
+OptixModule OptixContext::createModule(const std::string& sourceCode,
+                                       const OptixModuleCompileOptions& moduleCompileOptions,
+                                       const OptixPipelineCompileOptions& pipelineCompileOptions)
+{
+    SYRINX_EXPECT(!sourceCode.empty());
+
+    OptixModule module = nullptr;
+    size_t logBufferSize = LOG_BUFFER_MAX_SIZE;
+    SYRINX_OPTIX_ASSERT(optixModuleCreateFromPTX(
+        mOptixContext,
+        &moduleCompileOptions,
+        &pipelineCompileOptions,
+        sourceCode.c_str(),
+        sourceCode.size(),
+        LogBuffer,
+        &logBufferSize,
+        &module));
+
+    if (logBufferSize > 1) {
+        SYRINX_INFO_FMT("CreateProgramGroupLog:: [{}]", LogBuffer);
+    }
+    return module;
+}
+
+
+OptixProgramGroup OptixContext::createProgramGroup(const OptixProgramGroupDesc& programGroupDesc)
+{
+    OptixProgramGroupOptions options = {};
+    size_t logBufferSize = LOG_BUFFER_MAX_SIZE;
+
+    OptixProgramGroup programGroup;
+    SYRINX_OPTIX_ASSERT(optixProgramGroupCreate(
+        mOptixContext,
+        &programGroupDesc,
+        1,
+        &options,
+        LogBuffer,
+        &logBufferSize,
+        &programGroup));
+
+    if (logBufferSize > 1) {
+        SYRINX_INFO_FMT("CreateProgramGroupLog:: [{}]", LogBuffer);
+    }
+    return programGroup;
+}
+
+
+OptixPipeline OptixContext::createPipeline(const std::vector<OptixProgramGroup>& programGroupList,
+                                           const OptixPipelineCompileOptions& compileOptions,
+                                           const OptixPipelineLinkOptions& linkOptions)
+{
+    SYRINX_EXPECT(!programGroupList.empty());
+    OptixPipeline pipeline = nullptr;
+    size_t logBufferSize = LOG_BUFFER_MAX_SIZE;
+
+    SYRINX_OPTIX_ASSERT(optixPipelineCreate(
+        mOptixContext,
+        &compileOptions,
+        &linkOptions,
+        programGroupList.data(),
+        static_cast<int>(programGroupList.size()),
+        LogBuffer,
+        &logBufferSize,
+        &pipeline));
+    return pipeline;
+}
 
 } // namespace Syrinx

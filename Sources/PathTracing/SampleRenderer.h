@@ -18,6 +18,9 @@
 
 // our own classes, partly shared between host and device
 //#include "CUDABuffer.h"
+#include "SyrinxOptixResourceManager.h"
+#include <Logging/SyrinxLogManager.h>
+#include "SyrinxOptixContext.h"
 #include "SyrinxCudaBuffer.h"
 #include "LaunchParams.h"
 #include "Model.h"
@@ -91,6 +94,8 @@ using Syrinx::CudaBuffer;
     /*! does all setup for the hitgroup program(s) we are going to use */
     void createHitgroupPrograms();
 
+    void createCallablePrograms();
+
     /*! assembles the full pipeline of all programs */
     void createPipeline();
 
@@ -131,6 +136,8 @@ using Syrinx::CudaBuffer;
     std::vector<OptixProgramGroup> missPGs;
     CudaBuffer missRecordsBuffer;
     std::vector<OptixProgramGroup> hitgroupPGs;
+    CudaBuffer callableRecordBuffer;
+    std::vector<OptixProgramGroup> callablePGs;
     CudaBuffer hitgroupRecordsBuffer;
     OptixShaderBindingTable sbt = {};
 
@@ -163,6 +170,10 @@ using Syrinx::CudaBuffer;
     std::vector<cudaArray_t>         textureArrays;
     std::vector<cudaTextureObject_t> textureObjects;
     /*! @} */
+
+    Syrinx::FileManager mFileManager;
+    Syrinx::OptixResourceManager *mResourceManager = nullptr;
+    Syrinx::OptixContext *mOptixContext = nullptr;
   };
 
 } // ::osc

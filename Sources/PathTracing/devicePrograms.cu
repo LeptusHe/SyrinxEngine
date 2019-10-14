@@ -17,13 +17,19 @@ namespace osc {
       optixLaunch (this gets filled in from the buffer we pass to
       optixLaunch) */
   extern "C" __constant__ LaunchParams optixLaunchParams;
+  //extern "C" __device__ vec3f __direct_callable__getColor(vec3f *color);
 
-  /*! per-ray data now captures random number generator, so programs
-      can access RNG state */
+/*! per-ray data now captures random number generator, so programs
+    can access RNG state */
   struct PRD {
     Random random;
     vec3f  pixelColor;
   };
+
+  //extern "C" static __device__ float test()
+  //{
+	//  return 1.0f;
+  //}
   
   static __forceinline__ __device__
   void *unpackPointer( uint32_t i0, uint32_t i1 )
@@ -48,8 +54,14 @@ namespace osc {
     const uint32_t u1 = optixGetPayload_1();
     return reinterpret_cast<T*>( unpackPointer( u0, u1 ) );
   }
-  
-  //------------------------------------------------------------------------------
+
+  extern "C" __noinline__  __device__ vec3f __direct_callable__getColor()
+  {
+      vec3f *color = (vec3f*)optixGetSbtDataPointer();
+      return *color;
+  }
+
+//------------------------------------------------------------------------------
   // closest hit and anyhit programs for radiance-type rays.
   //
   // Note eventually we will have to create one pair of those for each
@@ -75,8 +87,9 @@ namespace osc {
     // ------------------------------------------------------------------
     const int   primID = optixGetPrimitiveIndex();
     const vec3i index  = sbtData.index[primID];
-    const float u = optixGetTriangleBarycentrics().x;
+     float u = optixGetTriangleBarycentrics().x;
     const float v = optixGetTriangleBarycentrics().y;
+	//u *= test();
 
     // ------------------------------------------------------------------
     // compute normal, using either shading normal (if avail), or
@@ -109,7 +122,7 @@ namespace osc {
     // available
     // ------------------------------------------------------------------
     vec3f diffuseColor = sbtData.color;
-    if (sbtData.hasTexture && sbtData.texcoord) {
+    if (false && sbtData.hasTexture && sbtData.texcoord) {
       const vec2f tc
         = (1.f-u-v) * sbtData.texcoord[index.x]
         +         u * sbtData.texcoord[index.y]
@@ -118,6 +131,9 @@ namespace osc {
       vec4f fromTexture = tex2D<float4>(sbtData.texture,tc.x,tc.y);
       diffuseColor *= (vec3f)fromTexture;
     }
+    vec3f color = vec3f(0.0f, 1.0f, 0.0f);
+    color = optixDirectCall<vec3f>(0);
+    diffuseColor *= color;
 
     // start with some ambient term
     vec3f pixelColor = (0.1f + 0.2f*fabsf(dot(Ns,rayDir)))*diffuseColor;
@@ -189,7 +205,7 @@ namespace osc {
   // as with the anyhit/closest hit programs, in this example we only
   // need to have _some_ dummy function to set up a valid SBT
   // ------------------------------------------------------------------------------
-  
+
   extern "C" __global__ void __miss__radiance()
   {
     PRD &prd = *getPRD<PRD>();

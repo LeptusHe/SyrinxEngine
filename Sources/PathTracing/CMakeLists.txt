@@ -21,6 +21,9 @@ list(APPEND include_dirs
 	$ENV{CUDA_PATH}/include/
 	${third_party_INCLUDE_DIRS})
 include_directories(${include_dirs})
+
+list(APPEND CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}"--gpu-architecture=sm_50" "-rdc=true" "--use_fast_math")
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "cuda compile flags")
 cuda_compile_and_embed(embedded_ptx_code devicePrograms.cu)
 
 
