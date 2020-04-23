@@ -53,7 +53,6 @@ namespace osc {
 
   struct __align__ (OPTIX_SBT_RECORD_ALIGNMENT) CallableRecord {
       __align__(OPTIX_SBT_RECORD_ALIGNMENT) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-      vec3f color;
   };
 
 
@@ -722,7 +721,6 @@ namespace osc {
     for (int i = 0; i < callablePGs.size(); ++ i) {
         CallableRecord callableRecord;
         optixSbtRecordPackHeader(callablePGs[i], &callableRecord);
-        callableRecord.color = vec3f(1.0, 1.0, 0.0);
         callableRecordList.push_back(callableRecord);
     }
     callableRecordBuffer.allocateAndUpload(callableRecordList);

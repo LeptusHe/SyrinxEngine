@@ -1,4 +1,7 @@
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+
+set(USER_OPTIX_INSTALL_DIR "D:/ProgramFiles/NVIDIACorporation/OptiXSDK7.0.0")
+
 include(${CMAKE_MODULE_PATH}/ConfigureOptix.cmake)
 find_package(OpenGL REQUIRED)
 
@@ -8,6 +11,11 @@ foreach(dir ${source_dirs})
     list(APPEND sources ${sources_founded})
 endforeach()
 
+if (NOT ${searched_OptiX_INSTALL_DIR-NOTFOUND})
+	message(ERROR "fail to find Optix include dir")
+else()
+	message(STATUS "Optix Include Dir: " ${OptiX_INCLUDE})
+endif()
 
 list(APPEND include_dirs
     ${CMAKE_CURRENT_SOURCE_DIR}

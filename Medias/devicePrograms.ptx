@@ -17,19 +17,14 @@
 
 )
 {
-	.reg .f32 	%f<4>;
-	.reg .b64 	%rd<2>;
+	.reg .f32 	%f<3>;
 
 
-	// inline asm
-	call (%rd1), _optix_get_sbt_data_ptr_64, ();
-	// inline asm
-	ld.f32 	%f1, [%rd1];
-	ld.f32 	%f2, [%rd1+4];
-	ld.f32 	%f3, [%rd1+8];
+	mov.f32 	%f1, 0f3F800000;
 	st.param.f32	[func_retval0+0], %f1;
+	mov.f32 	%f2, 0f00000000;
 	st.param.f32	[func_retval0+4], %f2;
-	st.param.f32	[func_retval0+8], %f3;
+	st.param.f32	[func_retval0+8], %f2;
 	ret;
 }
 

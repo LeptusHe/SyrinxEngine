@@ -57,8 +57,7 @@ namespace osc {
 
   extern "C" __noinline__  __device__ vec3f __direct_callable__getColor()
   {
-      vec3f *color = (vec3f*)optixGetSbtDataPointer();
-      return *color;
+	  return vec3f(1.0, 0.0, 0.0);
   }
 
 //------------------------------------------------------------------------------

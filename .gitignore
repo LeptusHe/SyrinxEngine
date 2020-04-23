@@ -3,6 +3,14 @@ ThirdParty/glew/*
 Build/*
 out/*
 CMakeSettings.json
+*.manifest
+
+# ptx files
+*.ptx
+
+# Medias
+Medias/Textures/*
+Medias/Models/*
 
 
 # imgui config file
@@ -11,6 +19,7 @@ CMakeSettings.json
 #Clion files
 .idea/*
 cmake-*
+
 
 # Visual Studio files
 .vs/
