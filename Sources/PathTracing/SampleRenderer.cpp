@@ -216,7 +216,7 @@ namespace osc {
       tex_desc.mipmapFilterMode    = cudaFilterModePoint;
       tex_desc.borderColor[0]      = 1.0f;
       tex_desc.sRGB                = 0;
-      
+
       // Create texture object
       cudaTextureObject_t cuda_tex = 0;
       CUDA_CHECK(CreateTextureObject(&cuda_tex, &res_desc, &tex_desc, nullptr));
@@ -232,8 +232,7 @@ namespace osc {
     texcoordBuffer.resize(numMeshes);
     indexBuffer.resize(numMeshes);
     
-    OptixTraversableHandle asHandle { 0 };
-    
+
     // ==================================================================
     // triangle inputs
     // ==================================================================
@@ -253,8 +252,7 @@ namespace osc {
         texcoordBuffer[meshID].allocateAndUpload(mesh.texcoord);
 
       triangleInput[meshID] = {};
-      triangleInput[meshID].type
-        = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+      triangleInput[meshID].type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
 
       // create local variables, because we need a *pointer* to the
       // device pointers
@@ -284,87 +282,93 @@ namespace osc {
     // ==================================================================
     // BLAS setup
     // ==================================================================
-    
-    OptixAccelBuildOptions accelOptions = {};
-    accelOptions.buildFlags             = OPTIX_BUILD_FLAG_NONE
-      | OPTIX_BUILD_FLAG_ALLOW_COMPACTION
-      ;
-    accelOptions.motionOptions.numKeys  = 1;
-    accelOptions.operation              = OPTIX_BUILD_OPERATION_BUILD;
-    
-    OptixAccelBufferSizes blasBufferSizes;
-    OPTIX_CHECK(optixAccelComputeMemoryUsage
-                (optixContext,
-                 &accelOptions,
-                 triangleInput.data(),
-                 (int)numMeshes,  // num_build_inputs
-                 &blasBufferSizes
-                 ));
-    
-    // ==================================================================
-    // prepare compaction
-    // ==================================================================
-    
-    CudaBuffer compactedSizeBuffer;
-    compactedSizeBuffer.allocate(sizeof(uint64_t));
-    
-    OptixAccelEmitDesc emitDesc;
-    emitDesc.type   = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
-    emitDesc.result = compactedSizeBuffer.getDevicePtr();
-    
-    // ==================================================================
-    // execute build (main stage)
-    // ==================================================================
-    
-    CudaBuffer tempBuffer;
-    tempBuffer.allocate(blasBufferSizes.tempSizeInBytes);
-    
-    CudaBuffer outputBuffer;
-    outputBuffer.allocate(blasBufferSizes.outputSizeInBytes);
-      
-    OPTIX_CHECK(optixAccelBuild(optixContext,
-                                /* stream */0,
-                                &accelOptions,
-                                triangleInput.data(),
-                                (int)numMeshes,
-                                tempBuffer.getDevicePtr(),
-                                tempBuffer.getSize(),
-                                
-                                outputBuffer.getDevicePtr(),
-                                outputBuffer.getSize(),
-                                
-                                &asHandle,
-                                
-                                &emitDesc,1
-                                ));
-    CUDA_SYNC_CHECK();
-    
-    // ==================================================================
-    // perform compaction
-    // ==================================================================
-    uint64_t compactedSize;
-    compactedSizeBuffer.download(&compactedSize,1);
-    
-    asBuffer.allocate(compactedSize);
-    OPTIX_CHECK(optixAccelCompact(optixContext,
-                                  /*stream:*/0,
-                                  asHandle,
-                                  asBuffer.getDevicePtr(),
-                                  asBuffer.getSize(),
-                                  &asHandle));
-    CUDA_SYNC_CHECK();
-    
-    // ==================================================================
-    // aaaaaand .... clean up
-    // ==================================================================
-    //outputBuffer.free(); // << the UNcompacted, temporary output buffer
-    //tempBuffer.free();
-    //compactedSizeBuffer.free();
-    
-    return asHandle;
-  }
-  
-  /*! helper function that initializes optix and checks for errors */
+
+    //auto accelerationStructure = mOptixContext->buildGeometryAccelerationStructure(triangleInput);
+
+      /*
+
+      OptixTraversableHandle asHandle { 0 };
+      OptixAccelBuildOptions accelOptions = {};
+      accelOptions.buildFlags             = OPTIX_BUILD_FLAG_NONE
+        | OPTIX_BUILD_FLAG_ALLOW_COMPACTION
+        ;
+      accelOptions.motionOptions.numKeys  = 1;
+      accelOptions.operation              = OPTIX_BUILD_OPERATION_BUILD;
+
+      OptixAccelBufferSizes blasBufferSizes;
+      OPTIX_CHECK(optixAccelComputeMemoryUsage
+                  (optixContext,
+                   &accelOptions,
+                   triangleInput.data(),
+                   (int)numMeshes,  // num_build_inputs
+                   &blasBufferSizes
+                   ));
+
+      // ==================================================================
+      // prepare compaction
+      // ==================================================================
+
+      CudaBuffer compactedSizeBuffer;
+      compactedSizeBuffer.allocate(sizeof(uint64_t));
+
+      OptixAccelEmitDesc emitDesc;
+      emitDesc.type   = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
+      emitDesc.result = compactedSizeBuffer.getDevicePtr();
+
+      // ==================================================================
+      // execute build (main stage)
+      // ==================================================================
+
+      CudaBuffer tempBuffer;
+      tempBuffer.allocate(blasBufferSizes.tempSizeInBytes);
+
+      CudaBuffer outputBuffer;
+      outputBuffer.allocate(blasBufferSizes.outputSizeInBytes);
+
+      OPTIX_CHECK(optixAccelBuild(optixContext,
+                                  0, // stream
+                                  &accelOptions,
+                                  triangleInput.data(),
+                                  (int)numMeshes,
+                                  tempBuffer.getDevicePtr(),
+                                  tempBuffer.getSize(),
+
+                                  outputBuffer.getDevicePtr(),
+                                  outputBuffer.getSize(),
+
+                                  &asHandle,
+
+                                  &emitDesc,1
+                                  ));
+      CUDA_SYNC_CHECK();
+
+      // ==================================================================
+      // perform compaction
+      // ==================================================================
+      uint64_t compactedSize;
+      compactedSizeBuffer.download(&compactedSize,1);
+
+      asBuffer.allocate(compactedSize);
+      OPTIX_CHECK(optixAccelCompact(optixContext,
+                                    0, // stream
+                                    asHandle,
+                                    asBuffer.getDevicePtr(),
+                                    asBuffer.getSize(),
+                                    &asHandle));
+      CUDA_SYNC_CHECK();
+      */
+
+      // ==================================================================
+      // aaaaaand .... clean up
+      // ==================================================================
+      //outputBuffer.free(); // << the UNcompacted, temporary output buffer
+      //tempBuffer.free();
+      //compactedSizeBuffer.free();
+      auto accelerationStructure = mResourceManager->createAccelerationStructure("root", triangleInput);
+      return accelerationStructure->mHandle;
+    }
+
+    /*! helper function that initializes optix and checks for errors */
   void SampleRenderer::initOptix()
   {
     std::cout << "#osc: initializing optix..." << std::endl;
@@ -716,7 +720,6 @@ namespace osc {
     sbt.hitgroupRecordStrideInBytes = sizeof(HitgroupRecord);
     sbt.hitgroupRecordCount         = (int)hitgroupRecords.size();
 
-
     std::vector<CallableRecord> callableRecordList;
     for (int i = 0; i < callablePGs.size(); ++ i) {
         CallableRecord callableRecord;
@@ -725,7 +728,7 @@ namespace osc {
     }
     callableRecordBuffer.allocateAndUpload(callableRecordList);
     sbt.callablesRecordBase = callableRecordBuffer.getDevicePtr();
-    sbt.callablesRecordStrideInBytes = sizeof(callableRecordList);
+    sbt.callablesRecordStrideInBytes = sizeof(CallableRecord);
     sbt.callablesRecordCount = (int)(callableRecordList.size());
   }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <cuda_runtime.h>
+#include <optix.h>
 #include <optix_stubs.h>
 #include <Exception/SyrinxException.h>
 
@@ -21,5 +22,15 @@
     if (result != OPTIX_SUCCESS) {                                                                                     \
         SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::CUDAError,                                                           \
             "OptiX call [{}] failed with error [{}]", #optixCall, optixGetErrorString(result));                        \
+    }                                                                                                                  \
+}                                                                                                                      \
+
+
+#define SYRINX_CUDA_SYNC_ASSERT()                                                                                      \
+{                                                                                                                      \
+    cudaDeviceSynchronize();                                                                                           \
+    cudaError_t errorCode = cudaGetLastError();                                                                        \
+    if (errorCode != cudaSuccess) {                                                                                    \
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::CUDAError, "CUDA ERROR: [{}]", cudaGetErrorString(errorCode));       \
     }                                                                                                                  \
 }                                                                                                                      \

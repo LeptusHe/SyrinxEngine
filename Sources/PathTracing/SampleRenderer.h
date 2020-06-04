@@ -165,6 +165,7 @@ using Syrinx::CudaBuffer;
     
     //! buffer that keeps the (final, compacted) accel structure
     CudaBuffer asBuffer;
+    Syrinx::AccelerationStructure *mAccelerateStructure = nullptr;
 
     /*! @{ one texture object and pixel array per used texture */
     std::vector<cudaArray_t>         textureArrays;

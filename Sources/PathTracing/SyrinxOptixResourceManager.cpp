@@ -281,6 +281,25 @@ OptixProgramGroup OptixResourceManager::createProgramGroup(const std::string& na
     return programGroup;
 }
 
+AccelerationStructure* OptixResourceManager::createAccelerationStructure(const std::string& name, const std::vector<OptixBuildInput>& buildInputList)
+{
+    SYRINX_EXPECT(!name.empty() && !buildInputList.empty() && !findAccelerationStructure(name));
+
+    if (findAccelerationStructure(name)) {
+        SYRINX_THROW_EXCEPTION_FMT(ExceptionCode::InvalidParams, "create geometry accelerate structure with same name [{}]", name);
+    }
+
+    AccelerationStructure accelerateStructure = mOptixContext->buildAccelerationStructure(buildInputList);
+    auto result = new AccelerationStructure(std::move(accelerateStructure));
+    mAccelerationStructureCache.add(name, result);
+    return result;
+}
+
+AccelerationStructure* OptixResourceManager::findAccelerationStructure(const std::string& name)
+{
+    SYRINX_EXPECT(!name.empty());
+    return mAccelerationStructureCache.find(name);
+}
 
 void OptixResourceManager::destroy(CudaBuffer *buffer)
 {

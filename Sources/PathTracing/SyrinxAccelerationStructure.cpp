@@ -1,9 +1,9 @@
-#include "SyrinxAccelerateStructure.h"
+#include "SyrinxAccelerationStructure.h"
 #include <Common/SyrinxAssert.h>
 
 namespace Syrinx {
 
-AccelerateStructure::AccelerateStructure(AccelerateStructure&& rhs) noexcept
+AccelerationStructure::AccelerationStructure(AccelerationStructure&& rhs) noexcept
     : mHandle(rhs.mHandle)
     , mBuffer(std::move(rhs.mBuffer))
 {

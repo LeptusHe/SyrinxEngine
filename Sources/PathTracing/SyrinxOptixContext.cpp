@@ -61,8 +61,8 @@ void OptixContext::init()
     SYRINX_OPTIX_ASSERT(optixDeviceContextSetLogCallback(mOptixContext, OptixLogCallback, nullptr, 4));
 }
 
-
-AccelerateStructure OptixContext::buildAccelerateStructure(const std::vector<Entity*>& entityList)
+/*
+AccelerationStructure OptixContext::buildAccelerationStructure(const std::vector<Entity*>& entityList)
 {
     std::vector<Entity*> entityListWithRenderer;
     for (const auto entity : entityList) {
@@ -177,9 +177,66 @@ AccelerateStructure OptixContext::buildAccelerateStructure(const std::vector<Ent
     cudaDeviceSynchronize();
     SYRINX_CUDA_ASSERT(cudaGetLastError());
 
-    return AccelerateStructure(traversableHandle, std::move(accelerateStructBuffer));
+    return AccelerationStructure(AccelerationStructure::Type::Geometry, traversableHandle, std::move(accelerateStructBuffer));
 }
+*/
 
+AccelerationStructure OptixContext::buildAccelerationStructure(const std::vector<OptixBuildInput>& buildInputList)
+{
+    OptixAccelBuildOptions buildOptions;
+    buildOptions.buildFlags = OPTIX_BUILD_FLAG_NONE | OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+    buildOptions.motionOptions.numKeys = 1;
+    buildOptions.operation = OPTIX_BUILD_OPERATION_BUILD;
+
+    OptixAccelBufferSizes blasBufferSizes;
+    SYRINX_OPTIX_ASSERT(optixAccelComputeMemoryUsage(mOptixContext,
+                                                     &buildOptions,
+                                                     buildInputList.data(),
+                                                     buildInputList.size(),
+                                                     &blasBufferSizes));
+    CudaBuffer tempBuffer("temp buffer");
+    tempBuffer.allocate(blasBufferSizes.tempSizeInBytes);
+
+    CudaBuffer outputBuffer("output buffer");
+    outputBuffer.allocate(blasBufferSizes.outputSizeInBytes);
+
+    CudaBuffer compactedSizeBuffer("compacted size buffer");
+    compactedSizeBuffer.allocate(sizeof(uint64_t));
+
+    OptixAccelEmitDesc emitDesc;
+    emitDesc.type = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE;
+    emitDesc.result = compactedSizeBuffer.getDevicePtr();
+
+    OptixTraversableHandle traversableHandle;
+    SYRINX_OPTIX_ASSERT(optixAccelBuild(mOptixContext,
+                                        nullptr,
+                                        &buildOptions,
+                                        buildInputList.data(),
+                                        buildInputList.size(),
+                                        tempBuffer.getDevicePtr(),
+                                        tempBuffer.getSize(),
+                                        outputBuffer.getDevicePtr(),
+                                        outputBuffer.getSize(),
+                                        &traversableHandle,
+                                        &emitDesc,
+                                        1));
+    SYRINX_CUDA_SYNC_ASSERT();
+
+    uint64_t compactedSize = 0;
+    compactedSizeBuffer.download(&compactedSize, 1);
+
+    CudaBuffer accelerateStructBuffer("as buffer");
+    accelerateStructBuffer.allocate(compactedSize);
+    SYRINX_OPTIX_ASSERT(optixAccelCompact(mOptixContext,
+                                          nullptr,
+                                          traversableHandle,
+                                          accelerateStructBuffer.getDevicePtr(),
+                                          accelerateStructBuffer.getSize(),
+                                          &traversableHandle))
+    SYRINX_CUDA_SYNC_ASSERT();
+
+    return AccelerationStructure(AccelerationStructure::Type::Geometry , traversableHandle, std::move(accelerateStructBuffer));
+}
 
 OptixModule OptixContext::createModule(const std::string& sourceCode,
                                        const OptixModuleCompileOptions& moduleCompileOptions,

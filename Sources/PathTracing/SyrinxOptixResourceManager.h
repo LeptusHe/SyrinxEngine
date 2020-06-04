@@ -9,6 +9,7 @@
 #include "SyrinxCudaTexture.h"
 #include "SyrinxCudaBuffer.h"
 #include "SyrinxOptixContext.h"
+#include "SyrinxAccelerationStructure.h"
 
 namespace Syrinx {
 
@@ -40,6 +41,7 @@ public:
     using ModuleCache = std::map<std::string, OptixModule>;
     using ProgramGroupCache = std::map<std::string, OptixProgramGroup>;
     using PipelineCache = std::map<std::string, OptixPipeline>;
+    using AccelerationStructureCache = Cache<std::string, AccelerationStructure>;
 
 public:
     explicit OptixResourceManager(OptixContext *optixContext, FileManager *fileManager, std::unique_ptr<ImageReader>&& imageReader = std::make_unique<ImageReader>());
@@ -56,6 +58,8 @@ public:
     virtual OptixProgramGroup findProgramGroup(const std::string& name) const;
     virtual OptixPipeline createPipeline(const std::string& name, const std::vector<OptixProgramGroup>& programGroupList);
     virtual OptixPipeline findPipeline(const std::string& name);
+    virtual AccelerationStructure* createAccelerationStructure(const std::string& name, const std::vector<OptixBuildInput>& buildInputList);
+    virtual AccelerationStructure* findAccelerationStructure(const std::string& name);
     virtual void destroy(CudaBuffer *buffer);
     virtual void destroy(CudaTexture *texture);
 
@@ -75,6 +79,7 @@ private:
     ModuleCache mModuleCache;
     ProgramGroupCache mProgramGroupCache;
     PipelineCache mPipelineCache;
+    AccelerationStructureCache mAccelerationStructureCache;
 
 public:
     OptixModuleCompileOptions moduleCompileOptions;

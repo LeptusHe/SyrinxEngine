@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include <Common/SyrinxSingleton.h>
 #include <Scene/SyrinxEntity.h>
-#include "SyrinxAccelerateStructure.h"
+#include "SyrinxAccelerationStructure.h"
 
 namespace Syrinx {
 
@@ -25,7 +25,7 @@ public:
     OptixPipeline createPipeline(const std::vector<OptixProgramGroup>& programGroupList,
                                  const OptixPipelineCompileOptions& compileOptions,
                                  const OptixPipelineLinkOptions& linkOptions);
-    AccelerateStructure buildAccelerateStructure(const std::vector<Entity*>& entityList);
+    AccelerationStructure buildAccelerationStructure(const std::vector<OptixBuildInput>& buildInputList);
 
 // TODO: private
 public:
