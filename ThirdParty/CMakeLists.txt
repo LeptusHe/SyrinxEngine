@@ -52,7 +52,16 @@ add_subdirectory(glew/build/cmake)
 #add_subdirectory(glm)
 
 # build imgui
-add_subdirectory(imgui)
+add_library(imgui imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_tables.cpp imgui/imgui_widgets.cpp)
+target_link_libraries(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
+
+# build implot
+add_library(implot implot/implot.cpp implot/implot_items.cpp)
+target_include_directories(implot PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/imgui
+        ${CMAKE_CURRENT_SOURCE_DIR}/implot)
+target_link_libraries(implot imgui)
 
 # build lua
 aux_source_directory(lua lua-sources)

@@ -47,3 +47,6 @@
 [submodule "ThirdParty/assimp"]
 	path = ThirdParty/assimp
 	url = git@github.com:assimp/assimp.git
+[submodule "ThirdParty/implot"]
+	path = ThirdParty/implot
+	url = https://github.com/epezent/implot.git
