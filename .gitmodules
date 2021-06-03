@@ -50,3 +50,6 @@
 [submodule "ThirdParty/implot"]
 	path = ThirdParty/implot
 	url = https://github.com/epezent/implot.git
+[submodule "ThirdParty/eigen"]
+	path = ThirdParty/eigen
+	url = https://gitlab.com/libeigen/eigen.git
