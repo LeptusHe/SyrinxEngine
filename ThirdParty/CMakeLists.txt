@@ -21,6 +21,11 @@ set(ENTITYX_DT_TYPE float CACHE STRING "use float type for delta time")
 set(ENTITYX_BUILD_SHARED FALSE CACHE BOOL "build shared library")
 add_subdirectory(entityx)
 
+# build eigen
+option(EIGEN_BUILD_DOC "Enable creation of Eigen documentation" OFF)
+option(BUILD_TESTING "Enable creation of Eigen tests." OFF)
+add_subdirectory(eigen)
+
 # build fmt library
 add_subdirectory(fmt)
 
@@ -52,11 +57,11 @@ add_subdirectory(glew/build/cmake)
 #add_subdirectory(glm)
 
 # build imgui
-add_library(imgui imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_tables.cpp imgui/imgui_widgets.cpp)
-target_link_libraries(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
+add_library(imgui imgui/imgui.cpp imgui/imgui_draw.cpp imgui/imgui_tables.cpp imgui/imgui_widgets.cpp imgui/imgui_demo.cpp)
+target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/imgui)
 
 # build implot
-add_library(implot implot/implot.cpp implot/implot_items.cpp)
+add_library(implot implot/implot.cpp implot/implot_items.cpp implot/implot_demo.cpp)
 target_include_directories(implot PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/imgui
@@ -94,6 +99,7 @@ set(assimp-headers ${root_dir}/assimp/include)
 set(better-enums-headers ${root_dir})
 set(cxxopts-headers ${root_dir}/cxxopts/include)
 set(entityx-headers ${root_dir}/entityx)
+set(eigen-headers ${root_dir}/eigen)
 set(fmt-headers ${root_dir}/fmt/include)
 set(gmock-headers ${root_dir}/googletest/googlemock/include)
 set(glew-headers ${root_dir}/glew/include)
@@ -114,6 +120,7 @@ list(APPEND third_party_headers
         ${better-enums-headers}
         ${cxxopts-headers}
         ${entityx-headers}
+        ${eigen-headers}
         ${fmt-headers}
         ${gmock-headers}
         ${glew-headers}

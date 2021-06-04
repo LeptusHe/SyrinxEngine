@@ -16,6 +16,7 @@ Gui::Gui(FileManager *fileManager, ShaderManager *shaderManager, HardwareResourc
 
 Gui::~Gui()
 {
+    ImPlot::DestroyContext();
     ImGui::DestroyContext();
 }
 
@@ -23,6 +24,8 @@ Gui::~Gui()
 void Gui::init()
 {
     ImGui::CreateContext();
+    ImPlot::CreateContext();
+
     ImGui::StyleColorsDark();
     mapKey();
     ImGui::GetIO().IniFilename = nullptr;

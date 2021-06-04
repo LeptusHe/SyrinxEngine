@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <imgui/imgui.h>
+#include <implot/implot.h>
 #include <Input/SyrinxInput.h>
 #include <Graphics/SyrinxRenderState.h>
 #include <Graphics/SyrinxRenderContext.h>

@@ -20,7 +20,7 @@ std::pair<bool, std::string> FileDialog::open(const std::string& title, float wi
 
     setDirectory(directory);
     bool isOpen = true;
-    ImGui::Begin(title.c_str(), &isOpen, ImVec2(width, height));
+    ImGui::Begin(title.c_str(), &isOpen);
     auto fileNames = splitDirectory(mDirectory);
     for (size_t i = 0; i < fileNames.size(); ++ i) {
         if (i != 0) {
