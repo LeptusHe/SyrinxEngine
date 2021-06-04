@@ -25,7 +25,7 @@
 	url = https://github.com/zeux/pugixml.git
 [submodule "ThirdParty/entityx"]
 	path = ThirdParty/entityx
-	url = git@github.com:alecthomas/entityx.git
+	url = https://github.com/alecthomas/entityx.git
 [submodule "ThirdParty/cxxopts"]
 	path = ThirdParty/cxxopts
 	url = https://github.com/jarro2783/cxxopts.git
@@ -40,13 +40,13 @@
 	url = https://github.com/ThePhD/sol2.git
 [submodule "ThirdParty/shaderc"]
 	path = ThirdParty/shaderc
-	url = git@github.com:google/shaderc.git
+	url = https://github.com/google/shaderc.git
 [submodule "ThirdParty/glm"]
 	path = ThirdParty/glm
-	url = git@github.com:g-truc/glm.git
+	url = https://github.com/g-truc/glm.git
 [submodule "ThirdParty/assimp"]
 	path = ThirdParty/assimp
-	url = git@github.com:assimp/assimp.git
+	url = https://github.com/assimp/assimp.git
 [submodule "ThirdParty/implot"]
 	path = ThirdParty/implot
 	url = https://github.com/epezent/implot.git
