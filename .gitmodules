@@ -53,3 +53,6 @@
 [submodule "ThirdParty/eigen"]
 	path = ThirdParty/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+[submodule "ThirdParty/glew"]
+	path = ThirdParty/glew
+	url = https://github.com/nigels-com/glew.git
