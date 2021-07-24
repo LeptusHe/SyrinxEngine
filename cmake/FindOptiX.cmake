@@ -36,6 +36,7 @@ if (WIN32)
 		NAME "include/optix.h"
 		PATHS
         ${USER_OPTIX_INSTALL_DIR}
+        "C:/ProgramData/NVIDIA Corporation/OptiX SDK 7.1.0"
 		"C:/ProgramData/NVIDIA Corporation/OptiX SDK 7.0.0"
 		"C:/ProgramData/NVIDIA Corporation/OptiX SDK 6.5.0"
 		"C:/ProgramData/NVIDIA Corporation/OptiX SDK 6.0.0"
