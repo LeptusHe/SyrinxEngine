@@ -5,7 +5,7 @@ shader = {
     fragment_program = {
         file = "syrinx-display-fragment-attribute.frag",
         predefined_macros = {
-            { macro = "SYRINX_DISPLAY_WORLD_POSITION", value = ""}
+            { macro = "SYRINX_DISPLAY_WORLD_NORMAL", value = ""}
         }
     }
 }
