@@ -1,42 +1,15 @@
 #include <Logging/SyrinxLogManager.h>
 #include <Pipeline/SyrinxEngine.h>
-#include <Pipeline/SyrinxDisplayDevice.h>
-#include <GUI/SyrinxGui.h>
-#include <Eigen/Eigen/Eigen>
 
-Eigen::VectorXf Interpolation(std::vector<Eigen::Vector2f> points)
+#include "PolynomialInterpolation.h"
+#include "GaussianInterpolation.h"
+#include "PolynomialFitting.h"
+
+
+void DrawPoints(const std::vector<Eigen::Vector2d>& points)
 {
-    int n = points.size();
-
-    // Ax=y
-    Eigen::MatrixXf A = Eigen::MatrixXf::Zero(n, n);
-    Eigen::VectorXf y = Eigen::VectorXf::Zero(n);
-
-    for (int i = 0; i < n; ++ i) {
-        const auto& p = points[i];
-        for (int j = 0; j < n; ++ j) {
-            A(i, j) = std::powf(p.x(), static_cast<float>(j));
-        }
-        y(i) = p.y();
-    }
-    return A.inverse() * y;
-}
-
-
-float Poly(float* factors, int num, float x)
-{
-    float result = 0;
-    for (int i = 0; i < num; ++ i) {
-        result += factors[i] * std::powf(x, i);
-    }
-    return result;
-}
-
-
-void DrawPoints(const std::vector<Eigen::Vector2f>& points)
-{
-    float *x = new float[points.size()];
-    float *y = new float[points.size()];
+    auto *x = new double[points.size()];
+    auto *y = new double[points.size()];
 
     for (int i = 0; i < points.size(); ++ i) {
         x[i] = points[i].x();
@@ -47,16 +20,18 @@ void DrawPoints(const std::vector<Eigen::Vector2f>& points)
 }
 
 
-
 int main(int argc, char *argv[])
 {
+    const int width = 1600;
+    const int height = 800;
+
     auto logManager = std::make_unique<Syrinx::LogManager>();
     Syrinx::DisplayDevice displayDevice;
 
     displayDevice.setMajorVersionNumber(4);
     displayDevice.setMinorVersionNumber(6);
     displayDevice.setDebugMessageHandler(Syrinx::DefaultDebugHandler);
-    auto renderWindow = displayDevice.createWindow("GUI Render Sample", 800, 600);
+    auto renderWindow = displayDevice.createWindow("GUI Render Sample", width, height);
 
     Syrinx::FileManager fileManager;
     Syrinx::HardwareResourceManager hardwareResourceManager;
@@ -72,10 +47,25 @@ int main(int argc, char *argv[])
 
     Syrinx::Input input(renderWindow->fetchWindowHandle());
 
-    std::vector<Eigen::Vector2f> points;
+    std::vector<Eigen::Vector2d> points;
 
     bool solved = false;
-    Eigen::VectorXf result;
+    Eigen::VectorXd result;
+
+    float sigma = 1.0f;
+    float lambda = 1.0f;
+
+    auto *polynomialInterpolation = new PolynomialInterpolation();
+    auto *polynomialFitting = new PolynomialFitting(0.0f);
+    auto *ridgeRegressionFitting = new PolynomialFitting(1.0f);
+    auto *gaussianInterpolation = new GaussianInterpolation();
+
+    std::vector<INumericalMethod*> methods{polynomialInterpolation, gaussianInterpolation, polynomialFitting, ridgeRegressionFitting};
+    std::vector<std::string> methodNames = {
+            "Polynomial Interpolation",
+            "Gaussian Interpolation",
+            "Polynomial Fitting",
+            "Ridge Regression"};
 
     Syrinx::RenderContext renderContext;
     gui.addFont("SourceCodePro-Black", "SourceCodePro-Black.ttf");
@@ -89,14 +79,19 @@ int main(int argc, char *argv[])
         auto activeFont = gui.getActiveFont();
         ImGui::PushFont(activeFont);
 
-        ImGui::Begin("Text");
-        ImVec4 color = ImVec4(1.0, 0.0, 0.0, 1.0);
-        ImGui::TextColored(color, "Colored Text");
-        ImGui::Text("Syrinx GUI Render Sample");
-        static bool show = false;
+        ImGui::Begin("Windows");
+        ImGui::SliderFloat("Sigma", &sigma, 0.0, 100.0f);
+        ImGui::Spacing();
 
-        if (ImPlot::BeginPlot("Plot")) {
-            bool hovered = ImPlot::IsPlotHovered();
+        ImGui::SliderFloat("Lambda", &lambda, 0.0, 10.0);
+        ImGui::Spacing();
+
+        gaussianInterpolation->SetSigma(sigma);
+        ridgeRegressionFitting->SetLambda(lambda);
+
+        static bool show = false;
+        const auto axisFlags = ImPlotAxisFlags_Lock;
+        if (ImPlot::BeginPlot("Plot", nullptr, nullptr, ImVec2(width / 2.0f, height / 2.0f), ImPlotFlags_None, axisFlags, axisFlags)) {
             bool mouseClicked = ImGui::IsMouseDoubleClicked(0);
             bool keyPressed = ImGui::GetIO().KeyCtrl;
 
@@ -110,7 +105,7 @@ int main(int argc, char *argv[])
 
             if (ImPlot::IsPlotHovered() && ImGui::IsMouseDoubleClicked(0)) {
                 ImPlotPoint p = ImPlot::GetPlotMousePos();
-                points.push_back(Eigen::Vector2f(p.x, p.y));
+                points.emplace_back(p.x, p.y);
                 SYRINX_INFO_FMT("x= {}, y={}", p.x, p.y);
             }
             DrawPoints(points);
@@ -118,23 +113,37 @@ int main(int argc, char *argv[])
             if (solved) {
                 int count = 20;
 
-                float *x = new float[count];
-                float *y = new float[count];
-                for (int i = 0; i < count; ++ i) {
-                    x[i] = 0 + i * 1 / static_cast<float>(count);
-                    y[i] = Poly(result.data(), result.size(), x[i]);
+                auto x = new double[count];
+                std::vector<double*> results;
+                for (int methodIndex = 0; methodIndex < methods.size(); ++ methodIndex) {
+                    auto y = new double[count];
+                    results.push_back(y);
                 }
 
-                ImPlot::PlotLine("y", x, y, count);
+                for (int i = 0; i < count; ++ i) {
+                    x[i] = 0 + i * 1 / static_cast<double>(count);
+
+                    for (int methodIndex = 0; methodIndex < methods.size(); ++ methodIndex) {
+                        results[methodIndex][i] = methods[methodIndex]->F(x[i]);
+                    }
+                }
+
+                for (int i = 0; i < methodNames.size(); ++ i) {
+                    const auto& methodName = methodNames[i];
+                    ImPlot::PlotLine(methodName.c_str(), x, results[i], count);
+                }
             }
             ImPlot::EndPlot();
         }
 
-        if (ImGui::Button("Interploate")) {
-            result = Interpolation(points);
+        if (ImGui::Button("Calculation")) {
+            for (auto method : methods) {
+                method->Solve(points);
+            }
             solved = true;
         }
 
+        ImGui::Spacing();
         if (ImGui::Button("Clear")) {
             solved = false;
             points.clear();

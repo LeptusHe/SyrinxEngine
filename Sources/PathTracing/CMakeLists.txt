@@ -12,9 +12,9 @@ foreach(dir ${source_dirs})
 endforeach()
 
 if (NOT ${searched_OptiX_INSTALL_DIR-NOTFOUND})
-	message(ERROR "fail to find Optix include dir")
+    message(ERROR "fail to find Optix include dir")
 else()
-	message(STATUS "Optix Include Dir: " ${OptiX_INCLUDE})
+    message(STATUS "Optix Include Dir: " ${OptiX_INCLUDE})
 endif()
 
 list(APPEND include_dirs
