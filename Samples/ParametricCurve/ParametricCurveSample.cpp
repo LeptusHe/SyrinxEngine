@@ -57,7 +57,9 @@ int main(int argc, char *argv[])
     ParametrizationMethod method = ParametrizationMethod::Chordal;
     const char* methodName[] = {"Uniform", "Chordal"};
 
-    ParametricCurve parametricCurve(0.0f);
+    auto uniformParametricCurve = new ParametricCurve(ParametrizationMethod::Uniform, 0.0f);
+    auto chordalParametricCurve = new ParametricCurve(ParametrizationMethod::Chordal, 0.0f);
+    std::vector<ParametricCurve*> parametricCurveList = {uniformParametricCurve, chordalParametricCurve};
 
     Syrinx::RenderContext renderContext;
     gui.addFont("SourceCodePro-Black", "SourceCodePro-Black.ttf");
@@ -77,14 +79,16 @@ int main(int argc, char *argv[])
         if (ImGui::Combo("Parametrization Method", &item, methodName, static_cast<int>(ParametrizationMethod::Count))) {
             method = static_cast<ParametrizationMethod>(item);
             if (solved) {
-                parametricCurve.Solve(points, method);
+                //parametricCurve.Solve(points, method);
             }
         }
 
         if (ImGui::SliderFloat("Lambda", &lambda, 0.0, 1.0)) {
-            parametricCurve = ParametricCurve(lambda);
-            if (solved) {
-                parametricCurve.Solve(points, method);
+            for (int i = 0; i < parametricCurveList.size(); ++ i) {
+                parametricCurveList[i]->SetLambda(lambda);
+                if (solved) {
+                    parametricCurveList[i]->Solve(points);
+                }
             }
         }
         ImGui::Spacing();
@@ -111,23 +115,28 @@ int main(int argc, char *argv[])
             DrawPoints(points);
 
             if (solved) {
-                int count = 50;
+                for (int methodIndex = 0; methodIndex < parametricCurveList.size(); ++ methodIndex) {
+                    auto parametricCurve = parametricCurveList[methodIndex];
 
-                auto x = new double[count];
-                auto y = new double[count];
-                for (int i = 0; i <= count; ++ i) {
-                    double t = 0 + i * 1 / static_cast<double>(count);
-                    auto pos = parametricCurve.F(t);
-                    x[i] = pos.x();
-                    y[i] = pos.y();
+                    int count = 100;
+                    auto x = new double[count];
+                    auto y = new double[count];
+                    for (int i = 0; i < count; ++i) {
+                        double t = 0 + i * 1 / static_cast<double>(count - 1);
+                        auto pos = parametricCurve->F(t);
+                        x[i] = pos.x();
+                        y[i] = pos.y();
+                    }
+                    ImPlot::PlotLine(methodName[methodIndex], x, y, count);
                 }
-                ImPlot::PlotLine("parametric curve", x, y, count);
             }
             ImPlot::EndPlot();
         }
 
-        if (ImGui::Button("Calculation")) {
-            parametricCurve.Solve(points, ParametrizationMethod::Chordal);
+        if (points.size() > 1) {
+            for (const auto parametricCurve : parametricCurveList) {
+                parametricCurve->Solve(points);
+            }
             solved = true;
         }
 

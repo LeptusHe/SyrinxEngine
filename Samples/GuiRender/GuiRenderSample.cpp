@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
             ImPlot::EndPlot();
         }
 
-        if (ImGui::Button("Calculation")) {
+        if (points.size() > 1 || ImGui::Button("Calculation")) {
             for (auto method : methods) {
                 method->Solve(points);
             }
