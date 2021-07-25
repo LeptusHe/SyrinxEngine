@@ -80,10 +80,16 @@ int main(int argc, char *argv[])
         ImGui::PushFont(activeFont);
 
         ImGui::Begin("Windows");
-        ImGui::SliderFloat("Sigma", &sigma, 0.0, 100.0f);
+        ImGui::SliderFloat("Sigma", &sigma, 0.0, 1.0f);
         ImGui::Spacing();
 
-        ImGui::SliderFloat("Lambda", &lambda, 0.0, 10.0);
+        if (ImGui::SliderFloat("Lambda", &lambda, 0.0, 1.0)) {
+            if (solved) {
+                ridgeRegressionFitting = new PolynomialFitting(lambda);
+                ridgeRegressionFitting->Solve(points);
+                methods[3] = ridgeRegressionFitting;
+            }
+        }
         ImGui::Spacing();
 
         gaussianInterpolation->SetSigma(sigma);
