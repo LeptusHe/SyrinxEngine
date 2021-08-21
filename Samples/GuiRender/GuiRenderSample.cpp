@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
             DrawPoints(points);
 
             if (solved) {
-                int count = 20;
+                int count = 100;
 
                 auto x = new double[count];
                 std::vector<double*> results;

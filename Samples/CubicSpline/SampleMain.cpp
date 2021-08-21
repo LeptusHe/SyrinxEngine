@@ -1,13 +1,13 @@
 #include <Logging/SyrinxLogManager.h>
 #include <Pipeline/SyrinxEngine.h>
 
+#include "CubicSplineInterpolation.h"
 #include "PolynomialInterpolation.h"
-#include "GaussianInterpolation.h"
 #include "PolynomialFitting.h"
 #include "ParametricCurve.h"
 
 
-void DrawPoints(const std::vector<Eigen::Vector2d>& points)
+void DrawPointsAndLines(const std::vector<Eigen::Vector2d>& points, bool drawLine = false)
 {
     auto *x = new double[points.size()];
     auto *y = new double[points.size()];
@@ -18,6 +18,12 @@ void DrawPoints(const std::vector<Eigen::Vector2d>& points)
     }
 
     ImPlot::PlotScatter("points", x, y, points.size());
+    if (drawLine) {
+        ImPlot::PlotLine("line", x, y, points.size());
+    }
+
+    delete[] x;
+    delete[] y;
 }
 
 
@@ -55,11 +61,29 @@ int main(int argc, char *argv[])
 
     float lambda = 1.0f;
     ParametrizationMethod method = ParametrizationMethod::Chordal;
-    const char* methodName[] = {"Uniform", "Chordal"};
+    const char* methodName[] = {
+            "Uniform-Polynomial",
+            "Uniform-CubicSpline",
+            "Uniform-BezierCurve",
+            "Chordal-Polynomial",
+            "Chordal-CubicSpline",
+            "Chordal-BezierCurve"
+    };
 
-    auto uniformParametricCurve = new ParametricCurve(ParametrizationMethod::Uniform, 0.0f);
-    auto chordalParametricCurve = new ParametricCurve(ParametrizationMethod::Chordal, 0.0f);
-    std::vector<ParametricCurve*> parametricCurveList = {uniformParametricCurve, chordalParametricCurve};
+    auto uniformPolynomialParametricCurve = new ParametricCurve(ParametrizationMethod::Uniform, FittingMethod::PolynomialFitting, 0.0f);
+    auto uniformCubicSplineParametricCurve = new ParametricCurve(ParametrizationMethod::Uniform, FittingMethod::CubicSpline, 0.0f);
+    auto uniformBezierParametricCurve = new ParametricCurve(ParametrizationMethod::Chordal, FittingMethod::BezierCurve, 0.0f);
+    auto chordalPolynomialParametricCurve = new ParametricCurve(ParametrizationMethod::Uniform, FittingMethod::PolynomialFitting, 0.0f);
+    auto chordalCubicSplineParametricCurve = new ParametricCurve(ParametrizationMethod::Chordal, FittingMethod::CubicSpline, 0.0f);
+    auto chordalBezierParametricCurve = new ParametricCurve(ParametrizationMethod::Chordal, FittingMethod::BezierCurve, 0.0f);
+    std::vector<ParametricCurve*> parametricCurveList = {
+            uniformPolynomialParametricCurve,
+            uniformCubicSplineParametricCurve,
+            uniformBezierParametricCurve,
+            chordalPolynomialParametricCurve,
+            chordalCubicSplineParametricCurve,
+            chordalBezierParametricCurve
+    };
 
     Syrinx::RenderContext renderContext;
     gui.addFont("SourceCodePro-Black", "SourceCodePro-Black.ttf");
@@ -78,16 +102,13 @@ int main(int argc, char *argv[])
         int item = static_cast<int>(method);
         if (ImGui::Combo("Parametrization Method", &item, methodName, static_cast<int>(ParametrizationMethod::Count))) {
             method = static_cast<ParametrizationMethod>(item);
-            if (solved) {
-                //parametricCurve.Solve(points, method);
-            }
         }
 
         if (ImGui::SliderFloat("Lambda", &lambda, 0.0, 1.0)) {
-            for (int i = 0; i < parametricCurveList.size(); ++ i) {
-                parametricCurveList[i]->SetLambda(lambda);
+            for (auto parametricCurve : parametricCurveList) {
+                parametricCurve->SetLambda(lambda);
                 if (solved) {
-                    parametricCurveList[i]->Solve(points);
+                    parametricCurve->Solve(points);
                 }
             }
         }
@@ -95,24 +116,13 @@ int main(int argc, char *argv[])
 
         static bool show = false;
         const auto axisFlags = ImPlotAxisFlags_Lock;
-        if (ImPlot::BeginPlot("Plot", nullptr, nullptr, ImVec2(width / 2.0f, height / 2.0f), ImPlotFlags_None, axisFlags, axisFlags)) {
-            bool mouseClicked = ImGui::IsMouseDoubleClicked(0);
-            bool keyPressed = ImGui::GetIO().KeyCtrl;
-
-            if (mouseClicked) {
-                SYRINX_INFO("mouse pressed");
-            }
-
-            if (keyPressed) {
-                SYRINX_INFO("key pressed");
-            }
-
+        if (ImPlot::BeginPlot("Plot", nullptr, nullptr, ImVec2(width / 1.5f, height / 1.5f), ImPlotFlags_None, axisFlags, axisFlags)) {
             if (ImPlot::IsPlotHovered() && ImGui::IsMouseDoubleClicked(0)) {
                 ImPlotPoint p = ImPlot::GetPlotMousePos();
                 points.emplace_back(p.x, p.y);
                 SYRINX_INFO_FMT("x= {}, y={}", p.x, p.y);
             }
-            DrawPoints(points);
+            DrawPointsAndLines(points, true);
 
             if (solved) {
                 for (int methodIndex = 0; methodIndex < parametricCurveList.size(); ++ methodIndex) {
@@ -133,7 +143,7 @@ int main(int argc, char *argv[])
             ImPlot::EndPlot();
         }
 
-        if (points.size() > 1) {
+        if (points.size() >= 2) {
             for (const auto parametricCurve : parametricCurveList) {
                 parametricCurve->Solve(points);
             }
