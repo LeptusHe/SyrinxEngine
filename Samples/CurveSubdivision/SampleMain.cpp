@@ -5,24 +5,30 @@
 #include "PolynomialInterpolation.h"
 #include "PolynomialFitting.h"
 #include "ParametricCurve.h"
-#include "ChaikinSubdivison.h"
+#include "ChaikinSubdivision.h"
 #include "UniformCubicSplineSubdivision.h"
 #include "InterpolationSubdivision.h"
 
 
 void DrawPointsAndLines(const std::vector<Eigen::Vector2d>& points, bool drawLine = false)
 {
-    auto *x = new double[points.size()];
-    auto *y = new double[points.size()];
+    if (points.empty())
+        return;
 
-    for (int i = 0; i < points.size(); ++ i) {
-        x[i] = points[i].x();
-        y[i] = points[i].y();
+    int pointCount = static_cast<int>(points.size());
+    int count = pointCount + 1;
+
+    auto *x = new double[count];
+    auto *y = new double[count];
+
+    for (int i = 0; i < count; ++ i) {
+        x[i] = points[i % pointCount].x();
+        y[i] = points[i % pointCount].y();
     }
 
-    ImPlot::PlotScatter("points", x, y, points.size());
+    ImPlot::PlotScatter("points", x, y, count);
     if (drawLine) {
-        ImPlot::PlotLine("line", x, y, points.size());
+        ImPlot::PlotLine("line", x, y, count);
     }
 
     delete[] x;
@@ -32,8 +38,8 @@ void DrawPointsAndLines(const std::vector<Eigen::Vector2d>& points, bool drawLin
 
 int main(int argc, char *argv[])
 {
-    const int width = 1600 * 2;
-    const int height = 800 * 2;
+    const int width = 1600;
+    const int height = 800;
 
     auto logManager = std::make_unique<Syrinx::LogManager>();
     Syrinx::DisplayDevice displayDevice;
@@ -62,6 +68,7 @@ int main(int argc, char *argv[])
     bool solved = false;
     Eigen::VectorXd result;
 
+    bool enableInterpolationMethod = false;
     float lambda = 1.0f;
     ParametrizationMethod method = ParametrizationMethod::Chordal;
     const char* methodName[] = {
@@ -91,7 +98,7 @@ int main(int argc, char *argv[])
 
     int subdivisionTimes = 1;
     float alpha = 0.1;
-    ChaikinSubdivison chaikinSubdivison;
+    ChaikinSubdivision chaikinSubdivision;
     UniformCubicSplineSubdivision uniformCubicSplineSubdivision;
     InterpolationSubdivision interpolationSubdivision;
 
@@ -108,6 +115,7 @@ int main(int argc, char *argv[])
         ImGui::PushFont(activeFont);
 
         ImGui::Begin("Windows");
+        ImGui::Checkbox("Enable Interpolation Method", &enableInterpolationMethod);
 
         int item = static_cast<int>(method);
         if (ImGui::Combo("Parametrization Method", &item, methodName, static_cast<int>(ParametrizationMethod::Count))) {
@@ -141,6 +149,9 @@ int main(int argc, char *argv[])
                 for (int methodIndex = 0; methodIndex < parametricCurveList.size(); ++ methodIndex) {
                     auto parametricCurve = parametricCurveList[methodIndex];
 
+                    if (!enableInterpolationMethod)
+                        continue;
+
                     int count = 500;
                     auto x = new double[count];
                     auto y = new double[count];
@@ -153,14 +164,17 @@ int main(int argc, char *argv[])
                     ImPlot::PlotLine(methodName[methodIndex], x, y, count);
                 }
 
-                chaikinSubdivison.Execute(points, subdivisionTimes);
-                chaikinSubdivison.DrawPlotLine();
+                chaikinSubdivision.Execute(points, subdivisionTimes);
+                chaikinSubdivision.DrawPlotLine();
+                chaikinSubdivision.DrawPoints();
 
-                uniformCubicSplineSubdivision.ExecuteS(points, subdivisionTimes);
+                uniformCubicSplineSubdivision.Execute(points, subdivisionTimes);
                 uniformCubicSplineSubdivision.DrawPlotLine();
+                uniformCubicSplineSubdivision.DrawPoints();
 
                 interpolationSubdivision.Execute(points, alpha, subdivisionTimes);
                 interpolationSubdivision.DrawPlotLine();
+                interpolationSubdivision.DrawPoints();
             }
             ImPlot::EndPlot();
         }

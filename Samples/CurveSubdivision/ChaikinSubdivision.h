@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Eigen/Eigen>
+#include "SubdivisionMethod.h"
 
-class ChaikinSubdivison {
+class ChaikinSubdivision : public ISubdivisionMethod {
 public:
     bool Execute(const std::vector<Eigen::Vector2d>& points, int times = 1)
     {
@@ -18,27 +18,14 @@ public:
         return true;
     }
 
-    const std::vector<Eigen::Vector2d>& GetPoints()
-    {
-        return mPoints;
-    }
-
-    void DrawPlotLine()
-    {
-        const auto& points = GetPoints();
-
-        const auto pointCount = points.size() + 1;
-        auto x = new double[pointCount];
-        auto y = new double[pointCount];
-        for (int i = 0; i < pointCount; ++i) {
-            x[i] = points[i % points.size()].x();
-            y[i] = points[i % points.size()].y();
-        }
-        ImPlot::PlotLine("Chaikin Subdivision", x, y, pointCount);
-    }
 
 private:
-    std::vector<Eigen::Vector2d> Subdivision(const std::vector<Eigen::Vector2d>& points)
+    std::string GetMethodName() override
+    {
+        return "Chaikin";
+    }
+
+    static std::vector<Eigen::Vector2d> Subdivision(const std::vector<Eigen::Vector2d>& points)
     {
         std::vector<Eigen::Vector2d> result;
 
@@ -56,15 +43,4 @@ private:
         }
         return result;
     }
-
-    int GetIndex(int index, int pointCount)
-    {
-        while (index < 0) {
-            index += pointCount;
-        }
-        return index % pointCount;
-    }
-
-private:
-    std::vector<Eigen::Vector2d> mPoints;
 };

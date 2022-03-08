@@ -1,12 +1,10 @@
 #pragma once
 
-#include <vector>
-#include <Eigen/Eigen>
-#include <implot/implot.h>
+#include "SubdivisionMethod.h"
 
-class UniformCubicSplineSubdivision {
+class UniformCubicSplineSubdivision : public ISubdivisionMethod {
 public:
-    bool ExecuteS(std::vector<Eigen::Vector2d>& points, int times = 1)
+    bool Execute(std::vector<Eigen::Vector2d>& points, int times = 1)
     {
         mPoints = points;
 
@@ -20,31 +18,17 @@ public:
         return true;
     }
 
-    const std::vector<Eigen::Vector2d>& GetPoints()
-    {
-        return mPoints;
-    }
-
-    void DrawPlotLine()
-    {
-        const auto& points = GetPoints();
-
-        const auto pointCount = points.size() + 1;
-        auto x = new double[pointCount];
-        auto y = new double[pointCount];
-        for (int i = 0; i < pointCount; ++i) {
-            x[i] = points[i % points.size()].x();
-            y[i] = points[i % points.size()].y();
-        }
-        ImPlot::PlotLine("Subdivision-Uniform Cubic Spline", x, y, pointCount);
-    }
-
 private:
-    std::vector<Eigen::Vector2d> Subdivision(std::vector<Eigen::Vector2d>& points)
+    std::string GetMethodName() override
+    {
+        return "Uniform Cubic Spline";
+    }
+
+    static std::vector<Eigen::Vector2d> Subdivision(std::vector<Eigen::Vector2d>& points)
     {
         std::vector<Eigen::Vector2d> result;
 
-        const int pointCount = points.size();
+        const int pointCount = static_cast<int>(points.size());
         for (int i = 0; i < pointCount; ++ i) {
             auto lhs = 1.0 / 8.0 * points[GetIndex(i - 1, pointCount)] +
                                           3.0 / 4.0 * points[GetIndex(i, pointCount)] +
@@ -56,15 +40,4 @@ private:
         }
         return result;
     }
-
-    int GetIndex(int index, int pointCount)
-    {
-        while (index < 0) {
-            index += pointCount;
-        }
-        return index % pointCount;
-    }
-
-private:
-    std::vector<Eigen::Vector2d> mPoints;
 };

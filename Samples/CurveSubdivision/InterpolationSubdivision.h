@@ -1,10 +1,8 @@
 #pragma once
 
-#include <vector>
-#include <Eigen/Eigen>
-#include <implot/implot.h>
+#include "SubdivisionMethod.h"
 
-class InterpolationSubdivision {
+class InterpolationSubdivision : public ISubdivisionMethod {
 public:
     bool Execute(std::vector<Eigen::Vector2d>& points, float alpha, int times = 1)
     {
@@ -20,32 +18,18 @@ public:
         return true;
     }
 
-    const std::vector<Eigen::Vector2d>& GetPoints()
-    {
-        return mPoints;
-    }
-
-    void DrawPlotLine()
-    {
-        const auto& points = GetPoints();
-
-        const auto pointCount = points.size() + 1;
-        auto x = new double[pointCount];
-        auto y = new double[pointCount];
-        for (int i = 0; i < pointCount; ++i) {
-            x[i] = points[i % points.size()].x();
-            y[i] = points[i % points.size()].y();
-        }
-        ImPlot::PlotLine("Subdivision-Interpolation", x, y, pointCount);
-    }
-
 private:
-    std::vector<Eigen::Vector2d> Subdivision(std::vector<Eigen::Vector2d>& points, float alpha)
+    std::string GetMethodName() override
+    {
+        return "Interpolation";
+    }
+
+    static std::vector<Eigen::Vector2d> Subdivision(std::vector<Eigen::Vector2d>& points, float alpha)
     {
         std::vector<Eigen::Vector2d> result;
 
-        const int pointCount = points.size();
-        for (int i = 0; i < pointCount - 1; ++ i) {
+        const int pointCount = static_cast<int>(points.size());
+        for (int i = 0; i < pointCount; ++ i) {
             const auto& p0 = points[GetIndex(i - 1, pointCount)];
             const auto& p1 = points[GetIndex(i + 0, pointCount)];
             const auto& p2 = points[GetIndex(i + 1, pointCount)];
@@ -58,15 +42,4 @@ private:
         }
         return result;
     }
-
-    int GetIndex(int index, int pointCount)
-    {
-        while (index < 0) {
-            index += pointCount;
-        }
-        return index % pointCount;
-    }
-
-private:
-    std::vector<Eigen::Vector2d> mPoints;
 };
