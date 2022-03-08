@@ -35,6 +35,7 @@ add_subdirectory(RenderPipeline)
 add_subdirectory(TextureMipMap)
 add_subdirectory(SPIRVReflection)
 add_subdirectory(GuiRender)
+add_subdirectory(CurveSubdivision)
 
 
 add_custom_target(AllSamples)
